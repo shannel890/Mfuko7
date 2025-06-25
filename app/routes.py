@@ -1,17 +1,17 @@
-from flask import Blueprint, render_template, request, flash, current_app
-from flask_security import auth_required, roles_accepted, current_user
+from flask import Blueprint, render_template, request, flash, current_app,redirect, url_for
+from flask_security import auth_required, roles_accepted, current_user,login_required, roles_required
 from datetime import datetime, timedelta
 from app.models import Property, Tenant, Payment
 from flask_babel import lazy_gettext as _l
 from app.extensions import db
 from sqlalchemy import func
-
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm
 main = Blueprint('main', __name__)
 
 @main.route('/')
 @auth_required()
 def index():
-    return render_template('index.html')
+    return render_template('main/index.html')
 
 
 @main.route('/admin')
@@ -158,3 +158,142 @@ def dashboard():
         flash(_l('Error loading dashboard data. Please try again later.'), 'danger')
 
     return render_template('dashboard.html', metrics=metrics, recent_payments=recent_payments)
+
+# --- Properties Routes ---
+@main.route('/properties')
+@login_required
+@roles_required('landlord')
+def properties_list():
+    properties = Property.query.filter_by(landlord_id=current_user.id).all()
+    return render_template('properties/list.html', properties=properties)
+
+@main.route('/properties/add', methods=['GET', 'POST'])
+@login_required
+@roles_required('landlord')
+def property_add():
+    form = PropertyForm()
+    if form.validate_on_submit():
+        property = Property(
+            name=form.name.data,
+            address=form.address.data,
+            property_type=form.property_type.data,
+            number_of_units=form.number_of_units.data,
+            landlord_id=current_user.id
+        )
+        db.session.add(property)
+        db.session.commit()
+        flash(_l('Property added successfully.'), 'success')
+        return redirect(url_for('main.properties_list'))
+    return render_template('properties/add_edit.html', form=form, edit=False)
+
+@main.route('/properties/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@roles_required('landlord')
+def property_edit(id):
+    property = Property.query.get_or_404(id)
+    # Ensure the landlord owns this property
+    if property.landlord_id != current_user.id:
+        flash(_l('Access denied.'), 'danger')
+        return redirect(url_for('main.properties_list'))
+    form = PropertyForm(obj=property)
+    if form.validate_on_submit():
+        property.name = form.name.data
+        property.address = form.address.data
+        property.property_type = form.property_type.data
+        property.number_of_units = form.number_of_units.data
+        db.session.commit()
+        flash(_l('Property updated successfully.'), 'success')
+        return redirect(url_for('main.properties_list'))
+    return render_template('properties/add_edit.html', form=form, edit=True)
+
+# --- Tenants Routes ---
+@main.route('/tenants')
+@login_required
+@roles_required('landlord')
+def tenants_list():
+    landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
+    property_ids = [p.id for p in landlord_properties]
+    # Filter tenants by properties belonging to the current landlord
+    tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
+    return render_template('tenants/list.html', tenants=tenants)
+
+@main.route('/tenants/add', methods=['GET', 'POST'])
+@login_required
+@roles_required('landlord')
+def tenant_add():
+    form = TenantForm()
+    # Populate property choices with only properties belonging to the current landlord
+    form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(landlord_id=current_user.id).all()]
+    if form.validate_on_submit():
+        tenant = Tenant(
+            first_name=form.first_name.data,
+            last_name=form.last_name.data,
+            email=form.email.data,
+            phone_number=form.phone_number.data,
+            property_id=form.property_id.data,
+            rent_amount=form.rent_amount.data,
+            due_day_of_month=form.due_day_of_month.data,
+            grace_period_days=form.grace_period_days.data,
+            lease_start_date=form.lease_start_date.data,
+            lease_end_date=form.lease_end_date.data
+        )
+        db.session.add(tenant)
+        db.session.commit()
+        flash(_l('Tenant added successfully.'), 'success')
+        return redirect(url_for('main.tenants_list'))
+    return render_template('tenants/add_edit.html', form=form, edit=False)
+
+@main.route('/tenants/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@roles_required('landlord')
+def tenant_edit(id):
+    tenant = Tenant.query.get_or_404(id)
+    # Ensure the tenant is associated with a property owned by the current landlord
+    if tenant.property.landlord_id != current_user.id:
+        flash(_l('Access denied.'), 'danger')
+        return redirect(url_for('main.tenants_list'))
+    form = TenantForm(obj=tenant)
+    form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(landlord_id=current_user.id).all()]
+    if form.validate_on_submit():
+        form.populate_obj(tenant) # Populate all fields from the form object
+        db.session.commit()
+        flash(_l('Tenant updated successfully.'), 'success')
+        return redirect(url_for('main.tenants_list'))
+    return render_template('tenants/add_edit.html', form=form, edit=True)
+
+# --- Payments Routes ---
+@main.route('/payments/record', methods=['GET', 'POST'])
+@login_required
+@roles_required('landlord')
+def record_payment():
+    form = RecordPaymentForm()
+    landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
+    property_ids = [p.id for p in landlord_properties]
+    # Populate tenant choices only for tenants associated with the current landlord's properties
+    form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name}") 
+                             for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
+    if form.validate_on_submit():
+        payment = Payment(
+            amount=form.amount.data,
+            tenant_id=form.tenant_id.data,
+            payment_method=form.payment_method.data,
+            transaction_id=form.transaction_id.data,
+            payment_date=form.payment_date.data or datetime.utcnow().date(), # Use .date() for consistency
+            status='confirmed' # Manually recorded payments are confirmed by default
+        )
+        db.session.add(payment)
+        db.session.commit()
+        flash(_l('Payment recorded successfully.'), 'success')
+        return redirect(url_for('main.payments_history'))
+    return render_template('payments/record_payment.html', form=form)
+
+@main.route('/payments/history')
+@login_required
+@roles_required('landlord')
+def payments_history():
+    landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
+    property_ids = [p.id for p in landlord_properties]
+    # Filter payments by tenants associated with the current landlord's properties
+    tenant_ids = [t.id for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
+    payments = Payment.query.filter(Payment.tenant_id.in_(tenant_ids)).order_by(Payment.payment_date.desc()).all()
+    return render_template('payments/history.html', payments=payments)

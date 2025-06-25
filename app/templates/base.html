@@ -19,12 +19,15 @@
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
+            --info-color: #17a2b8; /* Added info color for consistency */
+            --dark-color: #343a40; /* Added dark color for consistency */
         }
 
         body {
             background: linear-gradient(135deg, #f58217 0%, #27090f 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff; /* Ensure text is visible on dark background */
         }
 
         .navbar-brand {
@@ -106,18 +109,140 @@
             box-shadow: 0 0 0 0.25rem rgba(44, 90, 160, 0.25);
         }
 
+        /* Base button styles */
+        .btn {
+            padding: 0.75rem 2rem;
+            font-weight: 500;
+            border-radius: 8px; /* Slightly more rounded */
+            transition: all 0.3s ease; /* Smooth transitions for all properties */
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Primary Button (custom gradient and shadow) */
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-color) 0%, #1e3c72 100%);
             border: none;
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            transition: transform 0.2s ease;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.4);
+            box-shadow: 0 6px 15px rgba(44, 90, 160, 0.5); /* Stronger shadow on hover */
+            background: linear-gradient(135deg, #3a6dab 0%, #295196 100%); /* Slightly different gradient on hover */
         }
+
+        /* Success Button (custom gradient and shadow) */
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #1f7b3a 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.5);
+            background: linear-gradient(135deg, #37a858 0%, #2c8c4e 100%);
+        }
+
+        /* Danger Button (custom gradient and shadow) */
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #a72323 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(220, 53, 69, 0.5);
+            background: linear-gradient(135deg, #e04a58 0%, #bd3232 100%);
+        }
+
+        /* Warning Button (custom gradient and shadow) */
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #cc9a00 100%);
+            border: none;
+            color: #333; /* Darker text for better contrast */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 193, 7, 0.5);
+            background: linear-gradient(135deg, #ffce33 0%, #e0ac00 100%);
+        }
+
+        /* Info Button (custom gradient and shadow) */
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color) 0%, #117a8b 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(23, 162, 184, 0.5);
+            background: linear-gradient(135deg, #2ac2da 0%, #1593a5 100%);
+        }
+
+        /* Secondary Button (subtle style) */
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border: 1px solid #dee2e6;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            background-color: #e9ecef;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Outline buttons */
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 8px rgba(44, 90, 160, 0.3);
+        }
+
+        /* Bubble effect for buttons */
+        .btn.bubble-effect::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.15); /* Light ripple effect */
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease-out, height 0.4s ease-out, opacity 0.4s ease-out;
+            z-index: 0;
+        }
+
+        .btn.bubble-effect:hover::before {
+            width: 200%;
+            height: 200%;
+            opacity: 1;
+        }
+        /* Ensure text and icon are above the bubble effect */
+        .btn.bubble-effect span, .btn.bubble-effect i {
+            position: relative;
+            z-index: 2;
+        }
+
 
         .alert {
             border-radius: 10px;
@@ -129,6 +254,7 @@
             margin-top: 1.5rem;
             padding-top: 1.5rem;
             border-top: 1px solid #e9ecef;
+            color: #cccccc; /* Adjust footer link color for visibility */
         }
 
         .footer-links a {
@@ -213,7 +339,64 @@
             {% endif %}
         {% endwith %}
 
-        {% block content %}{% endblock %}
+        {% block content %}
+        <h2 class="text-center mb-4" style="color: white;">Explore Our Buttons</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
+            <!-- Styled Primary Button -->
+            <div class="col d-flex justify-content-center">
+                <button type="button" class="btn btn-primary btn-lg bubble-effect">
+                    <i class="fas fa-star me-2"></i><span>Primary Action</span>
+                </button>
+            </div>
+
+            <!-- Styled Success Button -->
+            <div class="col d-flex justify-content-center">
+                <button type="button" class="btn btn-success btn-lg bubble-effect">
+                    <i class="fas fa-check-circle me-2"></i><span>Submit Data</span>
+                </button>
+            </div>
+
+            <!-- Styled Danger Button -->
+            <div class="col d-flex justify-content-center">
+                <button type="button" class="btn btn-danger btn-lg bubble-effect">
+                    <i class="fas fa-times-circle me-2"></i><span>Delete Item</span>
+                </button>
+            </div>
+
+            <!-- Styled Warning Button -->
+            <div class="col d-flex justify-content-center">
+                <button type="button" class="btn btn-warning btn-lg bubble-effect">
+                    <i class="fas fa-exclamation-triangle me-2"></i><span>Proceed with Caution</span>
+                </button>
+            </div>
+
+            <!-- Styled Info Button -->
+            <div class="col d-flex justify-content-center">
+                <button type="button" class="btn btn-info btn-lg bubble-effect">
+                    <i class="fas fa-info-circle me-2"></i><span>Learn More</span>
+                </button>
+            </div>
+
+            <!-- Styled Secondary Button -->
+            <div class="col d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-right me-2"></i><span>Go Back</span>
+                </button>
+            </div>
+
+            <!-- Outline Primary Button -->
+            <div class="col d-flex justify-content-center">
+                <button type="button" class="btn btn-outline-primary btn-lg bubble-effect">
+                    <i class="fas fa-external-link-alt me-2"></i><span>View Details</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-5 text-center">
+            <p style="color: white;">These are examples of styled buttons. You can replace this content in your specific page templates.</p>
+        </div>
+
+        {% endblock %}
     </main>
 
     <!-- Bootstrap JS -->

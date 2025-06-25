@@ -4,24 +4,69 @@
 {% from "security/_macros.html" import render_field_with_errors, render_field, render_form_errors, render_field_errors %}
 
 {% block content %}
-  {% include "security/_messages.html" %}
-  <h1>Create account</h1>
-  <form action="{{ url_for_security('register') }}" method="post" name="register_user_form">
-    {{ register_user_form.hidden_tag() }}
-    {{ render_form_errors(register_user_form) }}
-    {{ render_field_with_errors(register_user_form.first_name)}}
-    {{ render_field_with_errors(register_user_form.last_name)}}
-    {{ render_field_with_errors(register_user_form.email) }}
-    {% if register_user_form.username %}
-      {{ render_field_with_errors(register_user_form.username) }}
-    {% endif %}
-    {{ render_field_with_errors(register_user_form.password) }}
-    {% if register_user_form.password_confirm %}
-      {{ render_field_with_errors(register_user_form.password_confirm) }}
-    {% endif %}
-    {{ render_field_errors(register_user_form.csrf_token) }}
-    {{ render_field(register_user_form.submit) }}
-  </form>
-  {% include "security/_menu.html" %}
-{% endblock content %}
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>{{ _('Create account') }}</h1>
+                    <p>{{ _('Please fill in your details to register.') }}</p>
+                </div>
+                <div class="auth-body">
+                    {% include "security/_messages.html" %}
+                    <form action="{{ url_for_security('register') }}" method="post" name="register_user_form" class="security-form">
+                        {{ register_user_form.hidden_tag() }}
+                        {{ render_form_errors(register_user_form) }}
+
+                        <div class="form-floating mb-3">
+                            {{ register_user_form.first_name(class="form-control", placeholder=_('First Name')) }}
+                            <label for="first_name">{{ _('First Name') }}</label>
+                            {{ render_field_errors(register_user_form.first_name) }}
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            {{ register_user_form.last_name(class="form-control", placeholder=_('Last Name')) }}
+                            <label for="last_name">{{ _('Last Name') }}</label>
+                            {{ render_field_errors(register_user_form.last_name) }}
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            {{ register_user_form.email(class="form-control", placeholder=_('Email address')) }}
+                            <label for="email">{{ _('Email address') }}</label>
+                            {{ render_field_errors(register_user_form.email) }}
+                        </div>
+
+                        {% if register_user_form.username %}
+                        <div class="form-floating mb-3">
+                            {{ register_user_form.username(class="form-control", placeholder=_('Username')) }}
+                            <label for="username">{{ _('Username') }}</label>
+                            {{ render_field_errors(register_user_form.username) }}
+                        </div>
+                        {% endif %}
+
+                        <div class="form-floating mb-3">
+                            {{ register_user_form.password(class="form-control", placeholder=_('Password')) }}
+                            <label for="password">{{ _('Password') }}</label>
+                            {{ render_field_errors(register_user_form.password) }}
+                        </div>
+
+                        {% if register_user_form.password_confirm %}
+                        <div class="form-floating mb-3">
+                            {{ register_user_form.password_confirm(class="form-control", placeholder=_('Confirm Password')) }}
+                            <label for="password_confirm">{{ _('Confirm Password') }}</label>
+                            {{ render_field_errors(register_user_form.password_confirm) }}
+                        </div>
+                        {% endif %}
+
+                        {{ render_field_errors(register_user_form.csrf_token) }}
+
+                        <div class="d-grid gap-2 mb-3">
+                            {{ register_user_form.submit(class="btn btn-primary btn-lg bubble-effect") }}
+                        </div>
+                    </form>
+                    <div class="footer-links">
+                        {% include "security/_menu.html" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock content %}
 

@@ -1,0 +1,2 @@
+class UserRoles:
+    LANDLORD = 'landlord'

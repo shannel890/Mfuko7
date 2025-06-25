@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_security import FSQLALiteUserDatastore
+from flask_security import FSQLALiteUserDatastore,hash_password
 from .extensions import db, security, babel
 from .models import User, Role
 from .routes import main
@@ -23,4 +23,20 @@ def create_app():
     user_datastore = FSQLALiteUserDatastore(db, User, Role)
     security.init_app(app, user_datastore, register_form=ExtendedRegisterForm)
     app.register_blueprint(main)
+    with app.app_context():
+        db.create_all()
+    # Create landlord user
+        landlord = Role.query.filter_by(name='landlord').first()
+        landlord_user = User.query.filter_by(email='shannel@gmail.com').first()
+        if not landlord_user:
+            landlord_user = User(
+                email='shannel@gmail.com',
+                password=hash_password('shannel254'),
+                first_name='shannel',
+                last_name='kirui',
+                active=True,
+                roles=[landlord]
+            )
+            db.session.add(landlord_user)
+        db.session.commit() # This commit is correct here
     return app
