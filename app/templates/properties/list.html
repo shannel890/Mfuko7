@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Properties') }} - REPT{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ _('Properties') }}</h2>
+    <a href="{{ url_for('main.property_add') }}" class="btn btn-primary">{{ _('Add Property') }}</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{{ _('Name') }}</th>
+                        <th>{{ _('Address') }}</th>
+                        <th>{{ _('Type') }}</th>
+                        <th>{{ _('Units') }}</th>
+                        <th>{{ _('Actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for property in properties %}
+                    <tr>
+                        <td>{{ property.name }}</td>
+                        <td>{{ property.address }}</td>
+                        <td>{{ property.property_type }}</td>
+                        <td>{{ property.number_of_units }}</td>
+                        <td>
+                            <a href="{{ url_for('main.property_edit', id=property.id) }}" class="btn btn-sm btn-outline-secondary">{{ _('Edit') }}</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted">{{ _('No properties yet. Click "Add Property"!') }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Add/Edit Tenant') }} - REPT{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm p-4">
+            <h2 class="mb-4 text-center">{{ _('Tenant Details') }}</h2>
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.first_name.label(class_="form-label") }}
+                    {{ form.first_name(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.last_name.label(class_="form-label") }}
+                    {{ form.last_name(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.email.label(class_="form-label") }}
+                    {{ form.email(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.phone_number.label(class_="form-label") }}
+                    {{ form.phone_number(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.national_id.label(class_="form-label") }}
+                    {{ form.national_id(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.property_id.label(class_="form-label") }}
+                    {{ form.property_id(class_="form-select") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.rent_amount.label(class_="form-label") }}
+                    {{ form.rent_amount(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.due_day_of_month.label(class_="form-label") }}
+                    {{ form.due_day_of_month(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.grace_period_days.label(class_="form-label") }}
+                    {{ form.grace_period_days(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.lease_start_date.label(class_="form-label") }}
+                    {{ form.lease_start_date(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.lease_end_date.label(class_="form-label") }}
+                    {{ form.lease_end_date(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.status.label(class_="form-label") }}
+                    {{ form.status(class_="form-select") }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">{{ _('Save Tenant') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

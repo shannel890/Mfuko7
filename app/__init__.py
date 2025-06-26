@@ -4,7 +4,7 @@ from .extensions import db, security, babel
 from .models import User, Role
 from .routes import main
 from .forms import ExtendedRegisterForm
-
+import uuid
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_ENGINES'] = {"default": 'sqlite:///app.db'}
@@ -18,15 +18,25 @@ def create_app():
     app.config['SECURITY_RECOVERABLE'] = True
     app.config['SECURITY_CHANGEABLE'] =True
     app.config['SECURITY_CONFIRMABLE'] = False
+    
     db.init_app(app)
     babel.init_app(app)
     user_datastore = FSQLALiteUserDatastore(db, User, Role)
     security.init_app(app, user_datastore, register_form=ExtendedRegisterForm)
     app.register_blueprint(main)
+    
     with app.app_context():
         db.create_all()
     # Create landlord user
-        landlord = Role.query.filter_by(name='landlord').first()
+        # Inside create_app() after db.create_all()
+       
+
+
+        landlord_role = Role.query.filter_by(name='landlord').first()
+        if not landlord_role:
+            landlord_role = Role(name='landlord')
+            db.session.add(landlord_role)
+            db.session.commit()
         landlord_user = User.query.filter_by(email='shannel@gmail.com').first()
         if not landlord_user:
             landlord_user = User(
@@ -34,9 +44,12 @@ def create_app():
                 password=hash_password('shannel254'),
                 first_name='shannel',
                 last_name='kirui',
-                active=True,
-                roles=[landlord]
+                fs_uniquifier=str(uuid.uuid4()),
+                active=True,  # ✅ add this line
+                roles=[landlord_role]
             )
+
+            landlord_user.roles.append(landlord_role)
             db.session.add(landlord_user)
         db.session.commit() # This commit is correct here
     return app

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - {{ user.email }} - REPT{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-edit me-2"></i>Edit User: {{ user.email }}
+                    </h5>
+                    <a href="{{ url_for('auth.users', user_id=user.id) }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Users
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <!-- Personal Information -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="username" class="form-label">username</label>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   value="{{ user.username or '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                                value="{{ user.first_name or '' }}">
+                        </div>
+                     <div class="col-md-6">
+                        <label for="email" class="form-label">email</label>
+                        <input type="text" class="form-control" id="email" name="email" 
+                                value="{{ user.email or '' }}">
+                        </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   value="{{ user.phone or '' }}">
+                        </div>
+                        
+                    
+                    <!-- Location Information -->
+                    <h6 class="border-bottom pb-2 mb-3">Location Assignment</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="county_id" class="form-label">County</label>
+                            <select class="form-select" id="county_id" name="county_id" onchange="loadDepartments(this.value)">
+                                <option value="">Select County</option>
+                                {% for county in counties %}
+                                <option value="{{ county.id }}" {{ 'selected' if user.county_id == county.id else '' }}>
+                                    {{ county.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                     
+                    
+                    <!-- Role Assignment -->
+                    <h6 class="border-bottom pb-2 mb-3">Role Assignment</h6>
+                    <div class="row g-3 mb-4">
+                        {% for role in roles %}
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="role_{{ role.id }}" name="roles" value="{{ role.id }}"
+                                       {{ 'checked' if role in user.roles else '' }}>
+                                <label class="form-check-label" for="role_{{ role.id }}">
+                                    <strong>{{ role.name.replace('_', ' ').title() }}</strong>
+                                    {% if role.description %}
+                                    <br><small class="text-muted">{{ role.description }}</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="language" class="form-label">Language</label>
+                        <select name="language" id="language" class="form-select">
+                            <option value="">Select Language</option>
+                            <option value="en" {{ 'selected' if user.language == 'en' else '' }}>English</option>
+                            <option value="sw" {{ 'selected' if user.language == 'sw' else '' }}>Swahili</option>
+                        </select>
+                    </div>
+
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{{ url_for('auth.users') }}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadDepartments(countyId) {
+    const departmentSelect = document.getElementById('department_id');
+    departmentSelect.innerHTML = '<option value="">Loading...</option>';
+    
+    if (countyId) {
+        fetch(`{{ url_for('auth_bp.departments_by_county', county_id=0) }}`.replace('0', countyId))
+            .then(response => response.json())
+            .then(departments => {
+                departmentSelect.innerHTML = '<option value="">Select Department</option>';
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    option.textContent = dept.name;
+                    departmentSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading departments:', error);
+                departmentSelect.innerHTML = '<option value="">Error loading departments</option>';
+            });
+    } else {
+        departmentSelect.innerHTML = '<option value="">Select Department</option>';
+    }
+}
+</script>
+{% endblock %}

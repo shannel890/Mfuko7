@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Overdue Payments') }} | REPT{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-exclamation-triangle-fill text-danger"></i> {{ _('Overdue Payments') }}</h1>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>{{ _('Tenant') }}</th>
+                        <th>{{ _('Property') }}</th>
+                        <th>{{ _('Unit') }}</th>
+                        <th>{{ _('Due Date') }}</th>
+                        <th>{{ _('Amount Due') }}</th>
+                        <th>{{ _('Contact') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tenant in overdue_tenants %}
+                    <tr>
+                        <td>{{ tenant.full_name }}</td>
+                        <td>{{ tenant.property_name }}</td>
+                        <td>{{ tenant.unit_number }}</td>
+                        <td>{{ tenant.due_date.strftime('%d/%m/%Y') }}</td>
+                        <td>KSh {{ tenant.amount_due }}</td>
+                        <td>{{ tenant.phone_number }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">{{ _('No overdue tenants at the moment.') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

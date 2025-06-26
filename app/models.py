@@ -27,7 +27,7 @@ class User(db.Model, sqla.FsUserMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str]
     last_name: Mapped[str]
-
+    fs_uniquifier: Mapped[str] = mapped_column(unique=True, nullable=False)
     # A user can own many properties
     properties: Mapped[list["Property"]] = relationship(back_populates="landlord_user")
 

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Reports') }} - REPT{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ _('Reports') }}</h2>
+    <form method="GET" class="d-flex gap-2">
+        <input type="date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+        <input type="date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+        <select name="property_id" class="form-select">
+            <option value="">{{ _('All Properties') }}</option>
+            {% for property in properties %}
+                <option value="{{ property.id }}" {% if request.args.get('property_id') == property.id|string %}selected{% endif %}>{{ property.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline-primary">{{ _('Filter') }}</button>
+    </form>
+</div>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">{{ _('Summary') }}</h5>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">{{ _('Total Collections') }}: <strong>KSh {{ summary.total_collections or 0 }}</strong></li>
+            <li class="list-group-item">{{ _('Overdue Payments') }}: <strong>{{ summary.overdue_payments or 0 }}</strong></li>
+            <li class="list-group-item">{{ _('Vacancy Rate') }}: <strong>{{ summary.vacancy_rate or 0 }}%</strong></li>
+        </ul>
+    </div>
+</div>
+<div class="card shadow-sm">
+    <div class="card-header bg-white fw-bold">{{ _('Payment History') }}</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{{ _('Tenant') }}</th>
+                        <th>{{ _('Property') }}</th>
+                        <th>{{ _('Amount') }}</th>
+                        <th>{{ _('Date') }}</th>
+                        <th>{{ _('Status') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.tenant_name }}</td>
+                        <td>{{ payment.property_name }}</td>
+                        <td>KSh {{ payment.amount }}</td>
+                        <td>{{ payment.payment_date.strftime('%d/%m/%Y') }}</td>
+                        <td><span class="badge bg-{{ 'success' if payment.status == 'confirmed' else 'warning' }}">{{ _(payment.status.title()) }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted">{{ _('No payments found for this period.') }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="mt-4">
+    <a href="{{ url_for('main.export_report', format='csv') }}" class="btn btn-outline-secondary me-2">{{ _('Export CSV') }}</a>
+    <a href="{{ url_for('main.export_report', format='excel') }}" class="btn btn-outline-secondary me-2">{{ _('Export Excel') }}</a>
+    <a href="{{ url_for('main.export_report', format='pdf') }}" class="btn btn-outline-secondary">{{ _('Export PDF') }}</a>
+</div>
+{% endblock %}

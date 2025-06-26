@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Tenants') }} - REPT{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ _('Tenants') }}</h2>
+    <a href="{{ url_for('main.tenant_add') }}" class="btn btn-primary">{{ _('Add Tenant') }}</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{{ _('Name') }}</th>
+                        <th>{{ _('Email') }}</th>
+                        <th>{{ _('Phone') }}</th>
+                        <th>{{ _('Property') }}</th>
+                        <th>{{ _('Status') }}</th>
+                        <th>{{ _('Actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tenant in tenants %}
+                    <tr>
+                        <td>{{ tenant.first_name }} {{ tenant.last_name }}</td>
+                        <td>{{ tenant.email or '-' }}</td>
+                        <td>{{ tenant.phone_number }}</td>
+                        <td>{{ tenant.property.name }}</td>
+                        <td><span class="badge bg-{{ 'success' if tenant.status == 'active' else 'secondary' }}">{{ _(tenant.status.title()) }}</span></td>
+                        <td>
+                            <a href="{{ url_for('main.tenant_edit', id=tenant.id) }}" class="btn btn-sm btn-outline-secondary">{{ _('Edit') }}</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center text-muted">{{ _('No tenants yet. Click "Add Tenant"!') }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

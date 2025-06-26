@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Payment History') }} - REPT{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ _('Payment History') }}</h2>
+    <a href="{{ url_for('main.record_payment') }}" class="btn btn-primary">{{ _('Record Payment') }}</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{{ _('Tenant') }}</th>
+                        <th>{{ _('Amount') }}</th>
+                        <th>{{ _('Method') }}</th>
+                        <th>{{ _('Date') }}</th>
+                        <th>{{ _('Status') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.tenant_name }}</td>
+                        <td>KSh {{ payment.amount }}</td>
+                        <td>{{ payment.payment_method }}</td>
+                        <td>{{ payment.payment_date.strftime('%d/%m/%Y') }}</td>
+                        <td><span class="badge bg-{{ 'success' if payment.status == 'confirmed' else 'warning' }}">{{ _(payment.status.title()) }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted">{{ _('No payments recorded yet.') }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

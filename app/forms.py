@@ -7,7 +7,11 @@ from wtforms.validators import DataRequired, Email, Length, Optional, Validation
 class ExtendedRegisterForm(RegisterFormV2):
     first_name = StringField(_l('First Name'), validators=[validators.DataRequired()])
     last_name = StringField(_l('Last Name'), validators=[validators.DataRequired()])
-
+    fs_uniquifier = StringField(
+        _l('Unique Identifier'),
+        validators=[validators.DataRequired(), Length(max=100)],
+        render_kw={"placeholder": _l("e.g., your email or a unique username")}
+    )
 class TenantForm(FlaskForm):
     """Form for landlords to add or edit tenant details and lease terms."""
 

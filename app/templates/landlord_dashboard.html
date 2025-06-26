@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Landlord Dashboard') }} | REPT{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-speedometer2"></i> {{ _('Dashboard') }}</h1>
+<div class="row g-4 mb-4">
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('main.overdue_payment') }}" class="text-decoration-none text-dark">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">
+                        <i class="bi bi-exclamation-circle text-danger"></i> {{ _('Overdue Payments') }}
+                    </h6>
+                    <div class="display-6 fw-bold text-danger">{{ metrics.overdue_payments or 0 }}</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('main.payments_history') }}" class="text-decoration-none text-dark">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">
+                        <i class="bi bi-cash-coin text-success"></i> {{ _('Total Collections') }}
+                    </h6>
+                    <div class="display-6 fw-bold text-success">KSh {{ metrics.total_collections or 0 }}</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted">
+                    <i class="bi bi-house-door text-warning"></i> {{ _('Vacancy Rate') }}
+                </h6>
+                <div class="progress">
+                    <div class="progress-bar bg-warning" role="progressbar" width: {{ metrics.vacancy_rate }}%;
+                         aria-valuenow="{{ metrics.vacancy_rate }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ metrics.vacancy_rate }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted">
+                    <i class="bi bi-clock-history text-primary"></i> {{ _('Recent Transactions') }}
+                </h6>
+                <div class="display-6 fw-bold">{{ metrics.recent_transactions or 0 }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-receipt"></i> {{ _('Recent Payments') }}
+                <a href="{{ url_for('main.payments_history') }}" class="btn btn-sm btn-outline-primary float-end">{{ _('View All') }}</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>{{ _('Tenant') }}</th>
+                                <th>{{ _('Property') }}</th>
+                                <th>{{ _('Amount') }}</th>
+                                <th>{{ _('Date') }}</th>
+                                <th>{{ _('Status') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in recent_payments %}
+                            <tr>
+                                <td>{{ payment.tenant_name }}</td>
+                                <td>{{ payment.property_name }}</td>
+                                <td>KSh {{ payment.amount }}</td>
+                                <td>{{ payment.payment_date.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if payment.status == 'confirmed' else 'warning' }}">
+                                        {{ _(payment.status.title()) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">{{ _('No recent payments.') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

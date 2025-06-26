@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Add/Edit Property') }} - REPT{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm p-4">
+            <h2 class="mb-4 text-center">{{ _('Property Details') }}</h2>
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.name.label(class_="form-label") }}
+                    {{ form.name(class_="form-control") }}
+                    {% for error in form.name.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    {{ form.address.label(class_="form-label") }}
+                    {{ form.address(class_="form-control") }}
+                    {% for error in form.address.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    {{ form.property_type.label(class_="form-label") }}
+                    {{ form.property_type(class_="form-select") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.number_of_units.label(class_="form-label") }}
+                    {{ form.number_of_units(class_="form-control") }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">{{ _('Save Property') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

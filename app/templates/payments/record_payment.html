@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Record Payment') }} - REPT{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm p-4">
+            <h2 class="mb-4 text-center">{{ _('Record Payment') }}</h2>
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.tenant_id.label(class_="form-label") }}
+                    {{ form.tenant_id(class_="form-select") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.amount.label(class_="form-label") }}
+                    {{ form.amount(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.payment_method.label(class_="form-label") }}
+                    {{ form.payment_method(class_="form-select") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.payment_date.label(class_="form-label") }}
+                    {{ form.payment_date(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.transaction_id.label(class_="form-label") }}
+                    {{ form.transaction_id(class_="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.description.label(class_="form-label") }}
+                    {{ form.description(class_="form-control") }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">{{ _('Record Payment') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
