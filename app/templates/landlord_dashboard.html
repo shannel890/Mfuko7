@@ -2,100 +2,416 @@
 {% block title %}{{ _('Landlord Dashboard') }} | REPT{% endblock %}
 
 {% block content %}
-<h1 class="mb-4"><i class="bi bi-speedometer2"></i> {{ _('Dashboard') }}</h1>
-<div class="row g-4 mb-4">
-    <div class="col-6 col-md-3">
-        <a href="{{ url_for('main.overdue_payment') }}" class="text-decoration-none text-dark">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h6 class="card-title text-muted">
-                        <i class="bi bi-exclamation-circle text-danger"></i> {{ _('Overdue Payments') }}
-                    </h6>
-                    <div class="display-6 fw-bold text-danger">{{ metrics.overdue_payments or 0 }}</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="PropertyPayTrack - Landlord Dashboard">
+    <meta name="author" content="PropertyPayTrack">
+    <title>{{ _('Landlord Dashboard') }} | REPT</title>
+    <!-- Bootstrap 5 Core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlalDLuL+oOQf9n1S0z8S10NqD0/1V/0sBwW9r0/B9s0bB0e8zW/W0zT3L8W7S0F0w5r0pG5z5y0/Y9tA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #34c759; /* Brighter green */
+            --secondary-color: #2aa648; /* Slightly brighter secondary green */
+            --accent-color: #ffd700; /* Brighter amber (gold) */
+            --text-color: #222;
+            --light-text-color: #ffffff;
+            --background-color: #0e0a0a; /* Lighter background */
+            --card-background: rgba(148, 20, 105, 0.2); /* Glassmorphism effect */
+            --shadow-light: rgba(34, 224, 65, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-strong: rgba(0, 0, 0, 0.25);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            background-image: url('https://source.unsplash.com/random/1920x1080/?modern-house,real-estate,financial');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 20px var(--shadow-medium);
+        }
+
+        .overlay-lighter {
+            background: rgba(0, 0, 0, 0.3);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- Utility Classes --- */
+        .text-center { text-align: center; }
+        .text-primary { color: var(--primary-color); }
+        .text-accent { color: var(--accent-color); }
+        .bg-primary { background-color: var(--primary-color); }
+        .raised { box-shadow: 0 10px 20px var(--shadow-medium); }
+        .raised-sm { box-shadow: 0 5px 15px var(--shadow-light); }
+
+        /* --- Dashboard Container --- */
+        .dashboard-container {
+            min-height: 100vh;
+            padding: 50px 20px;
+            position: relative;
+        }
+
+        .dashboard-container .overlay-lighter {
+            z-index: 0;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8em;
+            color: var(--light-text-color);
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 5px var(--shadow-medium);
+        }
+
+        /* --- Metric Cards --- */
+        .card {
+            background-color: var(--card-background);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px var(--shadow-medium);
+        }
+
+        .card-body {
+            padding: 20px;
+            color: var(--light-text-color);
+        }
+
+        .card-title {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .display-6 {
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .text-danger { color: #ff4d4f !important; }
+        .text-success { color: var(--primary-color) !important; }
+        .text-warning { color: var(--accent-color) !important; }
+        .text-primary { color: #17a2b8 !important; } /* Use a distinct blue for recent transactions */
+
+        .progress {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            height: 20px;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            background-color: var(--accent-color);
+            border-radius: 8px;
+            transition: width 0.6s ease;
+        }
+
+        /* --- Recent Payments Table --- */
+        .card-header {
+            background-color: var(--card-background);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            color: var(--light-text-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header .bi {
+            margin-right: 10px;
+        }
+
+        .btn-outline-primary {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            border-radius: 8px;
+            padding: 5px 15px;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            transform: translateY(-2px);
+        }
+
+        .table {
+            background-color: transparent;
+            color: var(--light-text-color);
+        }
+
+        .table-responsive {
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--light-text-color);
+            font-weight: 500;
+            padding: 15px;
+        }
+
+        .table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .table td {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+
+        .bg-success {
+            background-color: var(--primary-color) !important;
+        }
+
+        .bg-warning {
+            background-color: var(--accent-color) !important;
+            color: var(--text-color) !important;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .card {
+                margin-bottom: 20px;
+            }
+
+            .card-title {
+                font-size: 1em;
+            }
+
+            .display-6 {
+                font-size: 2em;
+            }
+
+            .card-header {
+                font-size: 1.3em;
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .btn-outline-primary {
+                width: 100%;
+                text-align: center;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table tbody tr {
+                display: block;
+                margin-bottom: 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .table td {
+                display: block;
+                text-align: left;
+                padding: 10px 15px;
+            }
+
+            .table td:before {
+                content: attr(data-label);
+                font-weight: 700;
+                display: inline-block;
+                width: 40%;
+                margin-right: 10px;
+            }
+
+            .table td[data-label="Tenant"] { font-weight: 700; }
+            .table td[data-label="Status"] { border-bottom: none; }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .display-6 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body data-aos-easing="ease" data-aos-duration="1200" data-aos-delay="0">
+    <div class="dashboard-container jarallax" data-jarallax data-speed="0.8">
+        <div class="overlay-lighter"></div>
+        <div class="container">
+            <h1 class="mb-4" data-aos="fade-down"><i class="bi bi-speedometer2"></i> {{ _('Dashboard') }}</h1>
+            <div class="row g-4 mb-4">
+                <div class="col-6 col-md-3" data-aos="fade-up">
+                    <a href="{{ url_for('main.overdue_payment') }}" class="text-decoration-none text-dark">
+                        <div class="card text-center bg-glass">
+                            <div class="card-body">
+                                <h6 class="card-title text-muted">
+                                    <i class="bi bi-exclamation-circle text-danger"></i> {{ _('Overdue Payments') }}
+                                </h6>
+                                <div class="display-6 fw-bold text-danger">{{ metrics.overdue_payments or 0 }}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
+                    <a href="{{ url_for('main.payments_history') }}" class="text-decoration-none text-dark">
+                        <div class="card text-center bg-glass">
+                            <div class="card-body">
+                                <h6 class="card-title text-muted">
+                                    <i class="bi bi-cash-coin text-success"></i> {{ _('Total Collections') }}
+                                </h6>
+                                <div class="display-6 fw-bold text-success">KSh {{ metrics.total_collections or 0 }}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card text-center bg-glass">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">
+                                <i class="bi bi-house-door text-warning"></i> {{ _('Vacancy Rate') }}
+                            </h6>
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" role="progressbar" width: {{ metrics.vacancy_rate }}%; aria-valuenow="{{ metrics.vacancy_rate }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ metrics.vacancy_rate }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="600">
+                    <div class="card text-center bg-glass">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">
+                                <i class="bi bi-clock-history text-primary"></i> {{ _('Recent Transactions') }}
+                            </h6>
+                            <div class="display-6 fw-bold">{{ metrics.recent_transactions or 0 }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </a>
-    </div>
-    <div class="col-6 col-md-3">
-        <a href="{{ url_for('main.payments_history') }}" class="text-decoration-none text-dark">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h6 class="card-title text-muted">
-                        <i class="bi bi-cash-coin text-success"></i> {{ _('Total Collections') }}
-                    </h6>
-                    <div class="display-6 fw-bold text-success">KSh {{ metrics.total_collections or 0 }}</div>
-                </div>
-            </div>
-        </a>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center shadow-sm">
-            <div class="card-body">
-                <h6 class="card-title text-muted">
-                    <i class="bi bi-house-door text-warning"></i> {{ _('Vacancy Rate') }}
-                </h6>
-                <div class="progress">
-                    <div class="progress-bar bg-warning" role="progressbar" width: {{ metrics.vacancy_rate }}%;
-                         aria-valuenow="{{ metrics.vacancy_rate }}" aria-valuemin="0" aria-valuemax="100">
-                        {{ metrics.vacancy_rate }}%
+            <div class="row" data-aos="fade-up" data-aos-delay="800">
+                <div class="col-12">
+                    <div class="card bg-glass">
+                        <div class="card-header bg-glass fw-bold">
+                            <span><i class="bi bi-receipt"></i> {{ _('Recent Payments') }}</span>
+                            <a href="{{ url_for('main.payments_history') }}" class="btn btn-sm btn-outline-primary">{{ _('View All') }}</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ _('Tenant') }}</th>
+                                            <th>{{ _('Property') }}</th>
+                                            <th>{{ _('Amount') }}</th>
+                                            <th>{{ _('Date') }}</th>
+                                            <th>{{ _('Status') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment in recent_payments %}
+                                        <tr>
+                                            <td data-label="Tenant">{{ payment.tenant_name }}</td>
+                                            <td data-label="Property">{{ payment.property_name }}</td>
+                                            <td data-label="Amount">KSh {{ payment.amount }}</td>
+                                            <td data-label="Date">{{ payment.payment_date.strftime('%d/%m/%Y') }}</td>
+                                            <td data-label="Status">
+                                                <span class="badge bg-{{ 'success' if payment.status == 'confirmed' else 'warning' }}">
+                                                    {{ _(payment.status.title()) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">{{ _('No recent payments.') }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center shadow-sm">
-            <div class="card-body">
-                <h6 class="card-title text-muted">
-                    <i class="bi bi-clock-history text-primary"></i> {{ _('Recent Transactions') }}
-                </h6>
-                <div class="display-6 fw-bold">{{ metrics.recent_transactions or 0 }}</div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold">
-                <i class="bi bi-receipt"></i> {{ _('Recent Payments') }}
-                <a href="{{ url_for('main.payments_history') }}" class="btn btn-sm btn-outline-primary float-end">{{ _('View All') }}</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>{{ _('Tenant') }}</th>
-                                <th>{{ _('Property') }}</th>
-                                <th>{{ _('Amount') }}</th>
-                                <th>{{ _('Date') }}</th>
-                                <th>{{ _('Status') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for payment in recent_payments %}
-                            <tr>
-                                <td>{{ payment.tenant_name }}</td>
-                                <td>{{ payment.property_name }}</td>
-                                <td>KSh {{ payment.amount }}</td>
-                                <td>{{ payment.payment_date.strftime('%d/%m/%Y') }}</td>
-                                <td>
-                                    <span class="badge bg-{{ 'success' if payment.status == 'confirmed' else 'warning' }}">
-                                        {{ _(payment.status.title()) }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">{{ _('No recent payments.') }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1200,
+        });
+    </script>
+    <!-- Jarallax -->
+    <script src="https://unpkg.com/jarallax@2.0.2/dist/jarallax.min.js"></script>
+</body>
+</html>
 {% endblock %}
