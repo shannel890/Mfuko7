@@ -1,5 +1,6 @@
 from flask import Flask
-from flask_security import FSQLALiteUserDatastore,hash_password
+from flask_security import SQLAlchemySessionUserDatastore
+from flask_security.utils import hash_password
 from .extensions import db, security, babel
 from .models import User, Role
 from .routes import main
@@ -21,8 +22,8 @@ def create_app():
     
     db.init_app(app)
     babel.init_app(app)
-    user_datastore = FSQLALiteUserDatastore(db, User, Role)
-    security.init_app(app, user_datastore, register_form=ExtendedRegisterForm)
+    UserDatastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
+    security.init_app(app, UserDatastore, register_form=ExtendedRegisterForm)
     app.register_blueprint(main)
     
     with app.app_context():

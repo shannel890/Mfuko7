@@ -5,7 +5,7 @@ from app.models import Property, Tenant, Payment
 from flask_babel import lazy_gettext as _l
 from app.extensions import db
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ExtendedEditProfileForm
 
 main = Blueprint('main', __name__)
 
@@ -32,6 +32,20 @@ def index():
 def admin():
     """Admin page, accessible only by users with the 'admin' role."""
     return "<h1>Admin</h1>"
+
+@main.route('/edit/profile', methods=['GET', 'POST'])
+@auth_required()
+def edit_profile():
+    
+    form = ExtendedEditProfileForm(obj=current_user) # Populate form with current user's data
+
+    if form.validate_on_submit():
+        form.populate_obj(current_user)
+        db.session.add(current_user)
+        db.session.commit()
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('main.profile'))
+    return render_template('security/edit_profile.html', user=current_user, edit_profile_form=form)
 
 @main.route('/profile')
 @auth_required()

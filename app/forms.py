@@ -1,5 +1,5 @@
 from flask_security import RegisterFormV2
-from wtforms import StringField,SubmitField, BooleanField, SelectField,TelField, DecimalField, DateField, TextAreaField, IntegerField, validators
+from wtforms import StringField,SubmitField, BooleanField, SelectField,TelField, DecimalField, DateField, TextAreaField, IntegerField, validators, SelectMultipleField
 from flask_babel import lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Email, Length, Optional, ValidationError, NumberRange
@@ -7,6 +7,9 @@ from wtforms.validators import DataRequired, Email, Length, Optional, Validation
 class ExtendedRegisterForm(RegisterFormV2):
     first_name = StringField(_l('First Name'), validators=[validators.DataRequired()])
     last_name = StringField(_l('Last Name'), validators=[validators.DataRequired()])
+    email = StringField(_l('Email Address'), validators=[validators.DataRequired()])
+    password = StringField(_l('Password'), validators=[validators.DataRequired()])
+    confirm_password = StringField(_l('Confirm Password'), validators=[validators.DataRequired()])
     fs_uniquifier = StringField(
         _l('Unique Identifier'),
         validators=[validators.DataRequired(), Length(max=100)],
@@ -350,4 +353,49 @@ class RecordPaymentForm(FlaskForm):
     def validate_offline_reference(self, field):
         """Ensure offline reference is provided if payment is marked as offline."""
         if self.is_offline.data and not field.data:
-            raise ValidationError(_l('Offline reference is required for offline payments.'))        
+            raise ValidationError(_l('Offline reference is required for offline payments.')) 
+
+class ExtendedEditProfileForm(FlaskForm):
+    """Form for users to update their profile information."""
+
+    first_name = StringField(
+        'First Name',
+        validators=[DataRequired(message='First name is required.'), Length(min=2, max=50)]
+    )
+
+    last_name = StringField(
+        'Last Name',
+        validators=[DataRequired(message='Last name is required.'), Length(min=2, max=50)]
+    )
+
+    phone_number = TelField(
+        'Phone Number',
+        validators=[Optional(), Length(min=10, max=15, message='Phone number must be between 10 and 15 digits.')]
+    )
+
+    county = StringField(
+        'County',
+        validators=[DataRequired(message='County is required.')]
+    )
+
+    roles = SelectMultipleField(
+        'Roles',
+        validators=[DataRequired(message='Please select at least one role.')],
+        coerce=int,
+        choices=[]  # You must populate this dynamically in the view
+    )
+
+    language = StringField(
+        'Language',
+        validators=[Optional()]
+    )
+    submit = SubmitField('Update Profile')
+
+    def validate_phone_number(self, field):
+        """Custom validator to clean phone numbers."""
+        if field.data:
+            digits_only = ''.join(filter(str.isdigit, field.data))
+            if len(digits_only) < 10:
+                raise ValidationError('Phone number must contain at least 10 digits.')
+            field.data = digits_only
+

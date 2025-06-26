@@ -19,7 +19,7 @@ class Role(db.Model, sqla.FsRoleMixin):
     __tablename__ = 'role'
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
-    description: Mapped[str] = None
+    description: Mapped[str] = mapped_column(nullable=True)
 
 
 class User(db.Model, sqla.FsUserMixin):
@@ -27,6 +27,10 @@ class User(db.Model, sqla.FsUserMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str]
     last_name: Mapped[str]
+    email: Mapped[str] = mapped_column(unique=True)
+    password: Mapped[str]
+    confirm_password: Mapped[str] = mapped_column(nullable=True)
+    active: Mapped[bool] = mapped_column(default=True)     
     fs_uniquifier: Mapped[str] = mapped_column(unique=True, nullable=False)
     # A user can own many properties
     properties: Mapped[list["Property"]] = relationship(back_populates="landlord_user")
