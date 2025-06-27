@@ -1,20 +1,37 @@
-from flask_security import RegisterFormV2
-from wtforms import StringField,SubmitField, BooleanField, SelectField,TelField, DecimalField, DateField, TextAreaField, IntegerField, validators, SelectMultipleField
+
+from wtforms import StringField,SubmitField, BooleanField, SelectField,TelField, DecimalField, DateField, TextAreaField, IntegerField, validators, SelectMultipleField,PasswordField
 from flask_babel import lazy_gettext as _l
 from flask_wtf import FlaskForm
-from wtforms.validators import DataRequired, Email, Length, Optional, ValidationError, NumberRange
+from wtforms.validators import DataRequired, Email, Length, Optional, ValidationError, NumberRange, EqualTo
 
-class ExtendedRegisterForm(RegisterFormV2):
-    first_name = StringField(_l('First Name'), validators=[validators.DataRequired()])
-    last_name = StringField(_l('Last Name'), validators=[validators.DataRequired()])
-    email = StringField(_l('Email Address'), validators=[validators.DataRequired()])
-    password = StringField(_l('Password'), validators=[validators.DataRequired()])
-    confirm_password = StringField(_l('Confirm Password'), validators=[validators.DataRequired()])
-    fs_uniquifier = StringField(
-        _l('Unique Identifier'),
-        validators=[validators.DataRequired(), Length(max=100)],
-        render_kw={"placeholder": _l("e.g., your email or a unique username")}
-    )
+class RegistrationForm(FlaskForm):
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Register')
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
+class ForgotPasswordRequestForm(FlaskForm):
+    """Form to request a password reset email."""
+    email = StringField(_l('Email Address'), validators=[DataRequired(), Email()])
+    submit = SubmitField(_l('Send Reset Instructions'))
+
+class ResetPasswordForm(FlaskForm):
+    """Form to set a new password after a reset request."""
+    password = PasswordField(_l('New Password'), validators=[
+        DataRequired(),
+        Length(min=8, message=_l('Password must be at least 8 characters long.')),
+        EqualTo('confirm_password', message=_l('Passwords must match.'))
+    ])
+    confirm_password = PasswordField(_l('Confirm New Password'))
+    submit = SubmitField(_l('Reset Password'))
 class TenantForm(FlaskForm):
     """Form for landlords to add or edit tenant details and lease terms."""
 

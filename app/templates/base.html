@@ -287,8 +287,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        <a class="nav-link" href="{{ url_for('main.landlord_dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Landlord Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.tenant_dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Tenant_Dashboard
                         </a>
                     </li>
                 </ul>
@@ -302,7 +307,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item" href="{{ url_for('security.logout') }}">
+                                <a class="dropdown-item" href="{{ url_for('main.logout') }}">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a>
                             </li>
@@ -322,8 +327,8 @@
             </div>
             {% else %}
             <div class="d-flex">
-                <a href="{{ url_for('security.login') }}" class="btn btn-info me-2">Login</a>
-                <a href="{{ url_for('security.register') }}" class="btn btn-primary">Register</a>
+                <a href="{{ url_for('main.login') }}" class="btn btn-info me-2">Login</a>
+                <a href="{{ url_for('main.register') }}" class="btn btn-primary">Register</a>
             </div>
             {% endif %}
         </div>

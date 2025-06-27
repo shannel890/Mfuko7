@@ -1,14 +1,88 @@
 from flask import Blueprint, render_template, request, flash, current_app,redirect, url_for
-from flask_security import auth_required, roles_accepted, current_user,login_required, roles_required
+from flask_login import login_required,current_user
 from datetime import datetime, timedelta
-from app.models import Property, Tenant, Payment
+from app.models import Property, Tenant, Payment, User, Role
+from flask_login import login_user, logout_user
 from flask_babel import lazy_gettext as _l
 from app.extensions import db
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ExtendedEditProfileForm
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ExtendedEditProfileForm, RegistrationForm, LoginForm
+from werkzeug.security import generate_password_hash, check_password_hash
+import uuid
 
+from functools import wraps
+from flask import abort, redirect, url_for, flash
+from flask_login import current_user
+
+def roles_required(*required_roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('main.login'))  # Or login manager's unauthorized
+
+            # Get role names from current_user.roles
+            user_roles = {role.name for role in current_user.roles}
+
+            # Check if all required roles are present
+            if not set(required_roles).issubset(user_roles):
+                abort(403)  # Forbidden
+
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 main = Blueprint('main', __name__)
 
+@main.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data)
+        new_user = User(
+            first_name=form.first_name.data,
+            last_name=form.last_name.data,
+            email=form.email.data,
+            password=hashed_password,
+            fs_uniquifier=str(uuid.uuid4()),
+            active=True
+        )
+
+        # Assign a default role, e.g., 'tenant'
+        default_role = Role.query.filter_by(name='tenant').first()
+        if default_role:
+            new_user.roles.append(default_role)
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Registration successful! Please log in.')
+        return redirect(url_for('main.login'))
+
+    return render_template('security/register.html', form=form)
+
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and check_password_hash(user.password, form.password.data):
+            login_user(user)
+            flash('Logged in successfully!')
+            return redirect(url_for('main.tenant_dashboard'))
+
+        flash('Invalid email or password.')
+
+    return render_template('security/login.html', form=form)
+
+@main.route('/forgot_passord', methods=['GET','POST'])
+def forgot_password():
+    return render_template('security/forgot_password.html')
+
+@main.route('/logout')
+def logout():
+    logout_user()
+    flash('You have been logged out.')
+    return redirect(url_for('main.login'))
 @main.route('/')
 def landing_page():
     """
@@ -18,7 +92,7 @@ def landing_page():
     """
     if current_user.is_authenticated:
         # If the user is already logged in, redirect them to the dashboard
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('main.tenant_dashboard'))
     # If not logged in, show the landing page
     return render_template('landing_page.html')
 
@@ -28,13 +102,13 @@ def index():
     return render_template('index.html')
 
 @main.route('/admin')
-@roles_accepted('admin')
+@roles_required('admin')
 def admin():
     """Admin page, accessible only by users with the 'admin' role."""
     return "<h1>Admin</h1>"
 
 @main.route('/edit/profile', methods=['GET', 'POST'])
-@auth_required()
+@roles_required('landlord')
 def edit_profile():
     
     form = ExtendedEditProfileForm(obj=current_user) # Populate form with current user's data
@@ -49,13 +123,13 @@ def edit_profile():
     return render_template('security/edit_profile.html', user=current_user, edit_profile_form=form)
 
 @main.route('/profile')
-@auth_required()
+@login_required
 def profile():
     """User profile page, requires authentication."""
     return render_template('security/profile.html', user=current_user)
 
 @main.route('/roles')
-@roles_accepted('admin')
+@roles_required('landlord')
 def roles():
     """
     Renders the roles page for admin users to manage roles.
@@ -63,9 +137,10 @@ def roles():
     """
     return render_template('security/roles.html', roles=current_user.roles)
 
-@main.route('/dashboard')
-@auth_required()
-def dashboard():
+@main.route('/landlord/dashboard')
+@login_required
+@roles_required('landlord')
+def landlord_dashboard():
     """
     Renders the dashboard based on the user's role (landlord or tenant).
     Requires authentication.
@@ -157,8 +232,20 @@ def dashboard():
                     })
 
             return render_template('landlord_dashboard.html', metrics=metrics, recent_payments=recent_payments)
+        else:
+            flash('Unauthorized role.', 'danger')
+            return redirect(url_for('main.logout'))
 
-        elif current_user.has_role('tenant'):
+    except Exception as e:
+        current_app.logger.exception(f"Dashboard error: {e}")
+        flash('An error occurred while loading the dashboard.', 'danger')
+        return redirect(url_for('main.index'))
+@main.route('/tenant/dashboard')
+@login_required
+@roles_required('tenant')
+def tenant_dashboard():
+    try:
+        if current_user.has_role('tenant'):
             # ----- TENANT DASHBOARD -----
             tenant = Tenant.query.filter_by(user_id=current_user.id).first()
             if not tenant:
@@ -182,7 +269,7 @@ def dashboard():
 
         else:
             flash('Unauthorized role.', 'danger')
-            return redirect(url_for('security.logout'))
+            return redirect(url_for('main.logout'))
 
     except Exception as e:
         current_app.logger.exception(f"Dashboard error: {e}")
@@ -339,7 +426,7 @@ def payments_history():
 
 
 @main.route('/overdue/history')
-@auth_required()
+@login_required
 def overdue_payment():
     """Displays overdue payments for the current user."""
     # Your overdue payment logic here
