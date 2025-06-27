@@ -32,6 +32,7 @@ class User(db.Model, sqla.FsUserMixin):
     confirm_password: Mapped[str] = mapped_column(nullable=True)
     active: Mapped[bool] = mapped_column(default=True)     
     fs_uniquifier: Mapped[str] = mapped_column(unique=True, nullable=False)
+    roles : Mapped[list["Role"]] = relationship('Role', back_populates='users', secondary=roles_users)
     # A user can own many properties
     properties: Mapped[list["Property"]] = relationship(back_populates="landlord_user")
 

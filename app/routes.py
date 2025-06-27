@@ -38,7 +38,8 @@ def admin():
 def edit_profile():
     
     form = ExtendedEditProfileForm(obj=current_user) # Populate form with current user's data
-
+    role_choices = [(1, 'Landlord'), (2, 'Tenant'), (3, 'Guest')]
+    form.roles.choices = role_choices
     if form.validate_on_submit():
         form.populate_obj(current_user)
         db.session.add(current_user)

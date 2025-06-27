@@ -357,15 +357,18 @@ class RecordPaymentForm(FlaskForm):
 
 class ExtendedEditProfileForm(FlaskForm):
     """Form for users to update their profile information."""
+    username = StringField(
+        'Username',
+        validators=[DataRequired(message='Username is required.'), Length(min=2, max=50)]
+    )
 
     first_name = StringField(
         'First Name',
         validators=[DataRequired(message='First name is required.'), Length(min=2, max=50)]
     )
-
-    last_name = StringField(
-        'Last Name',
-        validators=[DataRequired(message='Last name is required.'), Length(min=2, max=50)]
+    email = StringField(
+        'Email',
+        validators=[DataRequired(message='Email is required.'), Email(message='Invalid email address.')]
     )
 
     phone_number = TelField(
@@ -381,8 +384,7 @@ class ExtendedEditProfileForm(FlaskForm):
     roles = SelectMultipleField(
         'Roles',
         validators=[DataRequired(message='Please select at least one role.')],
-        coerce=int,
-        choices=[]  # You must populate this dynamically in the view
+        coerce=int  # This assumes your role values are integers (like role IDs)
     )
 
     language = StringField(

@@ -27,8 +27,8 @@
             --accent-color: #ffd700; /* Brighter amber (gold) */
             --text-color: #222;
             --light-text-color: #ffffff;
-            --background-color: #17181a; /* Lighter background */
-            --card-background: rgba(88, 163, 122, 0.2); /* Glassmorphism effect */
+            --background-color: #f0f4fa; /* Lighter background */
+            --card-background: rgba(234, 245, 239, 0.2); /* Glassmorphism effect */
             --shadow-light: rgba(0, 0, 0, 0.08);
             --shadow-medium: rgba(0, 0, 0, 0.15);
             --shadow-strong: rgba(0, 0, 0, 0.25);
@@ -285,9 +285,20 @@
                                 {{ render_form_errors(edit_profile_form) }}
 
                                 <div class="form-floating mb-3">
+                                    {{ edit_profile_form.username(class="form-control", placeholder=_('username'), value=user.username or '', **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
+                                    <label for="username">{{ _('username') }}</label>
+                                    {{ render_field_errors(edit_profile_form.username) }}
+                                </div>
+
+                                <div class="form-floating mb-3">
                                     {{ edit_profile_form.first_name(class="form-control", placeholder=_('First Name'), value=user.first_name or '', **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
                                     <label for="first_name">{{ _('First Name') }}</label>
                                     {{ render_field_errors(edit_profile_form.first_name) }}
+                                </div>
+                                <div class="form-floating mb-3">
+                                    {{ edit_profile_form.email(class="form-control", placeholder=_('email'), value=user.email or '', **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
+                                    <label for="email">{{ _('email') }}</label>
+                                    {{ render_field_errors(edit_profile_form.email) }}
                                 </div>
 
                                 <div class="form-floating mb-3">
@@ -301,6 +312,13 @@
                                     <label for="county">{{ _('County') }}</label>
                                     {{ render_field_errors(edit_profile_form.county) }}
                                 </div>
+                                <div class="form-floating mb-3">
+                                    {{ edit_profile_form.roles(class="form-select", **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
+                                    <label for="roles">{{ _('roles') }}</label>
+                                    {{ render_field_errors(edit_profile_form.roles) }}
+                                </div>
+                                
+                               
 
                                 <div class="form-floating mb-3">
                                     {{ edit_profile_form.language(class="form-select", **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
