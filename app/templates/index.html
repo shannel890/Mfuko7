@@ -329,14 +329,19 @@
 
     <nav>
         <div class="container">
-            <ul>
+           <ul>
                 <li><a href="#" class="active">Home</a></li>
-                <li><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                {% if current_user.has_role('landlord') %}
+                <li><a href="{{ url_for('main.landlord_dashboard') }}">Dashboard</a></li>
+                {% else %}
+                <li><a href="{{ url_for('main.tenant_dashboard') }}">Dashboard</a></li>
+                {% endif %}
                 <li><a href="#">Payments</a></li>
                 <li><a href="#">Properties</a></li>
                 <li><a href="#">Reports</a></li>
                 <li><a href="#">Contact</a></li>
-            </ul>
+    </ul>
+</div>
         </div>
     </nav>
 
@@ -344,7 +349,7 @@
         <div class="container">
             <h2>Streamline Your Real Estate Finances</h2>
             <p>Effortlessly track income, expenses, and tenant payments all in one intuitive platform. Gain clarity and control over your property investments.</p>
-            <a href="{{ url_for('security.register') }}" class="btn">Sign up</a>
+            <a href="{{ url_for('main.register') }}" class="btn">Sign up</a>
         </div>
     </section>
 
@@ -410,7 +415,7 @@
         <div class="container">
             <h2>Ready to Take Control of Your Investments?</h2>
             <p>Join countless real estate professionals and property owners who are simplifying their financial management with our powerful tracker.</p>
-            <a href="{{ url_for('security.login') }}" class="btn">Sign Up Now</a>
+            <a href="{{ url_for('main.login') }}" class="btn">Sign Up Now</a>
         </div>
     </section>
 

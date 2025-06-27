@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block head_content %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #00c853; /* Bright Emerald Green */
+            --secondary-color: #64dd17; /* Vibrant Light Green */
+            --accent-color: #ffab00; /* Bright Amber */
+            --text-color: #fff;
+            --light-text-color: #ffffff;
+            --background-color: skyblue; /* Changed to sky blue */
+            --card-background: rgba(255, 255, 255, 0.1); /* Adjusted for better contrast */
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+            --shadow-strong: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: var(--text-color);
+            line-height: 1.7;
+            background-color: var(--background-color); /* Solid sky blue background */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        body > .container {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-primary { color: var(--primary-color); }
+        .text-accent { color: var(--accent-color); }
+        .bg-primary { background-color: var(--primary-color); }
+        .raised { box-shadow: 0 10px 20px var(--shadow-medium); }
+        .raised-sm { box-shadow: 0 5px 15px var(--shadow-light); }
+
+        /* Auth Container */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .overlay-lighter {
+            background: rgba(0, 0, 0, 0.3); /* Slightly lighter overlay for sky blue */
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+        }
+
+        .auth-card {
+            max-width: 500px;
+            width: 100%;
+            background-color: var(--card-background);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 30px var(--shadow-medium);
+            position: relative;
+            z-index: 2;
+            margin: 0 auto;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color), var(--primary-color));
+            border-radius: 12px;
+            z-index: -1;
+            animation: gradientBorder 4s ease infinite;
+        }
+
+        @keyframes gradientBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .auth-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8em;
+            color: var(--light-text-color);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 6px var(--shadow-strong);
+        }
+
+        .auth-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--light-text-color);
+            padding: 14px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 12px rgba(255, 171, 0, 0.5);
+            color: var(--light-text-color);
+            outline: none;
+        }
+
+        .invalid-feedback {
+            color: #ffcccc;
+            font-size: 0.9em;
+            display: block;
+        }
+
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            color: var(--light-text-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px var(--shadow-strong);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+            border: none;
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-secondary:hover {
+            background-color: #ffe066;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px var(--shadow-strong);
+        }
+
+        hr {
+            border-color: rgba(255, 255, 255, 0.2);
+            margin: 35px 0;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .auth-card {
+                padding: 30px;
+                max-width: 90%;
+            }
+            .auth-header h1 {
+                font-size: 2.2em;
+            }
+            .auth-header p {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 20px;
+            }
+            .auth-header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+{% endblock head_content %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="overlay-lighter"></div>
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Login to REPT</h1>
+            <p>Enter your credentials to access your account.</p>
+        </div>
+        <div class="auth-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-floating mb-4">
+                    {{ form.email(class="form-control", placeholder="Email Address") }}
+                    <label for="email">Email Address</label>
+                    {% if form.email.errors %}
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-floating mb-4">
+                    {{ form.password(class="form-control", placeholder="Password") }}
+                    <label for="password">Password</label>
+                    {% if form.password.errors %}
+                        {% for error in form.password.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% if form.remember %}
+                <div class="form-check mb-4">
+                    {{ form.remember(class="form-check-input") }}
+                    <label class="form-check-label" for="remember">Remember Me</label>
+                </div>
+                {% endif %}
+                <div class="d-grid">
+                    {{ form.submit(class="btn btn-primary bubble-effect") }}
+                </div>
+            </form>
+            <hr>
+            <div class="text-center">
+                <p><a href="{{ url_for('main.forgot_password') }}">Forgot your password?</a></p>
+                <p class="mt-2">
+                    Don't have an account? <a href="{{ url_for('main.register') }}">Register here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

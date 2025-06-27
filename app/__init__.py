@@ -1,38 +1,39 @@
 from flask import Flask
-from flask_security import SQLAlchemySessionUserDatastore
-from flask_security.utils import hash_password
-from .extensions import db, security, babel
+from app.extensions import login_manager
+from .extensions import db, babel
 from .models import User, Role
 from .routes import main
-from .forms import ExtendedRegisterForm
+import os
 import uuid
 def create_app():
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')  
     app.config['SQLALCHEMY_ENGINES'] = {"default": 'sqlite:///app.db'}
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = 'my_precious'
-    app.config['SECURITY_PASSWORD_SALT'] = 'my_precious_two'
     app.config['SECURITY_REGISTERABLE'] = True
     app.config['SECURITY_SEND_REGISTER_EMAIL'] = False
     app.config['SECURITY_USE_REGISTER_V2'] = True
     app.config['SECURITY_RECOVERABLE'] = True
     app.config['SECURITY_CHANGEABLE'] =True
     app.config['SECURITY_CONFIRMABLE'] = False
+    app.config['SECURITY_FRESHNESS_GRACE_PERIOD'] = 300
     
     db.init_app(app)
     babel.init_app(app)
-    UserDatastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
-    security.init_app(app, UserDatastore, register_form=ExtendedRegisterForm)
+    
+    login_manager.init_app(app)
+    login_manager.login_view = 'login'  # name of login route
+    login_manager.login_message_category = 'info'
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+    
     app.register_blueprint(main)
     
     with app.app_context():
         db.create_all()
-    # Create landlord user
-        # Inside create_app() after db.create_all()
-       
-
-
         landlord_role = Role.query.filter_by(name='landlord').first()
         if not landlord_role:
             landlord_role = Role(name='landlord')
@@ -42,11 +43,11 @@ def create_app():
         if not landlord_user:
             landlord_user = User(
                 email='shannel@gmail.com',
-                password=hash_password('shannel254'),
+                password=('shannel254'),
                 first_name='shannel',
                 last_name='kirui',
                 fs_uniquifier=str(uuid.uuid4()),
-                active=True,  # ✅ add this line
+                active=True,  
                 roles=[landlord_role]
             )
 
