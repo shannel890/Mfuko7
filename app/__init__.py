@@ -1,10 +1,11 @@
 from flask import Flask
-from app.extensions import login_manager
+from app.extensions import login_manager,migrate
 from .extensions import db, babel
 from .models import User, Role
 from .routes import main
 import os
 import uuid
+from app.extensions import mail
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')  
@@ -18,10 +19,18 @@ def create_app():
     app.config['SECURITY_CHANGEABLE'] =True
     app.config['SECURITY_CONFIRMABLE'] = False
     app.config['SECURITY_FRESHNESS_GRACE_PERIOD'] = 300
+    app.config['MAIL_SERVER'] = 'smtp.example.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('shannelkirui739@gmail.com')
+    
     
     db.init_app(app)
     babel.init_app(app)
-    
+    mail.init_app(app)
+    migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = 'login'  # name of login route
     login_manager.login_message_category = 'info'
