@@ -320,30 +320,24 @@
 </head>
 <body>
 
+    <nav>
+        <div class="container">
+           <ul>
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#">Payments</a></li>
+                <li><a href="#">Properties</a></li>
+                <li><a href="#">Reports</a></li>
+                <li><a href="{{ url_for('main.contact')}}">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <header>
         <div class="container">
             <h1>Real Estate Payment Tracker</h1>
             <p>Your ultimate solution for managing property payments with ease.</p>
         </div>
     </header>
-
-    <nav>
-        <div class="container">
-           <ul>
-                <li><a href="#" class="active">Home</a></li>
-                {% if current_user.has_role('landlord') %}
-                <li><a href="{{ url_for('main.landlord_dashboard') }}">Dashboard</a></li>
-                {% else %}
-                <li><a href="{{ url_for('main.tenant_dashboard') }}">Dashboard</a></li>
-                {% endif %}
-                <li><a href="#">Payments</a></li>
-                <li><a href="#">Properties</a></li>
-                <li><a href="#">Reports</a></li>
-                <li><a href="#">Contact</a></li>
-    </ul>
-</div>
-        </div>
-    </nav>
 
     <section class="hero">
         <div class="container">

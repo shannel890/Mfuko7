@@ -1,30 +1,29 @@
-
-from wtforms import StringField,SubmitField, BooleanField, SelectField,TelField, DecimalField, DateField, TextAreaField, IntegerField, validators, SelectMultipleField,PasswordField
+from wtforms import StringField, SubmitField, BooleanField, SelectField, TelField, DecimalField, DateField, TextAreaField, IntegerField, SelectMultipleField, PasswordField
 from flask_babel import lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Email, Length, Optional, ValidationError, NumberRange, EqualTo
+from app.models import Property, Tenant, Role
+from flask import current_app
 
 class RegistrationForm(FlaskForm):
-    first_name = StringField('First Name', validators=[DataRequired()])
-    last_name = StringField('Last Name', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Register')
+    first_name = StringField(_l('First Name'), validators=[DataRequired()])
+    last_name = StringField(_l('Last Name'), validators=[DataRequired()])
+    email = StringField(_l('Email'), validators=[DataRequired(), Email()])
+    password = PasswordField(_l('Password'), validators=[DataRequired()])
+    confirm_password = PasswordField(_l('Confirm Password'), validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField(_l('Register'))
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    email = StringField(_l('Email'), validators=[DataRequired(), Email()])
+    password = PasswordField(_l('Password'), validators=[DataRequired()])
+    remember = BooleanField(_l('Remember Me'))
+    submit = SubmitField(_l('Login'))
 
 class ForgotPasswordRequestForm(FlaskForm):
-    """Form to request a password reset email."""
     email = StringField(_l('Email Address'), validators=[DataRequired(), Email()])
     submit = SubmitField(_l('Send Reset Instructions'))
 
 class ResetPasswordForm(FlaskForm):
-    """Form to set a new password after a reset request."""
     password = PasswordField(_l('New Password'), validators=[
         DataRequired(),
         Length(min=8, message=_l('Password must be at least 8 characters long.')),
@@ -32,9 +31,15 @@ class ResetPasswordForm(FlaskForm):
     ])
     confirm_password = PasswordField(_l('Confirm New Password'))
     submit = SubmitField(_l('Reset Password'))
-class TenantForm(FlaskForm):
-    """Form for landlords to add or edit tenant details and lease terms."""
 
+class ContactForm(FlaskForm):
+    """Form for users to send a message."""
+    name = StringField(_l('Your Name'), validators=[DataRequired(), Length(max=100)])
+    email = StringField(_l('Your Email'), validators=[DataRequired(), Email(), Length(max=120)])
+    subject = StringField(_l('Subject'), validators=[DataRequired(), Length(max=200)])
+    message = TextAreaField(_l('Message'), validators=[DataRequired(), Length(min=10, max=1000)])
+    submit = SubmitField(_l('Send Message'))
+class TenantForm(FlaskForm):
     property_id = SelectField(
         _l('Assigned Property'),
         validators=[DataRequired(_l('Property assignment is required.'))],
@@ -42,7 +47,6 @@ class TenantForm(FlaskForm):
         choices=[],
         render_kw={"class": "form-select"}
     )
-
     first_name = StringField(
         _l('First Name'),
         validators=[
@@ -51,7 +55,6 @@ class TenantForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("Tenant's first name")}
     )
-
     last_name = StringField(
         _l('Last Name'),
         validators=[
@@ -60,7 +63,6 @@ class TenantForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("Tenant's last name")}
     )
-
     email = StringField(
         _l('Email (Optional)'),
         validators=[
@@ -70,7 +72,6 @@ class TenantForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("tenant@example.com")}
     )
-
     phone_number = TelField(
         _l('Phone Number'),
         validators=[
@@ -79,7 +80,6 @@ class TenantForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., 0712345678")}
     )
-
     national_id = StringField(
         _l('National ID (Optional)'),
         validators=[
@@ -88,7 +88,6 @@ class TenantForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., 12345678")}
     )
-
     status = SelectField(
         _l('Tenant Status'),
         validators=[DataRequired(_l('Tenant status is required.'))],
@@ -99,7 +98,6 @@ class TenantForm(FlaskForm):
         ],
         render_kw={"class": "form-select"}
     )
-
     rent_amount = DecimalField(
         _l('Monthly Rent Amount (KSh)'),
         validators=[
@@ -109,7 +107,6 @@ class TenantForm(FlaskForm):
         places=2,
         render_kw={"placeholder": _l("e.g., 15000.00")}
     )
-
     due_day_of_month = IntegerField(
         _l('Rent Due Day of Month'),
         validators=[
@@ -118,7 +115,6 @@ class TenantForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., 1 (for 1st of month)")}
     )
-
     grace_period_days = IntegerField(
         _l('Grace Period (days)'),
         validators=[
@@ -127,54 +123,40 @@ class TenantForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., 5")}
     )
-
     lease_start_date = DateField(
         _l('Lease Start Date'),
         validators=[DataRequired(_l('Lease start date is required.'))],
         format='%Y-%m-%d',
         render_kw={"placeholder": "YYYY-MM-DD"}
     )
-
     lease_end_date = DateField(
         _l('Lease End Date (Optional)'),
         validators=[Optional()],
         format='%Y-%m-%d',
         render_kw={"placeholder": "YYYY-MM-DD"}
     )
-
     submit = SubmitField(_l('Save Tenant'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         try:
             from flask_security import current_user
-            from app import db
-            from app.models import Property
-
             if current_user.is_authenticated and hasattr(current_user, 'has_role') and current_user.has_role('landlord'):
                 properties = Property.query.filter_by(landlord_id=current_user.id).order_by(Property.name).all()
                 self.property_id.choices = [(p.id, _l(p.name)) for p in properties]
             else:
                 self.property_id.choices = []
         except Exception as e:
-            from flask import current_app
-            if hasattr(current_app, 'logger'):
-                current_app.logger.error(f"Error populating property choices for TenantForm: {e}")
-            else:
-                print(f"Error populating property choices for TenantForm: {e}")
+            current_app.logger.error(f"Error populating property choices for TenantForm: {e}")
             self.property_id.choices = []
-
         if not self.property_id.choices or self.property_id.choices[0][0] != 0:
             self.property_id.choices.insert(0, (0, _l('Select a Property...')))
 
     def validate_property_id(self, field):
         if field.data == 0:
             raise ValidationError(_l('Please select a property.'))
-        
 
 class PropertyForm(FlaskForm):
-    """Form for landlords to add or edit property details."""
-
     name = StringField(
         _l('Property Name'),
         validators=[
@@ -183,7 +165,6 @@ class PropertyForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., Sunny Apartments, Kilimani Block A")}
     )
-
     address = StringField(
         _l('Address'),
         validators=[
@@ -192,7 +173,6 @@ class PropertyForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., Plot 123, Off Ring Road, Nairobi")}
     )
-
     property_type = SelectField(
         _l('Property Type'),
         validators=[DataRequired(_l('Property type is required.'))],
@@ -205,7 +185,6 @@ class PropertyForm(FlaskForm):
         ],
         render_kw={"class": "form-select"}
     )
-
     number_of_units = IntegerField(
         _l('Number of Units'),
         validators=[
@@ -214,7 +193,6 @@ class PropertyForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., 10")}
     )
-
     county = StringField(
         _l('County (Property Location)'),
         validators=[
@@ -223,19 +201,16 @@ class PropertyForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., Nairobi, Kilifi")}
     )
-
     amenities = TextAreaField(
         _l('Amenities (comma separated)'),
         validators=[Optional(), Length(max=500, message=_l('Amenities list too long.'))],
         render_kw={"rows": 3, "placeholder": _l("e.g., Swimming pool, Gym, Balcony")}
     )
-
     utility_bill_types = TextAreaField(
         _l('Utility Bill Types (comma separated)'),
         validators=[Optional(), Length(max=255, message=_l('Utility types list too long.'))],
         render_kw={"rows": 2, "placeholder": _l("e.g., Water, Electricity, Garbage")}
     )
-
     unit_numbers = TextAreaField(
         _l('Unit Numbers/Identifiers (comma separated)'),
         validators=[
@@ -244,27 +219,20 @@ class PropertyForm(FlaskForm):
         ],
         render_kw={"rows": 3, "placeholder": _l("e.g., A1, B2, Penthouse")}
     )
-
     deposit_amount = DecimalField(
         _l('Security Deposit Amount (KSh)'),
         validators=[Optional(), NumberRange(min=0, message=_l('Deposit cannot be negative.'))],
         places=2,
         render_kw={"placeholder": _l("e.g., 20000.00")}
     )
-
     deposit_policy = TextAreaField(
         _l('Security Deposit Policy (Optional)'),
         validators=[Optional(), Length(max=500, message=_l('Policy text too long.'))],
         render_kw={"rows": 3, "placeholder": _l("e.g., Refundable within 30 days of vacation, less damages.")}
     )
-
     submit = SubmitField(_l('Save Property'))
 
-
-
-# --- Payment Recording Form ---
 class RecordPaymentForm(FlaskForm):
-    """Form for landlords to manually record payments received."""
     tenant_id = SelectField(
         _l('Tenant'),
         validators=[DataRequired(_l('Tenant selection is required.'))],
@@ -272,7 +240,6 @@ class RecordPaymentForm(FlaskForm):
         choices=[],
         render_kw={"class": "form-select"}
     )
-
     amount = DecimalField(
         _l('Amount Paid (KSh)'),
         validators=[
@@ -282,14 +249,12 @@ class RecordPaymentForm(FlaskForm):
         places=2,
         render_kw={"placeholder": _l("e.g., 15000.00")}
     )
-
     payment_date = DateField(
         _l('Payment Date'),
         validators=[DataRequired(_l('Payment date is required.'))],
         format='%Y-%m-%d',
         render_kw={"placeholder": "YYYY-MM-DD"}
     )
-
     payment_method = SelectField(
         _l('Payment Method'),
         validators=[DataRequired(_l('Payment method is required.'))],
@@ -302,7 +267,6 @@ class RecordPaymentForm(FlaskForm):
         ],
         render_kw={"class": "form-select"}
     )
-
     transaction_id = StringField(
         _l('M-Pesa Transaction ID (Optional)'),
         validators=[
@@ -311,33 +275,24 @@ class RecordPaymentForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., RA123ABCDEF")}
     )
-
     description = TextAreaField(
         _l('Description (Optional)'),
         validators=[Length(max=255, message=_l('Description cannot exceed 255 characters.'))],
         render_kw={"rows": 3, "placeholder": _l("Any additional notes about this payment")}
     )
-
     is_offline = BooleanField(_l('Record as Offline Payment (Sync later)'))
-
     offline_reference = StringField(
         _l('Offline Reference (Optional)'),
         validators=[Optional(), Length(max=100, message=_l('Reference cannot exceed 100 characters.'))],
         render_kw={"placeholder": _l("e.g., Manual Receipt #123")}
     )
-
     submit = SubmitField(_l('Record Payment'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Populate tenant choices dynamically for landlord
         try:
             from flask_security import current_user
-            from app import db
-            from app.models import Property, Tenant
-
             if current_user.is_authenticated and hasattr(current_user, 'has_role') and current_user.has_role('landlord'):
-                # Get all tenants belonging to the current landlord's properties
                 property_ids = [p.id for p in Property.query.filter_by(landlord_id=current_user.id).all()]
                 tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).order_by(Tenant.first_name).all()
                 self.tenant_id.choices = [
@@ -347,74 +302,51 @@ class RecordPaymentForm(FlaskForm):
             else:
                 self.tenant_id.choices = []
         except Exception as e:
-            from flask import current_app
-            if hasattr(current_app, 'logger'):
-                current_app.logger.error(f"Error populating tenant choices for RecordPaymentForm: {e}")
-            else:
-                print(f"Error populating tenant choices for RecordPaymentForm: {e}")
+            current_app.logger.error(f"Error populating tenant choices for RecordPaymentForm: {e}")
             self.tenant_id.choices = []
-
         if not self.tenant_id.choices or self.tenant_id.choices[0][0] != 0:
             self.tenant_id.choices.insert(0, (0, _l('Select a Tenant...')))
 
     def validate_tenant_id(self, field):
-        """Ensure a valid tenant is selected."""
         if field.data == 0:
             raise ValidationError(_l('Please select a tenant.'))
 
     def validate_transaction_id(self, field):
-        """Ensure transaction ID is provided if payment method is M-Pesa."""
         if self.payment_method.data == 'M-Pesa' and not field.data:
             raise ValidationError(_l('M-Pesa Transaction ID is required for M-Pesa payments.'))
 
     def validate_offline_reference(self, field):
-        """Ensure offline reference is provided if payment is marked as offline."""
         if self.is_offline.data and not field.data:
-            raise ValidationError(_l('Offline reference is required for offline payments.')) 
+            raise ValidationError(_l('Offline reference is required for offline payments.'))
 
 class ExtendedEditProfileForm(FlaskForm):
-    """Form for users to update their profile information."""
-    username = StringField(
-        'Username',
-        validators=[DataRequired(message='Username is required.'), Length(min=2, max=50)]
-    )
-
     first_name = StringField(
-        'First Name',
-        validators=[DataRequired(message='First name is required.'), Length(min=2, max=50)]
+        _l('First Name'),
+        validators=[DataRequired(_l('First name is required.')), Length(min=2, max=50)]
     )
-    email = StringField(
-        'Email',
-        validators=[DataRequired(message='Email is required.'), Email(message='Invalid email address.')]
-    )
-
     phone_number = TelField(
-        'Phone Number',
-        validators=[Optional(), Length(min=10, max=15, message='Phone number must be between 10 and 15 digits.')]
+        _l('Phone Number'),
+        validators=[Optional(), Length(min=10, max=15, message=_l('Phone number must be between 10 and 15 digits.'))]
     )
-
     county = StringField(
-        'County',
-        validators=[DataRequired(message='County is required.')]
+        _l('County'),
+        validators=[DataRequired(_l('County is required.')), Length(min=2, max=100)]
     )
-
-    roles = SelectMultipleField(
-        'Roles',
-        validators=[DataRequired(message='Please select at least one role.')],
-        coerce=int  # This assumes your role values are integers (like role IDs)
+    language = SelectField(
+        _l('Language'),
+        validators=[Optional()],
+        choices=[
+            ('', _l('Select Language...')),
+            ('en', _l('English')),
+            ('sw', _l('Swahili'))
+        ],
+        render_kw={"class": "form-select"}
     )
-
-    language = StringField(
-        'Language',
-        validators=[Optional()]
-    )
-    submit = SubmitField('Update Profile')
+    submit = SubmitField(_l('Update Profile'))
 
     def validate_phone_number(self, field):
-        """Custom validator to clean phone numbers."""
         if field.data:
             digits_only = ''.join(filter(str.isdigit, field.data))
             if len(digits_only) < 10:
-                raise ValidationError('Phone number must contain at least 10 digits.')
+                raise ValidationError(_l('Phone number must contain at least 10 digits.'))
             field.data = digits_only
-

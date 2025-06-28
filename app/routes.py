@@ -1,42 +1,55 @@
-from flask import Blueprint, render_template, request, flash, current_app,redirect, url_for
-from flask_login import login_required,current_user
-from datetime import datetime, timedelta
-from app.models import Property, Tenant, Payment, User, Role
-from flask_login import login_user, logout_user
+from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for
+from flask_login import login_required, current_user, login_user, logout_user
 from flask_babel import lazy_gettext as _l
 from app.extensions import db
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ExtendedEditProfileForm, RegistrationForm, LoginForm
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ExtendedEditProfileForm, RegistrationForm, LoginForm, ForgotPasswordRequestForm, ResetPasswordForm,ContactForm
+from app.models import Property, Tenant, Payment, User, Role, Unit, Invoice
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
-
 from functools import wraps
-from flask import abort, redirect, url_for, flash
-from flask_login import current_user
+from datetime import datetime, timedelta
+import logging
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from flask_mail import Message
+from app.extensions import mail
+
+main = Blueprint('main', __name__)
+
+
+def send_email(subject, sender, recipients, text_body, html_body=None):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    if html_body:
+        msg.html = html_body
+    mail.send(msg)
+def get_serializer():
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
 
 def roles_required(*required_roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
-                return redirect(url_for('main.login'))  # Or login manager's unauthorized
-
-            # Get role names from current_user.roles
+                return redirect(url_for('main.login'))
             user_roles = {role.name for role in current_user.roles}
-
-            # Check if all required roles are present
             if not set(required_roles).issubset(user_roles):
-                abort(403)  # Forbidden
-
+                flash(_l('You do not have the required permissions to access this page.'), 'danger')
+                return redirect(url_for('main.index'))
             return f(*args, **kwargs)
         return decorated_function
     return decorator
-main = Blueprint('main', __name__)
+
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+        existing_user = User.query.filter_by(email=form.email.data).first()
+        if existing_user:
+            flash("This email is already registered. Please log in or use a different email.", "danger")
+            return redirect(url_for('main.register'))
+        # Hash password and create user
         hashed_password = generate_password_hash(form.password.data)
         new_user = User(
             first_name=form.first_name.data,
@@ -47,15 +60,33 @@ def register():
             active=True
         )
 
-        # Assign a default role, e.g., 'tenant'
+        # Get tenant role
         default_role = Role.query.filter_by(name='tenant').first()
-        if default_role:
-            new_user.roles.append(default_role)
+        if not default_role:
+            logging.error("Default 'tenant' role not found.")
+            flash(_l('An error occurred during registration. Please try again.'), 'danger')
+            return redirect(url_for('main.register'))
 
+        # Add user and role to the session first
+        new_user.roles.append(default_role)
         db.session.add(new_user)
+        db.session.commit()  # new_user.id is now available
+
+        # ✅ Now create tenant profile using new_user info
+        default_property_id = 1
+        tenant = Tenant(
+            user_id=new_user.id,
+            first_name=new_user.first_name,
+            last_name=new_user.last_name,
+            email=new_user.email,
+            property_id=default_property_id,
+            status='active',
+            grace_period_days=5,
+        )
+        db.session.add(tenant)
         db.session.commit()
 
-        flash('Registration successful! Please log in.')
+        flash(_l('Registration successful! Please log in.'), 'success')
         return redirect(url_for('main.login'))
 
     return render_template('security/register.html', form=form)
@@ -66,223 +97,279 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and check_password_hash(user.password, form.password.data):
-            login_user(user)
-            flash('Logged in successfully!')
-            return redirect(url_for('main.tenant_dashboard'))
-
-        flash('Invalid email or password.')
-
+            login_user(user, remember=form.remember.data)
+            flash(_l('Logged in successfully!'), 'success')
+            if user.has_role('landlord'):
+                return redirect(url_for('main.landlord_dashboard'))
+            elif user.has_role('tenant'):
+                return redirect(url_for('main.tenant_dashboard'))
+            else:
+                return redirect(url_for('main.index'))
+        flash(_l('Invalid email or password.'), 'danger')
     return render_template('security/login.html', form=form)
 
-@main.route('/forgot_passord', methods=['GET','POST'])
+@main.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
-    return render_template('security/forgot_password.html')
+    form = ForgotPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            try:
+                # Generate reset token
+                serializer = get_serializer()
+                token = serializer.dumps(user.email, salt='password-reset-salt')
+                
+                # Create reset link
+                reset_url = url_for('main.reset_password', token=token, _external=True)
+                
+                # Send email
+                msg = Message(
+                    subject=_l('Password Reset Request'),
+                    recipients=[user.email],
+                    body=f"Please click the following link to reset your password: {reset_url}\n\n"
+                         f"If you did not request a password reset, please ignore this email."
+                )
+                current_app.mail.send(msg)
+                flash(_l('Password reset instructions have been sent to your email.'), 'success')
+            except Exception as e:
+                logging.error(f"Error sending password reset email: {str(e)}")
+                flash(_l('An error occurred while sending reset instructions. Please try again.'), 'danger')
+        else:
+            flash(_l('Email address not found.'), 'danger')
+        return redirect(url_for('main.login'))
+    return render_template('security/forgot_password.html', form=form)
+
+@main.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        serializer = get_serializer()
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)  # 1-hour expiration
+    except (SignatureExpired, BadSignature):
+        flash(_l('The password reset link is invalid or has expired.'), 'danger')
+        return redirect(url_for('main.forgot_password'))
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash(_l('Email address not found.'), 'danger')
+        return redirect(url_for('main.forgot_password'))
+
+    form = ResetPasswordForm()  
+    if form.validate_on_submit():
+        user.password = generate_password_hash(form.password.data)
+        db.session.commit()
+        flash(_l('Your password has been reset successfully. Please log in.'), 'success')
+        return redirect(url_for('main.login'))
+    return render_template('security/reset_password.html', form=form, token=token)
 
 @main.route('/logout')
+@login_required
 def logout():
     logout_user()
-    flash('You have been logged out.')
+    flash(_l('You have been logged out.'), 'success')
     return redirect(url_for('main.login'))
+
+
 @main.route('/')
 def landing_page():
-    """
-    Renders the landing_page.html. If the user is authenticated,
-    they are redirected to the dashboard. Otherwise, they remain
-    on the landing page to decide whether to log in.
-    """
     if current_user.is_authenticated:
-        # If the user is already logged in, redirect them to the dashboard
-        return redirect(url_for('main.tenant_dashboard'))
-    # If not logged in, show the landing page
+        if current_user.has_role('landlord'):
+            return redirect(url_for('main.landlord_dashboard'))
+        elif current_user.has_role('tenant'):
+            return redirect(url_for('main.tenant_dashboard'))
     return render_template('landing_page.html')
 
 @main.route('/index')
 def index():
-    """Renders the index.html page."""
     return render_template('index.html')
 
 @main.route('/admin')
 @roles_required('admin')
 def admin():
-    """Admin page, accessible only by users with the 'admin' role."""
-    return "<h1>Admin</h1>"
+    return render_template('admin.html')
 
 @main.route('/edit/profile', methods=['GET', 'POST'])
-@roles_required('landlord')
+@login_required
 def edit_profile():
-    
-    form = ExtendedEditProfileForm(obj=current_user) # Populate form with current user's data
-    role_choices = [(1, 'Landlord'), (2, 'Tenant'), (3, 'Guest')]
-    form.roles.choices = role_choices
+    form = ExtendedEditProfileForm(obj=current_user)
+    if current_user.has_role('admin'):
+        form.roles.choices = [(role.id, _l(role.name)) for role in Role.query.all()]
+    else:
+        form.roles.choices = [(role.id, _l(role.name)) for role in current_user.roles]
+        form.roles.data = [role.id for role in current_user.roles]
     if form.validate_on_submit():
+        if not current_user.has_role('admin'):
+            form.roles.data = [role.id for role in current_user.roles]
         form.populate_obj(current_user)
-        db.session.add(current_user)
         db.session.commit()
-        flash("Profile updated successfully!", "success")
+        flash(_l('Profile updated successfully!'), 'success')
         return redirect(url_for('main.profile'))
     return render_template('security/edit_profile.html', user=current_user, edit_profile_form=form)
 
 @main.route('/profile')
 @login_required
 def profile():
-    """User profile page, requires authentication."""
     return render_template('security/profile.html', user=current_user)
+
+@main.route('/contact', methods=['GET', 'POST'])
+def contact():
+    form = ContactForm()
+    if form.validate_on_submit():
+        try:
+            send_email(
+                subject=f"Contact Form Inquiry: {form.subject.data}",
+                sender=current_app.config['MAIL_DEFAULT_SENDER'],
+                recipients=[current_app.config['MAIL_DEFAULT_SENDER']],  # Ensure correct key here
+                text_body=f"From: {form.name.data} <{form.email.data}>\n\nMessage:\n{form.message.data}",
+                html_body=render_template('email/contact_inquiry.html', form=form)
+            )
+            flash(_l('Your message has been sent successfully! We will get back to you soon.'), 'success')
+            return redirect(url_for('main.contact'))
+        except Exception as e:
+            flash(_l('There was an error sending your message. Please try again later.'), 'danger')
+            current_app.logger.error(f"Error sending contact email: {e}")
+    return render_template('contact.html', title=_l('Contact Us'), form=form)
 
 @main.route('/roles')
 @roles_required('landlord')
 def roles():
-    """
-    Renders the roles page for admin users to manage roles.
-    Requires 'admin' role.
-    """
     return render_template('security/roles.html', roles=current_user.roles)
 
 @main.route('/landlord/dashboard')
 @login_required
 @roles_required('landlord')
 def landlord_dashboard():
-    """
-    Renders the dashboard based on the user's role (landlord or tenant).
-    Requires authentication.
-    """
     try:
-        if current_user.has_role('landlord'):
-            # ----- LANDLORD DASHBOARD -----
-            metrics = {
-                'overdue_payments': 0,
-                'total_collections': 0.00,
-                'vacancy_rate': 0.00,
-                'recent_transactions': 0
-            }
-            recent_payments = []
+        metrics = {
+            'overdue_payments': 0,
+            'total_collections': 0.00,
+            'vacancy_rate': 0.00,
+            'recent_transactions': 0
+        }
+        recent_payments = []
+        landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
+        landlord_property_ids = [p.id for p in landlord_properties]
 
-            # Get landlord's properties and tenants
-            landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
-            landlord_property_ids = [p.id for p in landlord_properties]
+        if landlord_property_ids:
+            landlord_tenants = Tenant.query.filter(Tenant.property_id.in_(landlord_property_ids), Tenant.status == 'active').all()
+            landlord_tenant_ids = [t.id for t in landlord_tenants]
+            today = datetime.utcnow().date()
+            current_month_start = today.replace(day=1)
+            next_month_start = (datetime(today.year + (today.month == 12), (today.month % 12) + 1, 1)).date()
 
-            if landlord_property_ids:
-                landlord_tenants = Tenant.query.filter(
-                    Tenant.property_id.in_(landlord_property_ids),
-                    Tenant.status == 'active'
-                ).all()
-                landlord_tenant_ids = [t.id for t in landlord_tenants]
+            # Overdue Payments
+            for tenant in landlord_tenants:
+                due_day = tenant.due_day_of_month or 1
+                try:
+                    due_date_this_month = current_month_start.replace(day=due_day)
+                except ValueError:
+                    due_date_this_month = (next_month_start - timedelta(days=1))
+                effective_due_date = due_date_this_month + timedelta(days=tenant.grace_period_days or 0)
+                if today > effective_due_date:
+                    payment_this_month = Payment.query.filter(
+                        Payment.tenant_id == tenant.id,
+                        Payment.payment_date >= current_month_start,
+                        Payment.payment_date < next_month_start,
+                        Payment.status == 'confirmed'
+                    ).first()
+                    if not payment_this_month:
+                        metrics['overdue_payments'] += 1
 
-                today = datetime.utcnow().date()
-                current_month_start = today.replace(day=1)
-                next_month_start = (datetime(today.year + (today.month == 12), (today.month % 12) + 1, 1)).date()
+            # Total Collections
+            metrics['total_collections'] = db.session.query(func.sum(Payment.amount)).filter(
+                Payment.tenant_id.in_(landlord_tenant_ids),
+                Payment.status == 'confirmed',
+                Payment.payment_date >= current_month_start,
+                Payment.payment_date < next_month_start
+            ).scalar() or 0.00
 
-                # 1. Overdue Payments
-                for tenant in landlord_tenants:
-                    due_day = tenant.due_day_of_month
-                    if due_day is None:
-                        continue
-                    try:
-                        due_date_this_month = current_month_start.replace(day=due_day)
-                    except ValueError:
-                        last_day_of_month = (next_month_start - timedelta(days=1)).day
-                        due_date_this_month = current_month_start.replace(day=last_day_of_month)
-                    effective_due_date = due_date_this_month + timedelta(days=tenant.grace_period_days or 0)
+            # Vacancy Rate
+            total_units = db.session.query(func.sum(Unit.rent_amount)).filter(
+                Unit.property_id.in_(landlord_property_ids),
+                Unit.status != 'maintenance'
+            ).scalar() or 0
+            occupied_units = len(Tenant.query.filter(
+                Tenant.property_id.in_(landlord_property_ids),
+                Tenant.status == 'active'
+            ).join(Unit, Tenant.unit_id == Unit.id).all())
+            if total_units > 0:
+                metrics['vacancy_rate'] = round(((total_units - occupied_units) / total_units) * 100, 2)
+            else:
+                metrics['vacancy_rate'] = 0.00
 
-                    if today > effective_due_date:
-                        payment_this_month = Payment.query.filter(
-                            Payment.tenant_id == tenant.id,
-                            Payment.payment_date >= current_month_start,
-                            Payment.payment_date < next_month_start,
-                            Payment.status == 'confirmed'
-                        ).first()
-                        if not payment_this_month:
-                            metrics['overdue_payments'] += 1
+            # Recent Transactions
+            seven_days_ago = today - timedelta(days=7)
+            metrics['recent_transactions'] = Payment.query.filter(
+                Payment.tenant_id.in_(landlord_tenant_ids),
+                Payment.status == 'confirmed',
+                Payment.payment_date >= seven_days_ago
+            ).count()
 
-                # 2. Total Collections
-                metrics['total_collections'] = db.session.query(func.sum(Payment.amount)).filter(
-                    Payment.tenant_id.in_(landlord_tenant_ids),
-                    Payment.status == 'confirmed',
-                    Payment.payment_date >= current_month_start,
-                    Payment.payment_date < next_month_start
-                ).scalar() or 0.00
+            # Recent Payments Table (Last 5)
+            recent_payments_query = Payment.query.filter(
+                Payment.tenant_id.in_(landlord_tenant_ids),
+                Payment.status == 'confirmed'
+            ).join(Tenant).order_by(Payment.payment_date.desc()).limit(5).all()
 
-                # 3. Vacancy Rate
-                total_units = db.session.query(func.sum(Property.number_of_units)).filter(
-                    Property.id.in_(landlord_property_ids)
-                ).scalar() or 0
-                metrics['vacancy_rate'] = round(((total_units - len(landlord_tenants)) / total_units) * 100, 2) if total_units else 0.00
+            for payment in recent_payments_query:
+                tenant = payment.tenant
+                recent_payments.append({
+                    'tenant_name': f"{tenant.first_name} {tenant.last_name}" if tenant else 'Unknown',
+                    'property_name': tenant.property.name if tenant and tenant.property else 'N/A',
+                    'amount': payment.amount,
+                    'payment_date': payment.payment_date,
+                    'status': payment.status
+                })
 
-                # 4. Recent Transactions
-                seven_days_ago = today - timedelta(days=7)
-                metrics['recent_transactions'] = Payment.query.filter(
-                    Payment.tenant_id.in_(landlord_tenant_ids),
-                    Payment.status == 'confirmed',
-                    Payment.payment_date >= seven_days_ago
-                ).count()
-
-                # 5. Recent Payments Table (Last 5)
-                recent_payments_query = Payment.query.filter(
-                    Payment.tenant_id.in_(landlord_tenant_ids),
-                    Payment.status == 'confirmed'
-                ).order_by(Payment.payment_date.desc()).limit(5).all()
-
-                for payment in recent_payments_query:
-                    tenant = payment.tenant
-                    recent_payments.append({
-                        'tenant_name': f"{tenant.first_name} {tenant.last_name}" if tenant else 'Unknown',
-                        'property_name': tenant.property.name if tenant and tenant.property else 'N/A',
-                        'amount': payment.amount,
-                        'payment_date': payment.payment_date,
-                        'status': payment.status
-                    })
-
-            return render_template('landlord_dashboard.html', metrics=metrics, recent_payments=recent_payments)
-        else:
-            flash('Unauthorized role.', 'danger')
-            return redirect(url_for('main.logout'))
+        return render_template('landlord_dashboard.html', metrics=metrics, recent_payments=recent_payments)
 
     except Exception as e:
-        current_app.logger.exception(f"Dashboard error: {e}")
-        flash('An error occurred while loading the dashboard.', 'danger')
+        logging.error(f"Dashboard error: {str(e)}")
+        flash(_l('An error occurred while loading the dashboard. Please try again.'), 'danger')
         return redirect(url_for('main.index'))
+
 @main.route('/tenant/dashboard')
 @login_required
 @roles_required('tenant')
 def tenant_dashboard():
     try:
-        if current_user.has_role('tenant'):
-            # ----- TENANT DASHBOARD -----
-            tenant = Tenant.query.filter_by(user_id=current_user.id).first()
-            if not tenant:
-                flash('No tenant profile found.', 'warning')
-                return redirect(url_for('main.index'))
+        tenant = Tenant.query.filter_by(user_id=current_user.id).first()
+        if not tenant:
+            flash(_l('No tenant profile found. Contact your landlord.'), 'warning')
+            return redirect(url_for('main.index'))
 
-            today = datetime.utcnow().date()
-            due_day = tenant.due_day_of_month or 1
-            try:
-                due_date = today.replace(day=due_day)
-            except ValueError:
-                last_day = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
-                due_date = last_day
+        today = datetime.utcnow().date()
+        current_month_start = today.replace(day=1)
+        due_day = tenant.due_day_of_month or 1
+        try:
+            due_date = current_month_start.replace(day=due_day)
+        except ValueError:
+            due_date = (current_month_start.replace(day=1) + timedelta(days=31)).replace(day=1) - timedelta(days=1)
 
-            # Get available properties
-            all_properties = Property.query.all()
-            occupied_property_ids = db.session.query(Tenant.property_id).distinct()
-            available_properties = [p for p in all_properties if p.id not in [row[0] for row in occupied_property_ids]]
+        units = Unit.query.filter(Unit.status == 'vacant').all()
+        available_properties = {}
+        for unit in units:
+            prop = unit.property
+            if prop.id not in available_properties:
+                available_properties[prop.id] = {
+                    'name': prop.name,
+                    'address': prop.address,
+                    'property_type': prop.property_type,
+                    'units_available': 0
+                }
+            available_properties[prop.id]['units_available'] += 1
+        available_properties = list(available_properties.values())
 
-            return render_template('tenant_dashboard.html', tenant=tenant, due_date=due_date, available_properties=available_properties)
-
-        else:
-            flash('Unauthorized role.', 'danger')
-            return redirect(url_for('main.logout'))
+        return render_template('tenant_dashboard.html', tenant=tenant, due_date=due_date, available_properties=available_properties)
 
     except Exception as e:
-        current_app.logger.exception(f"Dashboard error: {e}")
-        flash('An error occurred while loading the dashboard.', 'danger')
+        logging.error(f"Dashboard error: {str(e)}")
+        flash(_l('An error occurred while loading the dashboard. Please try again.'), 'danger')
         return redirect(url_for('main.index'))
 
-
-# --- Properties Routes ---
 @main.route('/properties')
 @login_required
 @roles_required('landlord')
 def properties_list():
-    """Lists properties owned by the current landlord."""
     properties = Property.query.filter_by(landlord_id=current_user.id).all()
     return render_template('properties/list.html', properties=properties)
 
@@ -290,7 +377,6 @@ def properties_list():
 @login_required
 @roles_required('landlord')
 def property_add():
-    """Allows a landlord to add a new property."""
     form = PropertyForm()
     if form.validate_on_submit():
         property = Property(
@@ -298,11 +384,17 @@ def property_add():
             address=form.address.data,
             property_type=form.property_type.data,
             number_of_units=form.number_of_units.data,
-            landlord_id=current_user.id
+            landlord_id=current_user.id,
+            county_name=form.county.data,
+            amenities=form.amenities.data,
+            utility_bill_types=form.utility_bill_types.data,
+            unit_numbers=form.unit_numbers.data,
+            deposit_amount=form.deposit_amount.data,
+            deposit_policy=form.deposit_policy.data
         )
         db.session.add(property)
         db.session.commit()
-        flash(_l('Property added successfully.'), 'success')
+        flash(_l('Property added successfully!'), 'success')
         return redirect(url_for('main.properties_list'))
     return render_template('properties/add_edit.html', form=form, edit=False)
 
@@ -310,32 +402,24 @@ def property_add():
 @login_required
 @roles_required('landlord')
 def property_edit(id):
-    """Allows a landlord to edit an existing property."""
     property = Property.query.get_or_404(id)
-    # Ensure the landlord owns this property
     if property.landlord_id != current_user.id:
-        flash(_l('Access denied.'), 'danger')
+        flash(_l('You do not have permission to edit this property.'), 'danger')
         return redirect(url_for('main.properties_list'))
     form = PropertyForm(obj=property)
     if form.validate_on_submit():
-        property.name = form.name.data
-        property.address = form.address.data
-        property.property_type = form.property_type.data
-        property.number_of_units = form.number_of_units.data
+        form.populate_obj(property)
         db.session.commit()
-        flash(_l('Property updated successfully.'), 'success')
+        flash(_l('Property updated successfully!'), 'success')
         return redirect(url_for('main.properties_list'))
     return render_template('properties/add_edit.html', form=form, edit=True)
 
-# --- Tenants Routes ---
 @main.route('/tenants')
 @login_required
 @roles_required('landlord')
 def tenants_list():
-    """Lists tenants associated with the current landlord's properties."""
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
-    # Filter tenants by properties belonging to the current landlord
     tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
     return render_template('tenants/list.html', tenants=tenants)
 
@@ -343,9 +427,7 @@ def tenants_list():
 @login_required
 @roles_required('landlord')
 def tenant_add():
-    """Allows a landlord to add a new tenant."""
     form = TenantForm()
-    # Populate property choices with only properties belonging to the current landlord
     form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(landlord_id=current_user.id).all()]
     if form.validate_on_submit():
         tenant = Tenant(
@@ -358,11 +440,13 @@ def tenant_add():
             due_day_of_month=form.due_day_of_month.data,
             grace_period_days=form.grace_period_days.data,
             lease_start_date=form.lease_start_date.data,
-            lease_end_date=form.lease_end_date.data
+            lease_end_date=form.lease_end_date.data,
+            national_id=form.national_id.data,
+            status=form.status.data
         )
         db.session.add(tenant)
         db.session.commit()
-        flash(_l('Tenant added successfully.'), 'success')
+        flash(_l('Tenant added successfully!'), 'success')
         return redirect(url_for('main.tenants_list'))
     return render_template('tenants/add_edit.html', form=form, edit=False)
 
@@ -370,45 +454,48 @@ def tenant_add():
 @login_required
 @roles_required('landlord')
 def tenant_edit(id):
-    """Allows a landlord to edit an existing tenant."""
     tenant = Tenant.query.get_or_404(id)
-    # Ensure the tenant is associated with a property owned by the current landlord
     if tenant.property.landlord_id != current_user.id:
-        flash(_l('Access denied.'), 'danger')
+        flash(_l('You do not have permission to edit this tenant.'), 'danger')
         return redirect(url_for('main.tenants_list'))
     form = TenantForm(obj=tenant)
     form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(landlord_id=current_user.id).all()]
     if form.validate_on_submit():
-        form.populate_obj(tenant) # Populate all fields from the form object
+        form.populate_obj(tenant)
         db.session.commit()
-        flash(_l('Tenant updated successfully.'), 'success')
+        flash(_l('Tenant updated successfully!'), 'success')
         return redirect(url_for('main.tenants_list'))
     return render_template('tenants/add_edit.html', form=form, edit=True)
 
-# --- Payments Routes ---
 @main.route('/payments/record', methods=['GET', 'POST'])
 @login_required
 @roles_required('landlord')
 def record_payment():
-    """Allows a landlord to record a new payment."""
     form = RecordPaymentForm()
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
-    # Populate tenant choices only for tenants associated with the current landlord's properties
-    form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name}")
-                              for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
+    form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name} ({t.property.name})")
+                             for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
     if form.validate_on_submit():
+        invoice = Invoice.query.filter_by(tenant_id=form.tenant_id.data, status='pending').first()
         payment = Payment(
             amount=form.amount.data,
             tenant_id=form.tenant_id.data,
             payment_method=form.payment_method.data,
             transaction_id=form.transaction_id.data,
-            payment_date=form.payment_date.data or datetime.utcnow().date(), # Use .date() for consistency
-            status='confirmed' # Manually recorded payments are confirmed by default
+            payment_date=form.payment_date.data or datetime.utcnow().date(),
+            status='confirmed',
+            description=form.description.data,
+            is_offline=form.is_offline.data,
+            offline_reference=form.offline_reference.data,
+            invoice_id=invoice.id if invoice else None
         )
         db.session.add(payment)
+        if invoice:
+            invoice.amount_due -= payment.amount
+            invoice.status = 'paid' if invoice.amount_due <= 0 else 'partially_paid'
         db.session.commit()
-        flash(_l('Payment recorded successfully.'), 'success')
+        flash(_l('Payment recorded successfully!'), 'success')
         return redirect(url_for('main.payments_history'))
     return render_template('payments/record_payment.html', form=form)
 
@@ -416,18 +503,42 @@ def record_payment():
 @login_required
 @roles_required('landlord')
 def payments_history():
-    """Displays a history of payments for the current landlord's properties."""
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
-    # Filter payments by tenants associated with the current landlord's properties
     tenant_ids = [t.id for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
     payments = Payment.query.filter(Payment.tenant_id.in_(tenant_ids)).order_by(Payment.payment_date.desc()).all()
     return render_template('payments/history.html', payments=payments)
 
-
 @main.route('/overdue/history')
 @login_required
+@roles_required('landlord')
 def overdue_payment():
-    """Displays overdue payments for the current user."""
-    # Your overdue payment logic here
-    return render_template('/payments/overdue_payment.html')
+    landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
+    property_ids = [p.id for p in landlord_properties]
+    tenant_ids = [t.id for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
+    today = datetime.utcnow().date()
+    current_month_start = today.replace(day=1)
+    next_month_start = (datetime(today.year + (today.month == 12), (today.month % 12) + 1, 1)).date()
+    overdue_tenants = []
+    for tenant in Tenant.query.filter(Tenant.id.in_(tenant_ids), Tenant.status == 'active').all():
+        due_day = tenant.due_day_of_month or 1
+        try:
+            due_date = current_month_start.replace(day=due_day)
+        except ValueError:
+            due_date = (next_month_start - timedelta(days=1))
+        effective_due_date = due_date + timedelta(days=tenant.grace_period_days or 0)
+        if today > effective_due_date:
+            payment = Payment.query.filter(
+                Payment.tenant_id == tenant.id,
+                Payment.payment_date >= current_month_start,
+                Payment.payment_date < next_month_start,
+                Payment.status == 'confirmed'
+            ).first()
+            if not payment:
+                overdue_tenants.append({
+                    'tenant_name': f"{tenant.first_name} {tenant.last_name}",
+                    'property_name': tenant.property.name,
+                    'due_date': due_date,
+                    'amount_due': tenant.rent_amount
+                })
+    return render_template('payments/overdue_payment.html', overdue_tenants=overdue_tenants)

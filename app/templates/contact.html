@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block head_content %}
+    <meta charset="UTF-8">
+    <title>Contact Us - REPT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div style="min-height: 100vh; background: linear-gradient(to right, #e0ffef, #f1faff); display: flex; align-items: center; justify-content: center; padding: 50px 20px; font-family: 'Roboto', sans-serif;">
+    <div style="background-color: #ffffffee; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-width: 800px; width: 100%; padding: 40px;">
+        <h2 style="color: #00b87a; font-weight: bold; text-align: center; margin-bottom: 30px;">Contact Us</h2>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                <label for="name" class="form-label fw-bold">Full Name</label>
+                {{ form.name(class="form-control", placeholder="Enter your full name") }}
+                {% for error in form.name.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label fw-bold">Email Address</label>
+                {{ form.email(class="form-control", placeholder="Enter your email") }}
+                {% for error in form.email.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="message" class="form-label fw-bold">Message</label>
+                {{ form.message(class="form-control", placeholder="Write your message", rows=5) }}
+                {% for error in form.message.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="d-grid">
+                {{ form.submit(class="btn btn-success", style="background-color:#00b87a; border: none; font-weight: 600; padding: 12px;") }}
+            </div>
+        </form>
+
+        <hr class="my-4">
+
+        <div class="text-center">
+            <p class="mb-1"><strong>Email:</strong> support@rept.com</p>
+            <p class="mb-1"><strong>Phone:</strong> +254 712 345 678</p>
+            <p class="mb-0"><strong>Address:</strong> Nairobi, Kenya</p>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
