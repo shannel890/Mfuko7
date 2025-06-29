@@ -320,9 +320,17 @@ class RecordPaymentForm(FlaskForm):
             raise ValidationError(_l('Offline reference is required for offline payments.'))
 
 class ExtendedEditProfileForm(FlaskForm):
+    username = StringField(
+        _l('Username'),
+        validators=[DataRequired(_l('Username is required')), Length(min=2, max=20)]
+    )
     first_name = StringField(
         _l('First Name'),
         validators=[DataRequired(_l('First name is required.')), Length(min=2, max=50)]
+    )
+    email = StringField(
+        _l('Email'),
+        validators=[DataRequired(_l('Email is required.')), Length(min=2, max=50)]
     )
     phone_number = TelField(
         _l('Phone Number'),
@@ -342,6 +350,12 @@ class ExtendedEditProfileForm(FlaskForm):
         ],
         render_kw={"class": "form-select"}
     )
+    roles = SelectMultipleField(
+        _l('Roles'),
+        coerce=int,  # Assuming role IDs are integers
+        validators=[Optional()],
+        render_kw={"class": "form-select"}
+    )
     submit = SubmitField(_l('Update Profile'))
 
     def validate_phone_number(self, field):
@@ -350,3 +364,17 @@ class ExtendedEditProfileForm(FlaskForm):
             if len(digits_only) < 10:
                 raise ValidationError(_l('Phone number must contain at least 10 digits.'))
             field.data = digits_only
+class TenantPaymentForm(FlaskForm):
+    amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=1)], places=2)
+    payment_method = SelectField("Payment Method", choices=[("mpesa", "M-Pesa"), ("bank", "Bank"), ("cash", "Cash")], validators=[DataRequired()])
+    transaction_id = StringField("Transaction ID", validators=[DataRequired()])
+    payment_date = DateField("Payment Date", validators=[DataRequired()])
+    description = TextAreaField("Description (optional)")
+    is_offline = BooleanField("Is this an offline payment?")
+    offline_reference = StringField("Offline Reference (optional)")
+
+class ReportFilterForm(FlaskForm):
+    property_id = SelectField('Property', choices=[('', 'All Properties')], coerce=str)
+    start_date = DateField('Start Date', validators=[DataRequired()], format='%Y-%m-%d')
+    end_date = DateField('End Date', validators=[DataRequired()], format='%Y-%m-%d')
+    submit = SubmitField('Generate Report')

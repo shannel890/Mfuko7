@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h2 class="mb-4 text-center fw-bold">Make Monthly Payment</h2>
+
+                    {% if amount_due is not none %}
+                        <p class="text-info mb-4 text-center">
+                            Amount Due: <strong>KSh {{ "%.2f"|format(amount_due) }}</strong>
+                        </p>
+                    {% else %}
+                        <p class="text-danger mb-4 text-center">
+                            Amount Due: <strong>Unavailable</strong>
+                        </p>
+                    {% endif %}
+
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            {{ form.amount.label(class="form-label fw-medium") }}
+                            {{ form.amount(class="form-control form-control-lg", placeholder="Enter amount") }}
+                            {% if form.amount.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.amount.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.payment_method.label(class="form-label fw-medium") }}
+                            {{ form.payment_method(class="form-select form-select-lg") }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.payment_method.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.transaction_id.label(class="form-label fw-medium") }}
+                            {{ form.transaction_id(class="form-control form-control-lg", placeholder="Enter transaction ID") }}
+                            {% if form.transaction_id.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.transaction_id.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.payment_date.label(class="form-label fw-medium") }}
+                            {{ form.payment_date(class="form-control form-control-lg", type="date") }}
+                            {% if form.payment_date.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.payment_date.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.description.label(class="form-label fw-medium") }}
+                            {{ form.description(class="form-control form-control-lg", placeholder="Enter description (optional)", rows="4") }}
+                            {% if form.description.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.description.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-check mb-4">
+                            {{ form.is_offline(class="form-check-input") }}
+                            {{ form.is_offline.label(class="form-check-label") }}
+                            {% if form.is_offline.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.is_offline.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.offline_reference.label(class="form-label fw-medium") }}
+                            {{ form.offline_reference(class="form-control form-control-lg", placeholder="Enter offline reference (if applicable)") }}
+                            {% if form.offline_reference.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.offline_reference.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

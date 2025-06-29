@@ -1,11 +1,21 @@
 from flask import Flask
 from app.extensions import login_manager,migrate
-from .extensions import db, babel
+from .extensions import db, babel, mail
 from .models import User, Role
 from .routes import main
 import os
 import uuid
 from app.extensions import mail
+from werkzeug.security import generate_password_hash
+import logging
+
+
+logging.basicConfig(
+    level=logging.DEBUG,  # or INFO to reduce noise
+    format='%(asctime)s [%(levelname)s] %(message)s',
+)
+
+
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')  
@@ -19,8 +29,8 @@ def create_app():
     app.config['SECURITY_CHANGEABLE'] =True
     app.config['SECURITY_CONFIRMABLE'] = False
     app.config['SECURITY_FRESHNESS_GRACE_PERIOD'] = 300
-    app.config['MAIL_SERVER'] = 'smtp.example.com'
-    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_SERVER'] = 'MAIL_SERVER'
+    app.config['MAIL_PORT'] = 'MAIL_PORT'
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
@@ -32,7 +42,7 @@ def create_app():
     mail.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    login_manager.login_view = 'login'  # name of login route
+    login_manager.login_view = 'main.login' 
     login_manager.login_message_category = 'info'
 
     @login_manager.user_loader
@@ -52,7 +62,7 @@ def create_app():
         if not landlord_user:
             landlord_user = User(
                 email='shannel@gmail.com',
-                password=('shannel254'),
+                password=generate_password_hash('shannel254'),
                 first_name='shannel',
                 last_name='kirui',
                 fs_uniquifier=str(uuid.uuid4()),

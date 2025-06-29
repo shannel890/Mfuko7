@@ -2,276 +2,133 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}REPT{% endblock %}</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome/all.min.css') }}">
-
-
-    <!-- Custom CSS -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="PropertyPayTrack - Simplify Your Real Estate Finances">
+    <meta name="author" content="PropertyPayTrack">
+    <!-- Open Graph for SEO -->
+    <meta property="og:title" content="PropertyPayTrack">
+    <meta property="og:description" content="Simplify your real estate finances with intuitive tools for payment tracking and property management.">
+    <meta property="og:image" content="{{ url_for('static', filename='img/og-image.jpg') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- AOS -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <!-- Swiper (for landing page testimonials) -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper@8.4.7/swiper-bundle.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2c5aa0;
-            --secondary-color: #f8f9fa;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8; /* Added info color for consistency */
-            --dark-color: #343a40; /* Added dark color for consistency */
+            --primary-color: #34c759; /* Unified green from edit_profile.html */
+            --secondary-color: #2aa648;
+            --accent-color: #ffd700;
+            --text-color: #222;
+            --light-text-color: #ffffff;
+            --background-color: #f0f4fa;
+            --card-background: rgba(155, 252, 240, 0.774);
+            --shadow-light: rgba(11, 175, 120, 0.986);
+            --shadow-medium: rgba(139, 134, 143, 0.15);
+            --shadow-strong: rgba(139, 119, 119, 0.25);
         }
 
         body {
-            background: linear-gradient(135deg, #0e0f0f 0%, #27090f 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #1a0202; /* Ensure text is visible on dark background */
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-        }
-
-        .dashboard-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #d3c278 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px;
-        }
-
-        .role-badge {
-            font-size: 0.8em;
-            padding: 0.25rem 0.5rem;
-        }
-
-        .auth-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 0;
-        }
-
-        .auth-card {
-            background: rgb(63, 147, 158);
-            border-radius: 15px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            overflow: hidden;
-            max-width: 500px;
-            width: 100%;
-        }
-
-        .auth-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #2680a3 100%);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .auth-header h1 {
+            font-family: 'Roboto', sans-serif;
             margin: 0;
-            font-size: 1.75rem;
-            font-weight: 300;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            scroll-behavior: smooth;
         }
 
-        .auth-header p {
-            margin: 0.5rem 0 0 0;
-            opacity: 0.9;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        .auth-body {
-            padding: 2rem;
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 20px var(--shadow-medium);
         }
 
-        .form-floating {
-            margin-bottom: 1rem;
-        }
-
-        .form-floating > .form-control {
-            height: calc(3.5rem + 2px);
-            padding: 1rem 0.75rem;
-        }
-
-        .form-floating > .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(44, 90, 160, 0.25);
-        }
-
-        /* Base button styles */
-        .btn {
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            border-radius: 8px; /* Slightly more rounded */
-            transition: all 0.3s ease; /* Smooth transitions for all properties */
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        /* Primary Button (custom gradient and shadow) */
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #1e3c72 100%);
+            background-color: var(--primary-color);
             border: none;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            color: var(--light-text-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(44, 90, 160, 0.5); /* Stronger shadow on hover */
-            background: linear-gradient(135deg, #3a6dab 0%, #295196 100%); /* Slightly different gradient on hover */
-        }
-
-        /* Success Button (custom gradient and shadow) */
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color) 0%, #1f7b3a 100%);
-            border: none;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.5);
-            background: linear-gradient(135deg, #37a858 0%, #2c8c4e 100%);
-        }
-
-        /* Danger Button (custom gradient and shadow) */
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger-color) 0%, #a72323 100%);
-            border: none;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(220, 53, 69, 0.5);
-            background: linear-gradient(135deg, #e04a58 0%, #bd3232 100%);
-        }
-
-        /* Warning Button (custom gradient and shadow) */
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning-color) 0%, #cc9a00 100%);
-            border: none;
-            color: #333; /* Darker text for better contrast */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(255, 193, 7, 0.5);
-            background: linear-gradient(135deg, #ffce33 0%, #e0ac00 100%);
-        }
-
-        /* Info Button (custom gradient and shadow) */
-        .btn-info {
-            background: linear-gradient(135deg, var(--info-color) 0%, #117a8b 100%);
-            border: none;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-info:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(23, 162, 184, 0.5);
-            background: linear-gradient(135deg, #2ac2da 0%, #1593a5 100%);
-        }
-
-        /* Secondary Button (subtle style) */
-        .btn-secondary {
             background-color: var(--secondary-color);
-            border: 1px solid #dee2e6;
-            color: #333;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-strong);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+            border: none;
+            color: var(--text-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
         }
 
         .btn-secondary:hover {
-            transform: translateY(-2px);
-            background-color: #e9ecef;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background-color: #ffe066;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-strong);
         }
 
-        /* Outline buttons */
-        .btn-outline-primary {
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            background: transparent;
-        }
-        .btn-outline-primary:hover {
-            background: var(--primary-color);
-            color: white;
-            box-shadow: 0 4px 8px rgba(44, 90, 160, 0.3);
+        .bubble-effect {
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Bubble effect for buttons */
-        .btn.bubble-effect::before {
+        .bubble-effect::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 50%;
             width: 0;
             height: 0;
-            background: rgba(255, 255, 255, 0.15); /* Light ripple effect */
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            opacity: 0;
             transform: translate(-50%, -50%);
-            transition: width 0.4s ease-out, height 0.4s ease-out, opacity 0.4s ease-out;
-            z-index: 0;
+            transition: width 0.6s ease, height 0.6s ease;
         }
 
-        .btn.bubble-effect:hover::before {
+        .bubble-effect:hover::after {
             width: 200%;
             height: 200%;
-            opacity: 1;
-        }
-        /* Ensure text and icon are above the bubble effect */
-        .btn.bubble-effect span, .btn.bubble-effect i {
-            position: relative;
-            z-index: 2;
         }
 
-
-        .alert {
-            border-radius: 10px;
-            margin-bottom: 1rem;
-        }
-
-        .footer-links {
-            text-align: center;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e9ecef;
-            color: #cccccc; /* Adjust footer link color for visibility */
-        }
-
-        .footer-links a {
-            color: var(--primary-color);
-            text-decoration: none;
-            margin: 0 1rem;
-        }
-
-        .footer-links a:hover {
-            text-decoration: underline;
+        @media (max-width: 768px) {
+            .btn-primary, .btn-secondary {
+                font-size: 1em;
+                padding: 10px 20px;
+            }
         }
     </style>
-
-    {% block extra_css %}{% endblock %}
+    {% block styles %}{% endblock %}
 </head>
-<body>
+<body data-aos-easing="ease" data-aos-duration="1200" data-aos-delay="0">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -285,18 +142,7 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.landlord_dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Landlord Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.tenant_dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Tenant_Dashboard
-                        </a>
-                    </li>
-                </ul>
+                
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
@@ -333,84 +179,25 @@
             {% endif %}
         </div>
     </nav>
-
-    <!-- Main Content -->
-    <main class="container mt-4">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        {% block content %}
-        <h2 class="text-center mb-4" style="color: white;">Explore Our Buttons</h2>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
-            <!-- Styled Primary Button -->
-            <div class="col d-flex justify-content-center">
-                <button type="button" class="btn btn-primary btn-lg bubble-effect">
-                    <i class="fas fa-star me-2"></i><span>Primary Action</span>
-                </button>
-            </div>
-
-            <!-- Styled Success Button -->
-            <div class="col d-flex justify-content-center">
-                <button type="button" class="btn btn-success btn-lg bubble-effect">
-                    <i class="fas fa-check-circle me-2"></i><span>Submit Data</span>
-                </button>
-            </div>
-
-            <!-- Styled Danger Button -->
-            <div class="col d-flex justify-content-center">
-                <button type="button" class="btn btn-danger btn-lg bubble-effect">
-                    <i class="fas fa-times-circle me-2"></i><span>Delete Item</span>
-                </button>
-            </div>
-
-            <!-- Styled Warning Button -->
-            <div class="col d-flex justify-content-center">
-                <button type="button" class="btn btn-warning btn-lg bubble-effect">
-                    <i class="fas fa-exclamation-triangle me-2"></i><span>Proceed with Caution</span>
-                </button>
-            </div>
-
-            <!-- Styled Info Button -->
-            <div class="col d-flex justify-content-center">
-                <button type="button" class="btn btn-info btn-lg bubble-effect">
-                    <i class="fas fa-info-circle me-2"></i><span>Learn More</span>
-                </button>
-            </div>
-
-            <!-- Styled Secondary Button -->
-            <div class="col d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary btn-lg">
-                    <i class="fas fa-arrow-right me-2"></i><span>Go Back</span>
-                </button>
-            </div>
-
-            <!-- Outline Primary Button -->
-            <div class="col d-flex justify-content-center">
-                <button type="button" class="btn btn-outline-primary btn-lg bubble-effect">
-                    <i class="fas fa-external-link-alt me-2"></i><span>View Details</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="mt-5 text-center">
-            <p style="color: white;">These are examples of styled buttons. You can replace this content in your specific page templates.</p>
-        </div>
-
-        {% endblock %}
-    </main>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    {% block extra_js %}{% endblock %}
+    {% block content %}{% endblock %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR-GA-ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'YOUR-GA-ID');
+    </script>
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <!-- AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1200 });
+    </script>
+    <!-- Swiper -->
+    <script src="https://unpkg.com/swiper@8.4.7/swiper-bundle.min.js"></script>
+    <!-- Jarallax -->
+    <script src="https://unpkg.com/jarallax@2.0.2/dist/jarallax.min.js"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

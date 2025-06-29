@@ -269,7 +269,7 @@ hr {
     width: 0;
     height: 1px;
     background-color: currentColor;
-    transition: width 0.3s ease;
+    transition: width 0.1s ease;
 }
 
 .auth-link:hover::after {
