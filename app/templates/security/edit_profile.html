@@ -1,363 +1,224 @@
 {% extends "base.html" %}
 {% block title %}{{ _('Edit Profile') }} - {{ user.full_name or user.username }}{% endblock %}
 
-{% from "security/_macros.html" import render_field_with_errors, render_field, render_form_errors, render_field_errors %}
-
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="PropertyPayTrack - Edit Your Profile">
-    <meta name="author" content="PropertyPayTrack">
-    <title>{{ _('Edit Profile') }} - {{ user.full_name or user.username }}</title>
-    <!-- Bootstrap 5 Core CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlalDLuL+oOQf9n1S0z8S10NqD0/1V/0sBwW9r0/B9s0bB0e8zW/W0zT3L8W7S0F0w5r0pG5z5y0/Y9tA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #34c759; /* Brighter green */
-            --secondary-color: #2aa648; /* Slightly brighter secondary green */
-            --accent-color: #ffd700; /* Brighter amber (gold) */
-            --text-color: #222;
-            --light-text-color: #ffffff;
-            --background-color: #f0f4fa; /* Lighter background */
-            --card-background: rgba(234, 245, 239, 0.2); /* Glassmorphism effect */
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --shadow-medium: rgba(0, 0, 0, 0.15);
-            --shadow-strong: rgba(0, 0, 0, 0.25);
-        }
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm border-0 bg-glass" data-aos="fade-up">
+                <div class="card-body p-4">
+                    <h2 class="mb-4 text-center fw-bold text-primary">{{ _('Edit Profile') }}</h2>
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.7;
-            background-image: url('https://source.unsplash.com/random/1920x1080/?modern-house,real-estate,financial');
-            background-size: cover;
-            background-attachment: fixed;
-        }
+                    <form action="{{ url_for('main.edit_profile') }}" method="post" name="edit_profile_form">
+                        {{ edit_profile_form.hidden_tag() }}
 
-        .bg-glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 20px var(--shadow-medium);
-        }
-
-        .overlay-lighter {
-            background: rgba(0, 0, 0, 0.3);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* --- Utility Classes --- */
-        .text-center { text-align: center; }
-        .text-primary { color: var(--primary-color); }
-        .text-accent { color: var(--accent-color); }
-        .bg-primary { background-color: var(--primary-color); }
-        .raised { box-shadow: 0 10px 20px var(--shadow-medium); }
-        .raised-sm { box-shadow: 0 5px 15px var(--shadow-light); }
-
-        /* --- Profile Container --- */
-        .profile-wrapper {
-            min-height: 100vh;
-            padding: 50px 20px;
-            position: relative;
-        }
-
-        .profile-wrapper .overlay-lighter {
-            z-index: 0;
-        }
-
-        .card {
-            background-color: var(--card-background);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px var(--shadow-medium);
-        }
-
-        .card-header {
-            background-color: var(--primary-color);
-            color: var(--light-text-color);
-            padding: 15px 20px;
-            border-radius: 12px 12px 0 0;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8em;
-        }
-
-        .card-body {
-            padding: 30px;
-            color: var(--light-text-color);
-        }
-
-        .form-floating {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .form-control {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: var(--light-text-color);
-            padding: 14px 16px;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-control:focus {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-color: var(--accent-color);
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-            color: var(--light-text-color);
-            outline: none;
-        }
-
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-            font-family: 'Font Awesome 5 Free', sans-serif;
-            font-weight: 400;
-        }
-
-        .form-floating > label {
-            color: var(--light-text-color);
-            opacity: 0.8;
-            padding: 14px 16px;
-            transition: all 0.2s ease;
-        }
-
-        .form-select {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: var(--light-text-color);
-            padding: 14px 16px;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-select:focus {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-color: var(--accent-color);
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-            outline: none;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border: none;
-            color: var(--light-text-color);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px var(--shadow-strong);
-        }
-
-        .btn-secondary {
-            background-color: var(--accent-color);
-            border: none;
-            color: var(--text-color);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background-color: #ffe066;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px var(--shadow-strong);
-        }
-
-        .bubble-effect {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .bubble-effect::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-        }
-
-        .bubble-effect:hover::after {
-            width: 200%;
-            height: 200%;
-        }
-
-        .card-footer {
-            background-color: var(--card-background);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 0 0 12px 12px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* --- Responsive Design --- */
-        @media (max-width: 768px) {
-            .card-header {
-                font-size: 1.5em;
-            }
-
-            .card-body {
-                padding: 20px;
-            }
-
-            .btn-primary, .btn-secondary {
-                font-size: 1em;
-                padding: 10px 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .card-header {
-                font-size: 1.3em;
-            }
-
-            .card-body {
-                padding: 15px;
-            }
-
-            .form-floating {
-                margin-bottom: 15px;
-            }
-        }
-    </style>
-</head>
-<body data-aos-easing="ease" data-aos-duration="1200" data-aos-delay="0">
-    <div class="profile-wrapper jarallax" data-jarallax data-speed="0.8">
-        <div class="overlay-lighter"></div>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card bg-glass" data-aos="fade-up">
-                        <div class="card-header bg-primary text-white">
-                            <h3 class="mb-0">{{ _('Edit Profile') }}</h3>
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-medium"><i class="fas fa-user me-2"></i>{{ _('Username') }}</label>
+                            {{ edit_profile_form.username(class="form-control form-control-lg", placeholder=_('Enter username'), value=user.username or '') }}
+                            {% if edit_profile_form.username.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in edit_profile_form.username.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="card-body">
-                            {% include "security/_messages.html" %}
-                            <form action="{{ url_for('main.edit_profile') }}" method="post" name="edit_profile_form" class="security-form">
-                                {{ edit_profile_form.hidden_tag() }}
-                                {{ render_form_errors(edit_profile_form) }}
 
-                                <div class="form-floating mb-3">
-                                    {{ edit_profile_form.username(class="form-control", placeholder=_('username'), value=user.username or '', **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
-                                    <label for="username">{{ _('username') }}</label>
-                                    {{ render_field_errors(edit_profile_form.username) }}
+                        <div class="mb-4">
+                            <label for="first_name" class="form-label fw-medium"><i class="fas fa-id-card me-2"></i>{{ _('First Name') }}</label>
+                            {{ edit_profile_form.first_name(class="form-control form-control-lg", placeholder=_('Enter first name'), value=user.first_name or '') }}
+                            {% if edit_profile_form.first_name.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in edit_profile_form.first_name.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
                                 </div>
-
-                                <div class="form-floating mb-3">
-                                    {{ edit_profile_form.first_name(class="form-control", placeholder=_('First Name'), value=user.first_name or '', **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
-                                    <label for="first_name">{{ _('First Name') }}</label>
-                                    {{ render_field_errors(edit_profile_form.first_name) }}
-                                </div>
-                                <div class="form-floating mb-3">
-                                    {{ edit_profile_form.email(class="form-control", placeholder=_('email'), value=user.email or '', **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
-                                    <label for="email">{{ _('email') }}</label>
-                                    {{ render_field_errors(edit_profile_form.email) }}
-                                </div>
-
-                                <div class="form-floating mb-3">
-                                    {{ edit_profile_form.phone_number(class="form-control", placeholder=_('Phone Number'), value=user.phone_number or '', **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
-                                    <label for="phone_number">{{ _('Phone Number') }}</label>
-                                    {{ render_field_errors(edit_profile_form.phone_number) }}
-                                </div>
-
-                                <div class="form-floating mb-3">
-                                    {{ edit_profile_form.county(class="form-select", **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
-                                    <label for="county">{{ _('County') }}</label>
-                                    {{ render_field_errors(edit_profile_form.county) }}
-                                </div>
-                                <div class="form-floating mb-3">
-                                    {{ edit_profile_form.roles(class="form-select", **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
-                                    <label for="roles">{{ _('roles') }}</label>
-                                    {{ render_field_errors(edit_profile_form.roles) }}
-                                </div>
-                                
-                               
-
-                                <div class="form-floating mb-3">
-                                    {{ edit_profile_form.language(class="form-select", **{'style': "font-family:'Font Awesome 5 Free', sans-serif !important; font-weight: 400"}) }}
-                                    <label for="language">{{ _('Language') }}</label>
-                                    {{ render_field_errors(edit_profile_form.language) }}
-                                </div>
-
-                                {{ render_field_errors(edit_profile_form.csrf_token) }}
-
-                                <div class="d-grid gap-2 mb-3">
-                                    {{ edit_profile_form.submit(class="btn btn-primary btn-lg bubble-effect") }}
-                                </div>
-                            </form>
+                            {% endif %}
                         </div>
-                        <div class="card-footer d-flex justify-content-between">
-                            <a href="{{ url_for('security.change_password') }}" class="btn btn-secondary bubble-effect">
-                                <i class="fas fa-key me-1"></i> {{ _('Change Password') }}
-                            </a>
-                            <a href="{{ url_for('main.profile') }}" class="btn btn-primary bubble-effect">
-                                <i class="fas fa-arrow-left me-1"></i> {{ _('Back to Profile') }}
-                            </a>
+
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-medium"><i class="fas fa-envelope me-2"></i>{{ _('Email') }}</label>
+                            {{ edit_profile_form.email(class="form-control form-control-lg", placeholder=_('Enter email'), value=user.email or '') }}
+                            {% if edit_profile_form.email.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in edit_profile_form.email.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
-                    </div>
+
+                        <div class="mb-4">
+                            <label for="phone_number" class="form-label fw-medium"><i class="fas fa-phone me-2"></i>{{ _('Phone Number') }}</label>
+                            {{ edit_profile_form.phone_number(class="form-control form-control-lg", placeholder=_('Enter phone number'), value=user.phone_number or '') }}
+                            {% if edit_profile_form.phone_number.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in edit_profile_form.phone_number.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="county" class="form-label fw-medium"><i class="fas fa-map-marker-alt me-2"></i>{{ _('County') }}</label>
+                            {{ edit_profile_form.county(class="form-control form-control-lg", placeholder=_('Enter county'), value=user.county or '') }}
+                            {% if edit_profile_form.county.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in edit_profile_form.county.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="language" class="form-label fw-medium"><i class="fas fa-globe me-2"></i>{{ _('Language') }}</label>
+                            {{ edit_profile_form.language(class="form-select form-select-lg") }}
+                            {% if edit_profile_form.language.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in edit_profile_form.language.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="roles" class="form-label fw-medium"><i class="fas fa-user-tag me-2"></i>{{ _('Roles') }}</label>
+                            {{ edit_profile_form.roles(class="form-select form-select-lg") }}
+                            {% if edit_profile_form.roles.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in edit_profile_form.roles.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2 mb-4">
+                            {{ edit_profile_form.submit(class="btn btn-primary btn-lg bubble-effect") }}
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="{{ url_for('main.reset_password') }}" class="btn btn-secondary btn-lg bubble-effect">
+                        <i class="fas fa-key me-1"></i> {{ _('Change Password') }}
+                    </a>
+                    <a href="{{ url_for('main.profile') }}" class="btn btn-primary btn-lg bubble-effect">
+                        <i class="fas fa-arrow-left me-1"></i> {{ _('Back to Profile') }}
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Core JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- AOS -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        AOS.init({
-            duration: 1200,
-        });
-    </script>
-    <!-- Jarallax -->
-    <script src="https://unpkg.com/jarallax@2.0.2/dist/jarallax.min.js"></script>
-</body>
-</html>
+<style>
+    :root {
+        --primary-color: #34c759;
+        --secondary-color: #2aa648;
+        --accent-color: #ffd700;
+        --text-color: #222;
+        --light-text-color: #ffffff;
+        --background-color: #f0f4fa;
+        --card-background: rgba(234, 245, 239, 0.2);
+        --shadow-light: rgba(0, 0, 0, 0.08);
+        --shadow-medium: rgba(0, 0, 0, 0.15);
+        --shadow-strong: rgba(0, 0, 0, 0.25);
+    }
+
+    .bg-glass {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 20px var(--shadow-medium);
+    }
+
+    .form-control, .form-select {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: var(--text-color);
+        border-radius: 8px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        color: var(--light-text-color);
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+
+    .btn-secondary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--text-color);
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: #ffe066;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+
+    .bubble-effect {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bubble-effect::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    .bubble-effect:hover::after {
+        width: 200%;
+        height: 200%;
+    }
+
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-primary, .btn-secondary {
+            font-size: 1em;
+            padding: 10px 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .card-body {
+            padding: 15px;
+        }
+    }
+</style>
 {% endblock %}

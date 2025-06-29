@@ -1,423 +1,227 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Estate Payment Tracker - Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #4CAF50; /* A fresh green */
-            --secondary-color: #388E3C; /* Darker green */
-            --accent-color: #FFC107; /* Amber for highlights */
-            --text-color: #333;
-            --light-text-color: #f4f4f4;
-            --background-color: #f8f8f8;
-            --card-background: #ffffff;
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --shadow-medium: rgba(0, 0, 0, 0.15);
-        }
+{% extends "base.html" %}
+{% block title %}PropertyPayTrack - Dashboard{% endblock %}
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
+{% block styles %}
+<style>
+    header {
+        background-color: var(--primary-color);
+        color: var(--light-text-color);
+        padding: 40px 20px;
+        text-align: center;
+        box-shadow: 0 4px 10px var(--shadow-medium);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 3em;
+        margin: 0;
+    }
 
-        /* --- Header --- */
-        header {
-            background-color: var(--primary-color);
-            color: var(--light-text-color);
-            padding: 20px 0;
-            box-shadow: 0 4px 8px var(--shadow-medium);
-            text-align: center;
-        }
+    header p {
+        font-size: 1.2em;
+        margin-top: 10px;
+        opacity: 0.9;
+    }
 
-        header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.8em;
-            margin: 0;
-            letter-spacing: 1.5px;
-        }
+    nav {
+        background-color: var(--secondary-color);
+        padding: 15px 0;
+        box-shadow: 0 2px 5px var(--shadow-light);
+    }
 
-        header p {
-            font-size: 1.1em;
-            margin-top: 10px;
-            opacity: 0.9;
-        }
+    nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
 
-        /* --- Navigation --- */
-        nav {
-            background-color: var(--secondary-color);
-            padding: 10px 0;
-            text-align: center;
-            box-shadow: 0 2px 5px var(--shadow-light);
-        }
+    nav ul li a {
+        color: var(--light-text-color);
+        text-decoration: none;
+        font-weight: 700;
+        padding: 10px;
+        transition: color 0.3s ease, border-bottom 0.3s ease;
+    }
 
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-        }
+    nav ul li a:hover,
+    nav ul li a.active {
+        color: var(--accent-color);
+        border-bottom: 2px solid var(--accent-color);
+    }
 
-        nav ul li a {
-            color: var(--light-text-color);
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.05em;
-            padding: 5px 10px;
-            transition: color 0.3s ease, border-bottom 0.3s ease;
-        }
+    .hero {
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://source.unsplash.com/random/1600x600/?real-estate,house') no-repeat center center/cover;
+        padding: 80px 20px;
+        text-align: center;
+        color: var(--light-text-color);
+    }
 
-        nav ul li a:hover,
-        nav ul li a.active {
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-        }
+    .hero h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 3em;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 8px var(--shadow-medium);
+    }
 
-        /* --- Hero Section --- */
-        .hero {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://source.unsplash.com/random/1600x600/?real-estate,house') no-repeat center center/cover;
-            color: white;
-            text-align: center;
-            padding: 100px 20px;
-            position: relative;
-            z-index: 1;
-        }
+    .hero p {
+        font-size: 1.2em;
+        max-width: 700px;
+        margin: 0 auto 30px;
+    }
 
-        .hero h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 8px var(--shadow-medium);
-        }
+    .services, .features, .cta {
+        padding: 60px 0;
+    }
 
-        .hero p {
-            font-size: 1.3em;
-            max-width: 800px;
-            margin: 0 auto 40px auto;
-            line-height: 1.5;
-        }
+    .services h2, .features h2, .cta h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5em;
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 40px;
+    }
 
-        .hero .btn {
-            background-color: var(--accent-color);
-            color: var(--text-color);
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: 700;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
+    .service-cards, .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+    }
 
-        .hero .btn:hover {
-            background-color: #ffda6a; /* Lighter amber */
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px var(--shadow-medium);
-        }
+    .card, .feature-item {
+        background-color: var(--card-background);
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 8px 20px var(--shadow-light);
+        transition: transform 0.3s ease;
+    }
 
-        /* --- Services Section --- */
-        .services {
-            padding: 60px 0;
-            background-color: var(--card-background);
-            text-align: center;
-        }
+    .card:hover, .feature-item:hover {
+        transform: translateY(-5px);
+    }
 
-        .services h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
-            color: var(--primary-color);
-            margin-bottom: 50px;
-        }
+    .card h3, .feature-item h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8em;
+        color: var(--secondary-color);
+        margin-bottom: 10px;
+    }
 
-        .service-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            justify-content: center;
-        }
+    .card i, .feature-item i {
+        font-size: 2em;
+        color: var(--accent-color);
+        margin-bottom: 15px;
+    }
 
-        .card {
-            background-color: var(--card-background);
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 8px 20px var(--shadow-light);
-            text-align: left;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative; /* For floating effect */
-            z-index: 2; /* Ensure cards are above background */
-        }
+    .cta {
+        background-color: var(--primary-color);
+        color: var(--light-text-color);
+        text-align: center;
+    }
 
-        .card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 15px 30px var(--shadow-medium);
-        }
+    footer {
+        background-color: var(--text-color);
+        color: var(--light-text-color);
+        padding: 30px 0;
+        text-align: center;
+    }
 
-        .card h3 {
-            font-family: 'Playfair Display', serif;
-            color: var(--secondary-color);
-            font-size: 1.8em;
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
+    @media (max-width: 768px) {
+        header h1 { font-size: 2.2em; }
+        .hero h2 { font-size: 2.2em; }
+        nav ul { flex-direction: column; gap: 10px; }
+    }
+</style>
+{% endblock %}
 
-        .card p {
-            color: var(--text-color);
-            font-size: 1.05em;
-        }
+{% block content %}
+<header data-aos="fade-down">
+    <div class="container">
+        <h1>PropertyPayTrack Dashboard</h1>
+        <p>Welcome, {{ current_user.username or 'User' }}! Manage your real estate finances with ease.</p>
+    </div>
+</header>
 
-        /* --- Features/Benefits Section --- */
-        .features {
-            padding: 60px 0;
-            background-color: var(--background-color);
-            text-align: center;
-        }
+<nav data-aos="fade-up">
+    <div class="container">
+        <ul>
+            <li><a href="{{ url_for('main.index') }}" class="active">Dashboard</a></li>
+            <li><a href="{{ url_for('main.tenant_make_payment') }}">Payments</a></li>
+            <li><a href="{{ url_for('main.properties_list') }}">Properties</a></li>
+            <li><a href="{{ url_for('main.reports') }}">Reports</a></li>
+            <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+            <li><a href="{{ url_for('main.profile') }}">Profile</a></li>
+        </ul>
+    </div>
+</nav>
 
-        .features h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
-            color: var(--primary-color);
-            margin-bottom: 50px;
-        }
+<section class="hero jarallax" data-jarallax data-speed="0.8">
+    <div class="container">
+        <h2 data-aos="fade-down">Your Real Estate Control Center</h2>
+        <p data-aos="fade-up">Track payments, manage properties, and gain insights all in one place.</p>
+        <a href="{{ url_for('main.tenant_make_payment') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="200">Make a Payment <i class="fas fa-wallet ms-2"></i></a>
+    </div>
+</section>
 
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 40px;
-            text-align: center;
-        }
-
-        .feature-item {
-            background-color: var(--card-background);
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 5px 15px var(--shadow-light);
-            transition: transform 0.2s ease;
-        }
-
-        .feature-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-item i { /* For icon, if you use Font Awesome */
-            font-size: 3em;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-        }
-
-        .feature-item h3 {
-            font-family: 'Roboto', sans-serif;
-            font-size: 1.4em;
-            color: var(--secondary-color);
-            margin-bottom: 10px;
-        }
-
-        .feature-item p {
-            font-size: 0.95em;
-            color: var(--text-color);
-        }
-
-        /* --- Call to Action --- */
-        .cta {
-            background-color: var(--primary-color);
-            color: var(--light-text-color);
-            text-align: center;
-            padding: 60px 20px;
-            margin-top: 50px;
-        }
-
-        .cta h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.8em;
-            margin-bottom: 20px;
-        }
-
-        .cta p {
-            font-size: 1.2em;
-            max-width: 700px;
-            margin: 0 auto 30px auto;
-        }
-
-        .cta .btn {
-            background-color: var(--accent-color);
-            color: var(--text-color);
-            padding: 18px 35px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: 700;
-            font-size: 1.2em;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        .cta .btn:hover {
-            background-color: #ffda6a;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px var(--shadow-medium);
-        }
-
-        /* --- Footer --- */
-        footer {
-            background-color: var(--text-color);
-            color: var(--light-text-color);
-            text-align: center;
-            padding: 30px 0;
-            font-size: 0.9em;
-            margin-top: 40px;
-        }
-
-        footer p {
-            margin: 0;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2em;
-            }
-
-            .hero h2 {
-                font-size: 2.5em;
-            }
-
-            .hero p {
-                font-size: 1em;
-            }
-
-            .services h2,
-            .features h2,
-            .cta h2 {
-                font-size: 2em;
-            }
-
-            nav ul {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .card {
-                padding: 25px;
-            }
-
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-</head>
-<body>
-
-    <nav>
-        <div class="container">
-           <ul>
-                <li><a href="#" class="active">Home</a></li>
-                <li><a href="#">Payments</a></li>
-                <li><a href="#">Properties</a></li>
-                <li><a href="#">Reports</a></li>
-                <li><a href="{{ url_for('main.contact')}}">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <header>
-        <div class="container">
-            <h1>Real Estate Payment Tracker</h1>
-            <p>Your ultimate solution for managing property payments with ease.</p>
-        </div>
-    </header>
-
-    <section class="hero">
-        <div class="container">
-            <h2>Streamline Your Real Estate Finances</h2>
-            <p>Effortlessly track income, expenses, and tenant payments all in one intuitive platform. Gain clarity and control over your property investments.</p>
-            <a href="{{ url_for('main.register') }}" class="btn">Sign up</a>
-        </div>
-    </section>
-
-    ---
-
-    <section class="services">
-        <div class="container">
-            <h2>Our Core Services</h2>
-            <div class="service-cards">
-                <div class="card">
-                    <h3><i class="fas fa-wallet" style="color: var(--primary-color);"></i> Payment Tracking</h3>
-                    <p>Keep a meticulous record of all incoming rent payments and outgoing expenses for each property. Never miss a payment or a bill due date again.</p>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-chart-line" style="color: var(--primary-color);"></i> Financial Insights</h3>
-                    <p>Visualize your financial performance with comprehensive reports and charts. Understand your cash flow, profitability, and identify trends at a glance.</p>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-home" style="color: var(--primary-color);"></i> Property Management</h3>
-                    <p>Organize all your property details, tenant information, and lease agreements in a centralized database. Efficiently manage multiple properties with ease.</p>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-bell" style="color: var(--primary-color);"></i> Automated Reminders</h3>
-                    <p>Set up automated reminders for rent due dates, utility bills, and lease renewals. Reduce manual effort and ensure timely actions.</p>
-                </div>
+<section class="services">
+    <div class="container">
+        <h2 data-aos="fade-down">Core Tools</h2>
+        <div class="service-cards">
+            <div class="card bg-glass" data-aos="fade-up">
+                <i class="fas fa-wallet"></i>
+                <h3>Payment Tracking</h3>
+                <p>Record rent payments and expenses with real-time updates.</p>
+            </div>
+            <div class="card bg-glass" data-aos="fade-up" data-aos-delay="200">
+                <i class="fas fa-chart-line"></i>
+                <h3>Financial Insights</h3>
+                <p>View comprehensive reports to understand your financial performance.</p>
+            </div>
+            <div class="card bg-glass" data-aos="fade-up" data-aos-delay="400">
+                <i class="fas fa-home"></i>
+                <h3>Property Management</h3>
+                <p>Organize property details and tenant information seamlessly.</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    ---
-
-    <section class="features">
-        <div class="container">
-            <h2>Why Choose Our Tracker?</h2>
-            <div class="feature-grid">
-                <div class="feature-item">
-                    <i class="fas fa-shield-alt"></i>
-                    <h3>Secure & Reliable</h3>
-                    <p>Your financial data is protected with industry-standard security measures, ensuring privacy and integrity.</p>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-laptop-code"></i>
-                    <h3>User-Friendly Interface</h3>
-                    <p>Navigate with ease through our intuitive design, built for both seasoned investors and new property owners.</p>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-mobile-alt"></i>
-                    <h3>Anytime, Anywhere Access</h3>
-                    <p>Access your tracker from any device, whether you're on your desktop, tablet, or smartphone.</p>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-headset"></i>
-                    <h3>Dedicated Support</h3>
-                    <p>Our team is ready to assist you with any questions or issues, ensuring a smooth experience.</p>
-                </div>
+<section class="features">
+    <div class="container">
+        <h2 data-aos="fade-down">Why PropertyPayTrack?</h2>
+        <div class="feature-grid">
+            <div class="feature-item bg-glass" data-aos="fade-up">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Secure</h3>
+                <p>Industry-standard security for your financial data.</p>
+            </div>
+            <div class="feature-item bg-glass" data-aos="fade-up" data-aos-delay="200">
+                <i class="fas fa-laptop-code"></i>
+                <h3>Intuitive</h3>
+                <p>User-friendly interface for all users.</p>
+            </div>
+            <div class="feature-item bg-glass" data-aos="fade-up" data-aos-delay="400">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Accessible</h3>
+                <p>Manage your portfolio from any device.</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    ---
+<section class="cta">
+    <div class="container">
+        <h2 data-aos="fade-down">Take Control Today</h2>
+        <p data-aos="fade-up">Simplify your real estate management with PropertyPayTrack.</p>
+        <a href="{{ url_for('main.properties_list') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="200">View Properties <i class="fas fa-home ms-2"></i></a>
+    </div>
+</section>
 
-    <section class="cta">
-        <div class="container">
-            <h2>Ready to Take Control of Your Investments?</h2>
-            <p>Join countless real estate professionals and property owners who are simplifying their financial management with our powerful tracker.</p>
-            <a href="{{ url_for('main.login') }}" class="btn">Sign Up Now</a>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Real Estate Payment Tracker. All rights reserved.</p>
-        </div>
-    </footer>
-
-</body>
-</html>
+<footer>
+    <div class="container">
+        <p>&copy; 2025 PropertyPayTrack. All rights reserved.</p>
+    </div>
+</footer>
+{% endblock %}

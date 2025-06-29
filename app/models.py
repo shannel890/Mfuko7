@@ -129,6 +129,7 @@ class Tenant(db.Model):
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=True)
     phone_number = db.Column(db.String(20))
+    rent_amount = db.Column(db.Numeric(10, 2), nullable=True, default=0.00)  # ✅ Add this line
     status = db.Column(db.String(50), default='active')
     due_day_of_month = db.Column(db.Integer)
     grace_period_days = db.Column(db.Integer, default=5)

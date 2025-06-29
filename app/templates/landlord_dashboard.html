@@ -279,7 +279,7 @@
                             <h6 class="card-title text-muted">
                                 <i class="fas fa-money-bill-wave text-success"></i> {{ _('Total Collections') }}
                             </h6>
-                            <div class="display-6 fw-bold text-success">KSh {{ metrics.total_collections|floatformat(2) }}</div>
+                            <div class="display-6 fw-bold text-success">KSh {{ "%.2f"|format(metrics.total_collections) }}</div>
                         </div>
                     </div>
                 </a>
@@ -292,7 +292,7 @@
                         </h6>
                         <div class="progress">
                             <div class="progress-bar bg-warning" role="progressbar" width: {{ metrics.vacancy_rate }}% aria-valuenow="{{ metrics.vacancy_rate }}" aria-valuemin="0" aria-valuemax="100">
-                                {{ metrics.vacancy_rate|floatformat(2) }}%
+                                {{ "%.2f"|format(metrics.vacancy_rate) }}%
                             </div>
                         </div>
                     </div>
@@ -333,7 +333,7 @@
                                     <tr>
                                         <td data-label="Tenant">{{ payment.tenant_name }}</td>
                                         <td data-label="Property">{{ payment.property_name }}</td>
-                                        <td data-label="Amount">KSh {{ payment.amount|floatformat(2) }}</td>
+                                        <td data-label="Amount">KSh {{ "%.2f"|format(payment.amount) }}</td>
                                         <td data-label="Date">{{ payment.payment_date.strftime('%d/%m/%Y') }}</td>
                                         <td data-label="Status">
                                             <span class="badge bg-{{ 'success' if payment.status == 'confirmed' else 'pending' if payment.status == 'pending' else 'warning' }}">

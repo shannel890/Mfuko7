@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+{% block title %}PropertyPayTrack - Financial Reports{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --primary-color: #34c759;
+        --secondary-color: #2aa648;
+        --accent-color: #ffd700;
+        --text-color: #222;
+        --light-text-color: #ffffff;
+        --background-color: #f0f4fa;
+        --card-background: rgba(234, 245, 239, 0.2);
+        --shadow-light: rgba(0, 0, 0, 0.08);
+        --shadow-medium: rgba(0, 0, 0, 0.15);
+        --shadow-strong: rgba(0, 0, 0, 0.25);
+    }
+
+    body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background: linear-gradient(135deg, #f0f4fa 0%, #d9e6f2 100%);
+        color: var(--text-color);
+        line-height: 1.7;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .bg-glass {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 20px var(--shadow-medium);
+    }
+
+    .reports-header {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .reports-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.8em;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .reports-header p {
+        font-size: 1.2em;
+        color: var(--text-color);
+        opacity: 0.9;
+    }
+
+    .filter-section, .summary-section, .chart-section, .transactions-section {
+        padding: 40px 0;
+    }
+
+    .filter-card, .summary-card, .transactions-card {
+        background-color: var(--card-background);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 8px 20px var(--shadow-light);
+        transition: transform 0.3s ease;
+    }
+
+    .filter-card:hover, .summary-card:hover, .transactions-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .filter-card h2, .summary-card h2, .chart-section h2, .transactions-card h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2em;
+        color: var(--secondary-color);
+        margin-bottom: 20px;
+    }
+
+    .form-floating {
+        margin-bottom: 20px;
+    }
+
+    .form-control, .form-select {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        color: var(--text-color);
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 1em;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: rgba(0, 0, 0, 0.6);
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .form-floating > label {
+        color: var(--text-color);
+        opacity: 0.8;
+        padding: 12px 16px;
+    }
+
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .summary-item {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .summary-item h3 {
+        font-size: 1.5em;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .summary-item p {
+        font-size: 2em;
+        color: var(--text-color);
+        font-weight: 700;
+    }
+
+    .chart-section canvas {
+        max-width: 100%;
+        height: 300px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .table th, .table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .table th {
+        background-color: var(--primary-color);
+        color: var(--light-text-color);
+        font-weight: 700;
+    }
+
+    .table tr:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-primary, .btn-secondary {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.1em;
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        color: var(--light-text-color);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+
+    .btn-secondary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--text-color);
+    }
+
+    .btn-secondary:hover {
+        background-color: #ffe066;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+
+    .bubble-effect {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bubble-effect::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    .bubble-effect:hover::after {
+        width: 200%;
+        height: 200%;
+    }
+
+    @media (max-width: 768px) {
+        .reports-header h1 { font-size: 2.2em; }
+        .filter-card h2, .summary-card h2, .chart-section h2, .transactions-card h2 { font-size: 1.8em; }
+        .summary-grid { grid-template-columns: 1fr; }
+        .table { font-size: 0.9em; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="reports-header" data-aos="fade-down">
+    <div class="container">
+        <h1>Financial Reports</h1>
+        <p>View detailed insights into your real estate portfolio’s performance.</p>
+    </div>
+</section>
+
+<section class="filter-section">
+    <div class="container">
+        <div class="filter-card bg-glass" data-aos="fade-up">
+            <h2>Filter Reports</h2>
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="row">
+                    <div class="col-md-4 form-floating" data-aos="fade-up" data-aos-delay="100">
+                        {{ form.property_id(class="form-select", id="propertyId") }}
+                        {{ form.property_id.label }}
+                        {% if form.property_id.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.property_id.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 form-floating" data-aos="fade-up" data-aos-delay="200">
+                        {{ form.start_date(class="form-control", id="startDate") }}
+                        {{ form.start_date.label }}
+                        {% if form.start_date.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.start_date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 form-floating" data-aos="fade-up" data-aos-delay="300">
+                        {{ form.end_date(class="form-control", id="endDate") }}
+                        {{ form.end_date.label }}
+                        {% if form.end_date.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.end_date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2" data-aos="fade-up" data-aos-delay="400">
+                        {{ form.submit(class="btn btn-primary bubble-effect w-100") }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="summary-section">
+    <div class="container">
+        <div class="summary-card bg-glass" data-aos="fade-up">
+            <h2>Financial Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <h3>Total Income</h3>
+                    <p>${{ "{:.2f}".format(report_data.total_income) }}</p>
+                </div>
+                <div class="summary-item">
+                    <h3>Total Expenses</h3>
+                    <p>${{ "{:.2f}".format(report_data.total_expenses) }}</p>
+                </div>
+                <div class="summary-item">
+                    <h3>Net Profit</h3>
+                    <p>${{ "{:.2f}".format(report_data.net_profit) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="chart-section">
+    <div class="container">
+        <div class="chart-card bg-glass" data-aos="fade-up">
+            <h2>Income vs. Expenses</h2>
+            <canvas id="financialChart"></canvas>
+        </div>
+    </div>
+</section>
+
+<section class="transactions-section">
+    <div class="container">
+        <div class="transactions-card bg-glass" data-aos="fade-up">
+            <h2>Transaction History</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in report_data.transactions %}
+                    <tr>
+                        <td>{{ transaction.date }}</td>
+                        <td>{{ transaction.description }}</td>
+                        <td class="{% if transaction.type == 'Income' %}text-primary{% else %}text-danger{% endif %}">
+                            ${{ "{:.2f}".format(transaction.amount) }}
+                        </td>
+                        <td>{{ transaction.type }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No transactions found for the selected period.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('main.export_report', property_id=form.property_id.data, start_date=form.start_date.data, end_date=form.end_date.data) }}" class="btn btn-secondary bubble-effect">Export as CSV <i class="fas fa-download ms-2"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Ensure Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js failed to load. Please check the CDN or network connection.');
+            return;
+        }
+
+        // Fallback values if report_data is undefined or invalid
+        const totalIncome = parseFloat('{{ report_data.total_income | default(0.0) }}') || 0.0;
+        const totalExpenses = parseFloat('{{ report_data.total_expenses | default(0.0) }}') || 0.0;
+
+        const ctx = document.getElementById('financialChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Income', 'Expenses'],
+                datasets: [{
+                    label: 'Financial Overview',
+                    data: [totalIncome, totalExpenses],
+                    backgroundColor: ['var(--primary-color)', '#dc3545'],
+                    borderColor: ['var(--secondary-color)', '#b02a37'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount ($)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: $${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script>
+    console.log('Total Income:', '{{ report_data.total_income }}');
+    console.log('Total Expenses:', '{{ report_data.total_expenses }}');
+</script>
+{% endblock %}

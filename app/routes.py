@@ -3,7 +3,7 @@ from flask_login import login_required, current_user, login_user, logout_user
 from flask_babel import lazy_gettext as _l
 from app.extensions import db
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ExtendedEditProfileForm, RegistrationForm, LoginForm, ForgotPasswordRequestForm, ResetPasswordForm,ContactForm
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ExtendedEditProfileForm, RegistrationForm, LoginForm, ForgotPasswordRequestForm, ResetPasswordForm,ContactForm, TenantPaymentForm, ReportFilterForm
 from app.models import Property, Tenant, Payment, User, Role, Unit, Invoice
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
@@ -13,9 +13,11 @@ import logging
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from flask_mail import Message
 from app.extensions import mail
-
+import traceback
+from flask import Response
+import csv
+from io import StringIO
 main = Blueprint('main', __name__)
-
 
 def send_email(subject, sender, recipients, text_body, html_body=None):
     msg = Message(subject, sender=sender, recipients=recipients)
@@ -99,9 +101,10 @@ def login():
         if user and check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             flash(_l('Logged in successfully!'), 'success')
-            if user.has_role('landlord'):
+            # Check roles through user's roles relationship
+            if any(role.name == 'landlord' for role in user.roles):
                 return redirect(url_for('main.landlord_dashboard'))
-            elif user.has_role('tenant'):
+            elif any(role.name == 'tenant' for role in user.roles):
                 return redirect(url_for('main.tenant_dashboard'))
             else:
                 return redirect(url_for('main.index'))
@@ -125,11 +128,12 @@ def forgot_password():
                 # Send email
                 msg = Message(
                     subject=_l('Password Reset Request'),
+                    sender="shannelkirui739@gmail.com",
                     recipients=[user.email],
                     body=f"Please click the following link to reset your password: {reset_url}\n\n"
                          f"If you did not request a password reset, please ignore this email."
                 )
-                current_app.mail.send(msg)
+                mail.send(msg)
                 flash(_l('Password reset instructions have been sent to your email.'), 'success')
             except Exception as e:
                 logging.error(f"Error sending password reset email: {str(e)}")
@@ -283,13 +287,14 @@ def landlord_dashboard():
             ).scalar() or 0.00
 
             # Vacancy Rate
-            total_units = db.session.query(func.sum(Unit.rent_amount)).filter(
+            total_units = db.session.query(func.sum(Unit.id)).filter(
                 Unit.property_id.in_(landlord_property_ids),
                 Unit.status != 'maintenance'
-            ).scalar() or 0
+            ).count() or 0
             occupied_units = len(Tenant.query.filter(
                 Tenant.property_id.in_(landlord_property_ids),
-                Tenant.status == 'active'
+                Tenant.status == 'active',
+                Tenant.unit_id != None
             ).join(Unit, Tenant.unit_id == Unit.id).all())
             if total_units > 0:
                 metrics['vacancy_rate'] = round(((total_units - occupied_units) / total_units) * 100, 2)
@@ -312,6 +317,8 @@ def landlord_dashboard():
 
             for payment in recent_payments_query:
                 tenant = payment.tenant
+                if not tenant:
+                    continue
                 recent_payments.append({
                     'tenant_name': f"{tenant.first_name} {tenant.last_name}" if tenant else 'Unknown',
                     'property_name': tenant.property.name if tenant and tenant.property else 'N/A',
@@ -323,9 +330,11 @@ def landlord_dashboard():
         return render_template('landlord_dashboard.html', metrics=metrics, recent_payments=recent_payments)
 
     except Exception as e:
-        logging.error(f"Dashboard error: {str(e)}")
+        logging.error("Dashboard error occurred:")
+        logging.error(traceback.format_exc())  # Logs the full traceback
         flash(_l('An error occurred while loading the dashboard. Please try again.'), 'danger')
         return redirect(url_for('main.index'))
+
 
 @main.route('/tenant/dashboard')
 @login_required
@@ -542,3 +551,97 @@ def overdue_payment():
                     'amount_due': tenant.rent_amount
                 })
     return render_template('payments/overdue_payment.html', overdue_tenants=overdue_tenants)
+
+@main.route('/tenant/pay', methods=['GET', 'POST'])
+@login_required
+@roles_required('tenant')
+def tenant_make_payment():
+    form = TenantPaymentForm()
+    tenant = Tenant.query.filter_by(user_id=current_user.id).first()
+
+    if not tenant:
+        flash("Tenant profile not found.", "danger")
+        return redirect(url_for("main.index"))
+
+    invoice = Invoice.query.filter_by(tenant_id=tenant.id, status='pending').first()
+    amount_due = invoice.amount_due if invoice else tenant.rent_amount
+
+    if form.validate_on_submit():
+        payment = Payment(
+            amount=form.amount.data,
+            tenant_id=tenant.id,
+            payment_method=form.payment_method.data,
+            transaction_id=form.transaction_id.data,
+            payment_date=form.payment_date.data or datetime.utcnow().date(),
+            status='pending',  # Set to 'confirmed' if auto-confirmed
+            description=form.description.data,
+            is_offline=form.is_offline.data,
+            offline_reference=form.offline_reference.data,
+            invoice_id=invoice.id if invoice else None
+        )
+
+        db.session.add(payment)
+        if invoice:
+            invoice.amount_due -= payment.amount
+            invoice.status = 'paid' if invoice.amount_due <= 0 else 'partially_paid'
+        db.session.commit()
+        flash("Your payment has been submitted and is pending confirmation.", "success")
+        return redirect(url_for('main.tenant_dashboard'))
+
+    return render_template('payments/tenant_make_payment.html', form=form, amount_due=amount_due)
+
+
+
+
+# Mock data function (replace with database queries)
+def get_report_data(property_id, start_date, end_date):
+    # Ensure numeric values with defaults
+    total_income = 0.0
+    total_expenses = 0.0
+    transactions = [
+        {'date': '2025-06-01', 'description': 'Rent Payment - Unit A', 'amount': 1500.00, 'type': 'Income'},
+        {'date': '2025-06-05', 'description': 'Maintenance - Plumbing', 'amount': -300.00, 'type': 'Expense'},
+        {'date': '2025-06-10', 'description': 'Rent Payment - Unit B', 'amount': 1200.00, 'type': 'Income'},
+    ]
+    total_income = sum(t['amount'] for t in transactions if t['type'] == 'Income')
+    total_expenses = sum(abs(t['amount']) for t in transactions if t['type'] == 'Expense')
+    return {
+        'total_income': float(total_income),  # Ensure float
+        'total_expenses': float(total_expenses),  # Ensure float
+        'net_profit': float(total_income - total_expenses),
+        'transactions': transactions
+    }
+
+@main.route('/reports', methods=['GET', 'POST'])
+@login_required
+def reports():
+    form = ReportFilterForm()
+    # Mock properties (replace with database query)
+    form.property_id.choices = [('', 'All Properties')] + [(str(i), f'Property {i}') for i in range(1, 4)]
+    
+    # Default report data
+    report_data = {'total_income': 0.0, 'total_expenses': 0.0, 'net_profit': 0.0, 'transactions': []}
+    
+    if form.validate_on_submit():
+        property_id = form.property_id.data
+        start_date = form.start_date.data
+        end_date = form.end_date.data
+        report_data = get_report_data(property_id, start_date, end_date)
+    
+    return render_template('report.html', form=form, report_data=report_data)
+@main.route('/reports/export')
+@login_required
+def export_report():
+    form = ReportFilterForm(request.args)
+    report_data = get_report_data(form.property_id.data, form.start_date.data, form.end_date.data)
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Date', 'Description', 'Amount', 'Type'])
+    for t in report_data['transactions']:
+        writer.writerow([t['date'], t['description'], t['amount'], t['type']])
+    output.seek(0)
+    return Response(
+        output,
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=report.csv'}
+    )
