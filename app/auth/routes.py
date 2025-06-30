@@ -3,7 +3,7 @@ from flask_security import login_required,roles_accepted, roles_required
 from app.utils.constrants import UserRoles
 from app.models import User, Role, County
 from extensions import db
-auth = Blueprint('auth',__name__)
+auth = Blueprint('auth',__name__,url_prefix='/auth')
 
 @auth.route('/users')
 @login_required

@@ -72,5 +72,7 @@ def create_app():
 
             landlord_user.roles.append(landlord_role)
             db.session.add(landlord_user)
-        db.session.commit() # This commit is correct here
+        db.session.commit() 
+        
+
     return app
