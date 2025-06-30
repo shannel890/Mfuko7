@@ -171,12 +171,16 @@ class Payment(db.Model):
     status = db.Column(db.String(50), default='confirmed')
     payment_method = db.Column(db.String(50), nullable=True)
     transaction_id = db.Column(db.String(100), unique=True, nullable=True)
+    is_offline = db.Column(db.Boolean, default=False)
+    offline_reference = db.Column(db.String(100), nullable=True)  
+    description = db.Column(db.String(255))
     notes = db.Column(db.Text, nullable=True)
     invoice_id = db.Column(db.Integer, db.ForeignKey('invoice.id', ondelete='SET NULL'), nullable=True)
     invoice = db.relationship('Invoice', backref='payments', lazy=True)
     payer_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    
 
     def __repr__(self):
         return f'<Payment {self.amount} on {self.payment_date.strftime("%Y-%m-%d")}>'
@@ -191,6 +195,7 @@ class Invoice(db.Model):
     amount_due = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(50), default='pending')
     description = db.Column(db.Text, nullable=True)
+    is_offline = db.Column(db.Boolean, default=False)
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id', ondelete='SET NULL'), nullable=True)
     unit = db.relationship('Unit', backref='invoices', lazy=True)
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenant.id', ondelete='CASCADE'), nullable=False, index=True)

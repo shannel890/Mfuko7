@@ -481,6 +481,8 @@ def tenant_edit(id):
 @roles_required('landlord')
 def record_payment():
     form = RecordPaymentForm()
+    tenants = Tenant.query.all()
+    form.tenant_id.choices = [(tenant.id, tenant.name) for tenant in tenants]
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
     form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name} ({t.property.name})")
@@ -514,8 +516,11 @@ def record_payment():
 def payments_history():
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
+    print("Landlord properties:", property_ids)
     tenant_ids = [t.id for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
+    print("Tenants in landlord's properties:", tenant_ids)
     payments = Payment.query.filter(Payment.tenant_id.in_(tenant_ids)).order_by(Payment.payment_date.desc()).all()
+    print("Payments found:", payments)
     return render_template('payments/history.html', payments=payments)
 
 @main.route('/overdue/history')
