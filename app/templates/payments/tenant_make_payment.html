@@ -1,27 +1,29 @@
 {% extends "base.html" %}
+{% block title %}Make Payment | REPT{% endblock %}
+
 {% block content %}
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <h2 class="mb-4 text-center fw-bold">Make Monthly Payment</h2>
+        <div class="col-lg-7 col-md-9">
+            <div class="card border-0 shadow-sm bg-glass" data-aos="fade-up">
+                <div class="card-body p-5">
+                    <h2 class="text-center fw-bold mb-4 text-primary">Make Monthly Payment</h2>
 
                     {% if amount_due is not none %}
-                        <p class="text-info mb-4 text-center">
+                        <p class="text-success text-center fs-5 mb-4">
                             Amount Due: <strong>KSh {{ "%.2f"|format(amount_due) }}</strong>
                         </p>
                     {% else %}
-                        <p class="text-danger mb-4 text-center">
+                        <p class="text-danger text-center fs-5 mb-4">
                             Amount Due: <strong>Unavailable</strong>
                         </p>
                     {% endif %}
 
-                    <form method="POST">
+                    <form method="POST" novalidate>
                         {{ form.hidden_tag() }}
 
                         <div class="mb-4">
-                            {{ form.amount.label(class="form-label fw-medium") }}
+                            {{ form.amount.label(class="form-label fw-semibold") }}
                             {{ form.amount(class="form-control form-control-lg", placeholder="Enter amount") }}
                             {% if form.amount.errors %}
                                 <div class="text-danger mt-1">
@@ -33,7 +35,7 @@
                         </div>
 
                         <div class="mb-4">
-                            {{ form.payment_method.label(class="form-label fw-medium") }}
+                            {{ form.payment_method.label(class="form-label fw-semibold") }}
                             {{ form.payment_method(class="form-select form-select-lg") }}
                             {% if form.payment_method.errors %}
                                 <div class="text-danger mt-1">
@@ -45,7 +47,7 @@
                         </div>
 
                         <div class="mb-4">
-                            {{ form.transaction_id.label(class="form-label fw-medium") }}
+                            {{ form.transaction_id.label(class="form-label fw-semibold") }}
                             {{ form.transaction_id(class="form-control form-control-lg", placeholder="Enter transaction ID") }}
                             {% if form.transaction_id.errors %}
                                 <div class="text-danger mt-1">
@@ -57,7 +59,7 @@
                         </div>
 
                         <div class="mb-4">
-                            {{ form.payment_date.label(class="form-label fw-medium") }}
+                            {{ form.payment_date.label(class="form-label fw-semibold") }}
                             {{ form.payment_date(class="form-control form-control-lg", type="date") }}
                             {% if form.payment_date.errors %}
                                 <div class="text-danger mt-1">
@@ -69,8 +71,8 @@
                         </div>
 
                         <div class="mb-4">
-                            {{ form.description.label(class="form-label fw-medium") }}
-                            {{ form.description(class="form-control form-control-lg", placeholder="Enter description (optional)", rows="4") }}
+                            {{ form.description.label(class="form-label fw-semibold") }}
+                            {{ form.description(class="form-control form-control-lg", placeholder="Enter description (optional)", rows="3") }}
                             {% if form.description.errors %}
                                 <div class="text-danger mt-1">
                                     {% for error in form.description.errors %}
@@ -82,7 +84,7 @@
 
                         <div class="form-check mb-4">
                             {{ form.is_offline(class="form-check-input") }}
-                            {{ form.is_offline.label(class="form-check-label") }}
+                            {{ form.is_offline.label(class="form-check-label fw-semibold") }}
                             {% if form.is_offline.errors %}
                                 <div class="text-danger mt-1">
                                     {% for error in form.is_offline.errors %}
@@ -93,7 +95,7 @@
                         </div>
 
                         <div class="mb-4">
-                            {{ form.offline_reference.label(class="form-label fw-medium") }}
+                            {{ form.offline_reference.label(class="form-label fw-semibold") }}
                             {{ form.offline_reference(class="form-control form-control-lg", placeholder="Enter offline reference (if applicable)") }}
                             {% if form.offline_reference.errors %}
                                 <div class="text-danger mt-1">
@@ -104,8 +106,10 @@
                             {% endif %}
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">Submit Payment</button>
+                        <div class="d-grid mt-1">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i> Submit Payment
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -113,4 +117,37 @@
         </div>
     </div>
 </div>
+
+<style>
+    .bg-glass {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+    }
+
+    .form-control, .form-select {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(52, 199, 89, 0.25);
+        border-color: #34c759;
+    }
+
+    .btn-primary {
+        background-color: #34c759;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #2aa648;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+    }
+</style>
 {% endblock %}

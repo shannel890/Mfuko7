@@ -146,6 +146,28 @@
             border-bottom: 2px solid var(--primary-color);
         }
 
+        footer {
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--card-background);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .footer-links a {
+            margin: 0 10px;
+            color: var(--text-color);
+            font-size: 1.2em;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
         @media (max-width: 768px) {
             .btn-primary, .btn-secondary {
                 font-size: 1em;
@@ -154,6 +176,10 @@
 
             .navbar-nav { text-align: center; }
             .nav-btn { margin: 15px auto; display: block; }
+
+            footer {
+                padding: 10px 0;
+            }
         }
     </style>
     {% block styles %}{% endblock %}
