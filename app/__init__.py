@@ -2,7 +2,8 @@ from flask import Flask
 from app.extensions import login_manager,migrate
 from .extensions import db, babel, mail
 from .models import User, Role
-from .routes import main
+from app.routes import main
+from app.auth.routes import auth
 import os
 import uuid
 from app.extensions import mail
@@ -42,7 +43,7 @@ def create_app():
     mail.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    login_manager.login_view = 'main.login' 
+    login_manager.login_view = 'auth.login' 
     login_manager.login_message_category = 'info'
 
     @login_manager.user_loader
@@ -50,7 +51,7 @@ def create_app():
         return User.query.get(int(user_id))
     
     app.register_blueprint(main)
-    
+    app.register_blueprint(auth)
     with app.app_context():
         db.create_all()
         landlord_role = Role.query.filter_by(name='landlord').first()

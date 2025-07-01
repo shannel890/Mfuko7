@@ -153,7 +153,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item" href="{{ url_for('main.logout') }}">
+                                <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a>
                             </li>
@@ -161,7 +161,7 @@
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <!-- Only use this link if 'security.profile' exists -->
-                                <a class="dropdown-item" href="{{ url_for('main.profile') }}">
+                                <a class="dropdown-item" href="{{ url_for('auth.profile') }}">
                                 
 
                                     <i class="fas fa-user me-2"></i>Profile
@@ -173,8 +173,8 @@
             </div>
             {% else %}
             <div class="d-flex">
-                <a href="{{ url_for('main.login') }}" class="btn btn-info me-2">Login</a>
-                <a href="{{ url_for('main.register') }}" class="btn btn-primary">Register</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-info me-2">Login</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Register</a>
             </div>
             {% endif %}
         </div>
