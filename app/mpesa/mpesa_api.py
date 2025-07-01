@@ -17,15 +17,14 @@ def get_access_token():
 
 def lipa_na_mpesa_online(amount, phone_number):
     access_token = get_access_token()
-    url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    business_short_code = os.getenv("BUSINESS_SHORTCODE")
-    passkey = os.getenv("PASSKEY")
-
+    
+    business_short_code = '174379'  # Use your shortcode
+    passkey = 'YOUR_PASSKEY'        # From M-Pesa portal
     data_to_encode = business_short_code + passkey + timestamp
     password = base64.b64encode(data_to_encode.encode()).decode('utf-8')
-
+    
+    api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json"
@@ -40,10 +39,10 @@ def lipa_na_mpesa_online(amount, phone_number):
         "PartyA": phone_number,
         "PartyB": business_short_code,
         "PhoneNumber": phone_number,
-        "CallBackURL": os.getenv("CALLBACK_URL"),
+        "CallBackURL": "https://5a3b-2c0f-fe38-2331-71fe-2f4f-5bba-8810-a4df.ngrok.io/callback",
         "AccountReference": "REPT",
-        "TransactionDesc": "Payment for rent"
+        "TransactionDesc": "REPT Rent Payment"
     }
 
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(api_url, json=payload, headers=headers)
     return response.json()

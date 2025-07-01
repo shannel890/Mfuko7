@@ -102,7 +102,8 @@
 {% block content %}
 <header data-aos="fade-down">
     <h1>{{ _('PropertyPayTrack Dashboard') }}</h1>
-    <p>{{ _('Welcome, %s! Manage your real estate finances with ease.') | format(current_user.username | default('User')) }}</p>
+    <p>{{ _('Welcome, {name}! Manage your real estate finances with ease.') | format(name=(current_user.username | default('User'))) }}</p>
+
 </header>
 
 <section class="hero jarallax" data-jarallax data-speed="0.8">
