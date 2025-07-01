@@ -1,12 +1,10 @@
 from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for
-from flask_login import login_required, current_user, login_user, logout_user
+from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 from app.extensions import db
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ExtendedEditProfileForm, RegistrationForm, LoginForm, ForgotPasswordRequestForm, ResetPasswordForm,ContactForm, TenantPaymentForm, ReportFilterForm
-from app.models import Property, Tenant, Payment, User, Role, Unit, Invoice
-from werkzeug.security import generate_password_hash, check_password_hash
-import uuid
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm
+from app.models import Property, Tenant, Payment, Unit, Invoice
 from functools import wraps
 from datetime import datetime, timedelta
 import logging
@@ -42,137 +40,6 @@ def roles_required(*required_roles):
         return decorated_function
     return decorator
 
-
-@main.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        existing_user = User.query.filter_by(email=form.email.data).first()
-        if existing_user:
-            flash("This email is already registered. Please log in or use a different email.", "danger")
-            return redirect(url_for('main.register'))
-        # Hash password and create user
-        hashed_password = generate_password_hash(form.password.data)
-        new_user = User(
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            email=form.email.data,
-            password=hashed_password,
-            fs_uniquifier=str(uuid.uuid4()),
-            active=True
-        )
-
-        # Get tenant role
-        default_role = Role.query.filter_by(name='tenant').first()
-        if not default_role:
-            logging.error("Default 'tenant' role not found.")
-            flash(_l('An error occurred during registration. Please try again.'), 'danger')
-            return redirect(url_for('main.register'))
-
-        # Add user and role to the session first
-        new_user.roles.append(default_role)
-        db.session.add(new_user)
-        db.session.commit()  # new_user.id is now available
-
-        # ✅ Now create tenant profile using new_user info
-        default_property_id = 1
-        tenant = Tenant(
-            user_id=new_user.id,
-            first_name=new_user.first_name,
-            last_name=new_user.last_name,
-            email=new_user.email,
-            property_id=default_property_id,
-            status='active',
-            grace_period_days=5,
-        )
-        db.session.add(tenant)
-        db.session.commit()
-
-        flash(_l('Registration successful! Please log in.'), 'success')
-        return redirect(url_for('main.login'))
-
-    return render_template('security/register.html', form=form)
-
-@main.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            flash(_l('Logged in successfully!'), 'success')
-            # Check roles through user's roles relationship
-            if any(role.name == 'landlord' for role in user.roles):
-                return redirect(url_for('main.landlord_dashboard'))
-            elif any(role.name == 'tenant' for role in user.roles):
-                return redirect(url_for('main.tenant_dashboard'))
-            else:
-                return redirect(url_for('main.index'))
-        flash(_l('Invalid email or password.'), 'danger')
-    return render_template('security/login.html', form=form)
-
-@main.route('/forgot_password', methods=['GET', 'POST'])
-def forgot_password():
-    form = ForgotPasswordRequestForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            try:
-                # Generate reset token
-                serializer = get_serializer()
-                token = serializer.dumps(user.email, salt='password-reset-salt')
-                
-                # Create reset link
-                reset_url = url_for('main.reset_password', token=token, _external=True)
-                
-                # Send email
-                msg = Message(
-                    subject=_l('Password Reset Request'),
-                    sender="shannelkirui739@gmail.com",
-                    recipients=[user.email],
-                    body=f"Please click the following link to reset your password: {reset_url}\n\n"
-                         f"If you did not request a password reset, please ignore this email."
-                )
-                mail.send(msg)
-                flash(_l('Password reset instructions have been sent to your email.'), 'success')
-            except Exception as e:
-                logging.error(f"Error sending password reset email: {str(e)}")
-                flash(_l('An error occurred while sending reset instructions. Please try again.'), 'danger')
-        else:
-            flash(_l('Email address not found.'), 'danger')
-        return redirect(url_for('main.login'))
-    return render_template('security/forgot_password.html', form=form)
-
-@main.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    try:
-        serializer = get_serializer()
-        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)  # 1-hour expiration
-    except (SignatureExpired, BadSignature):
-        flash(_l('The password reset link is invalid or has expired.'), 'danger')
-        return redirect(url_for('main.forgot_password'))
-
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        flash(_l('Email address not found.'), 'danger')
-        return redirect(url_for('main.forgot_password'))
-
-    form = ResetPasswordForm()  
-    if form.validate_on_submit():
-        user.password = generate_password_hash(form.password.data)
-        db.session.commit()
-        flash(_l('Your password has been reset successfully. Please log in.'), 'success')
-        return redirect(url_for('main.login'))
-    return render_template('security/reset_password.html', form=form, token=token)
-
-@main.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash(_l('You have been logged out.'), 'success')
-    return redirect(url_for('main.login'))
-
-
 @main.route('/')
 def landing_page():
     if current_user.is_authenticated:
@@ -190,29 +57,6 @@ def index():
 @roles_required('admin')
 def admin():
     return render_template('admin.html')
-
-@main.route('/edit/profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    form = ExtendedEditProfileForm(obj=current_user)
-    if current_user.has_role('admin'):
-        form.roles.choices = [(role.id, _l(role.name)) for role in Role.query.all()]
-    else:
-        form.roles.choices = [(role.id, _l(role.name)) for role in current_user.roles]
-        form.roles.data = [role.id for role in current_user.roles]
-    if form.validate_on_submit():
-        if not current_user.has_role('admin'):
-            form.roles.data = [role.id for role in current_user.roles]
-        form.populate_obj(current_user)
-        db.session.commit()
-        flash(_l('Profile updated successfully!'), 'success')
-        return redirect(url_for('main.profile'))
-    return render_template('security/edit_profile.html', user=current_user, edit_profile_form=form)
-
-@main.route('/profile')
-@login_required
-def profile():
-    return render_template('security/profile.html', user=current_user)
 
 @main.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -232,11 +76,6 @@ def contact():
             flash(_l('There was an error sending your message. Please try again later.'), 'danger')
             current_app.logger.error(f"Error sending contact email: {e}")
     return render_template('contact.html', title=_l('Contact Us'), form=form)
-
-@main.route('/roles')
-@roles_required('landlord')
-def roles():
-    return render_template('security/roles.html', roles=current_user.roles)
 
 @main.route('/landlord/dashboard')
 @login_required

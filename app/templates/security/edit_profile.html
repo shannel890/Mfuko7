@@ -9,7 +9,7 @@
                 <div class="card-body p-4">
                     <h2 class="mb-4 text-center fw-bold text-primary">{{ _('Edit Profile') }}</h2>
 
-                    <form action="{{ url_for('main.edit_profile') }}" method="post" name="edit_profile_form">
+                    <form action="{{ url_for('auth.edit_profile') }}" method="post" name="edit_profile_form">
                         {{ edit_profile_form.hidden_tag() }}
 
                         <div class="mb-4">
@@ -102,10 +102,10 @@
                     </form>
                 </div>
                 <div class="card-footer d-flex justify-content-between">
-                    <a href="{{ url_for('main.reset_password') }}" class="btn btn-secondary btn-lg bubble-effect">
+                    <a href="{{ url_for('auth.reset_password') }}" class="btn btn-secondary btn-lg bubble-effect">
                         <i class="fas fa-key me-1"></i> {{ _('Change Password') }}
                     </a>
-                    <a href="{{ url_for('main.profile') }}" class="btn btn-primary btn-lg bubble-effect">
+                    <a href="{{ url_for('auth.profile') }}" class="btn btn-primary btn-lg bubble-effect">
                         <i class="fas fa-arrow-left me-1"></i> {{ _('Back to Profile') }}
                     </a>
                 </div>

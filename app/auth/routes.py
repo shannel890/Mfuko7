@@ -1,55 +1,192 @@
-from flask import Blueprint, render_template, request, url_for, flash, redirect
-from flask_security import login_required,roles_accepted, roles_required
-from app.utils.constrants import UserRoles
-from app.models import User, Role, County
-from extensions import db
+from flask import Blueprint, render_template, current_app, url_for, flash, redirect
+from flask_login import login_required,login_user, logout_user, current_user
+from app.models import User, Role, Tenant
+from app.extensions import db
+from app.forms import RegistrationForm, LoginForm, ForgotPasswordRequestForm, ResetPasswordForm, ExtendedEditProfileForm
+import uuid
+import logging
+from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_babel import lazy_gettext as _l
+from app.extensions import mail
+from flask_mail import Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 auth = Blueprint('auth',__name__,url_prefix='/auth')
+def send_email(subject, sender, recipients, text_body, html_body=None):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    if html_body:
+        msg.html = html_body
+    mail.send(msg)
+def get_serializer():
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
 
-@auth.route('/users')
+def roles_required(*required_roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('main.login'))
+            user_roles = {role.name for role in current_user.roles}
+            if not set(required_roles).issubset(user_roles):
+                flash(_l('You do not have the required permissions to access this page.'), 'danger')
+                return redirect(url_for('main.index'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        existing_user = User.query.filter_by(email=form.email.data).first()
+        if existing_user:
+            flash("This email is already registered. Please log in or use a different email.", "danger")
+            return redirect(url_for('auth.register'))
+        # Hash password and create user
+        hashed_password = generate_password_hash(form.password.data)
+        new_user = User(
+            first_name=form.first_name.data,
+            last_name=form.last_name.data,
+            email=form.email.data,
+            password=hashed_password,
+            fs_uniquifier=str(uuid.uuid4()),
+            active=True
+        )
+
+        # Get tenant role
+        default_role = Role.query.filter_by(name='tenant').first()
+        if not default_role:
+            logging.error("Default 'tenant' role not found.")
+            flash(_l('An error occurred during registration. Please try again.'), 'danger')
+            return redirect(url_for('auth.register'))
+
+        # Add user and role to the session first
+        new_user.roles.append(default_role)
+        db.session.add(new_user)
+        db.session.commit()  # new_user.id is now available
+
+        # ✅ Now create tenant profile using new_user info
+        default_property_id = 1
+        tenant = Tenant(
+            user_id=new_user.id,
+            first_name=new_user.first_name,
+            last_name=new_user.last_name,
+            email=new_user.email,
+            property_id=default_property_id,
+            status='active',
+            grace_period_days=5,
+        )
+        db.session.add(tenant)
+        db.session.commit()
+
+        flash(_l('Registration successful! Please log in.'), 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('security/register.html', form=form)
+
+@auth.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
+            flash(_l('Logged in successfully!'), 'success')
+            # Check roles through user's roles relationship
+            if any(role.name == 'landlord' for role in user.roles):
+                return redirect(url_for('main.landlord_dashboard'))
+            elif any(role.name == 'tenant' for role in user.roles):
+                return redirect(url_for('main.tenant_dashboard'))
+            else:
+                return redirect(url_for('main.index'))
+        flash(_l('Invalid email or password.'), 'danger')
+    return render_template('security/login.html', form=form)
+
+@auth.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            try:
+                # Generate reset token
+                serializer = get_serializer()
+                token = serializer.dumps(user.email, salt='password-reset-salt')
+                
+                # Create reset link
+                reset_url = url_for('auth.reset_password', token=token, _external=True)
+                
+                # Send email
+                msg = Message(
+                    subject=_l('Password Reset Request'),
+                    sender="shannelkirui739@gmail.com",
+                    recipients=[user.email],
+                    body=f"Please click the following link to reset your password: {reset_url}\n\n"
+                         f"If you did not request a password reset, please ignore this email."
+                )
+                mail.send(msg)
+                flash(_l('Password reset instructions have been sent to your email.'), 'success')
+            except Exception as e:
+                logging.error(f"Error sending password reset email: {str(e)}")
+                flash(_l('An error occurred while sending reset instructions. Please try again.'), 'danger')
+        else:
+            flash(_l('Email address not found.'), 'danger')
+        return redirect(url_for('main.login'))
+    return render_template('security/forgot_password.html', form=form)
+
+@auth.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        serializer = get_serializer()
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)  # 1-hour expiration
+    except (SignatureExpired, BadSignature):
+        flash(_l('The password reset link is invalid or has expired.'), 'danger')
+        return redirect(url_for('auth.forgot_password'))
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash(_l('Email address not found.'), 'danger')
+        return redirect(url_for('auth.forgot_password'))
+
+    form = ResetPasswordForm()  
+    if form.validate_on_submit():
+        user.password = generate_password_hash(form.password.data)
+        db.session.commit()
+        flash(_l('Your password has been reset successfully. Please log in.'), 'success')
+        return redirect(url_for('main.login'))
+    return render_template('security/reset_password.html', form=form, token=token)
+
+@auth.route('/logout')
 @login_required
-@roles_accepted(UserRoles.LANDLORD)
-def users():
-    """
-    Display a list of users.
-    Only accessible to users with the 'landlord' role.
-    """
-    users = User.query.all()
-    return render_template('auth/users.html', users=users)
+def logout():
+    logout_user()
+    flash(_l('You have been logged out.'), 'success')
+    return redirect(url_for('auth.login'))
+@auth.route('/edit/profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = ExtendedEditProfileForm(obj=current_user)
+    if current_user.has_role('admin'):
+        form.roles.choices = [(role.id, _l(role.name)) for role in Role.query.all()]
+    else:
+        form.roles.choices = [(role.id, _l(role.name)) for role in current_user.roles]
+        form.roles.data = [role.id for role in current_user.roles]
+    if form.validate_on_submit():
+        if not current_user.has_role('admin'):
+            form.roles.data = [role.id for role in current_user.roles]
+        form.populate_obj(current_user)
+        db.session.commit()
+        flash(_l('Profile updated successfully!'), 'success')
+        return redirect(url_for('auth.profile'))
+    return render_template('security/edit_profile.html', user=current_user, edit_profile_form=form)
 
-@auth.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])          
-@login_required                                                               
-@roles_required(UserRoles.LANDLORD)                                        
-def edit_user(user_id):                                                        
-    user = User.query.get_or_404(user_id)
+@auth.route('/profile')
+@login_required
+def profile():
+    return render_template('security/profile.html', user=current_user)
 
-    if request.method == 'POST':
-        user.username = request.form.get('username')
-        user.first_name = request.form.get('first_name')
-        user.email = request.form.get('email')
-        user.phone_number = request.form.get('phone')
-        user.county_id = request.form.get('county_id') or None
-        user.language = request.form.get('language')
-
-        # Update roles
-        user.roles.clear()
-        role_ids = request.form.getlist('roles')
-        for role_id in role_ids:
-            role = Role.query.get(role_id)
-            if role:
-                user.roles.append(role)
-
-        try:
-            db.session.commit()
-            flash(f'User {user.email} updated successfully!', 'success')
-            return redirect(url_for('auth.users'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating user: {str(e)}', 'error')
-
-    roles = Role.query.all()
-    counties = County.query.filter_by(active=True).all()
-    
-    return render_template('auth/edit_user.html',
-                           user=user,
-                           roles=roles,
-                           counties=counties)
+@auth.route('/roles')
+@roles_required('landlord')
+def roles():
+    return render_template('security/roles.html', roles=current_user.roles)

@@ -201,8 +201,8 @@
                 <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a></li>
             </ul>
-            <a href="{{ url_for('main.login') }}" class="btn btn-primary nav-btn ms-3 bubble-effect">Log In</a>
-            <a href="{{ url_for('main.register') }}" class="btn btn-secondary nav-btn ms-3 bubble-effect">Sign Up</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary nav-btn ms-3 bubble-effect">Log In</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-secondary nav-btn ms-3 bubble-effect">Sign Up</a>
         </div>
     </div>
 </nav>
@@ -212,7 +212,7 @@
     <div class="container hero-content">
         <h1 data-aos="fade-down">Effortless Real Estate Payment Tracking</h1>
         <p data-aos="fade-up" data-aos-delay="200">Take control of your property finances with intuitive tools for income, expenses, and tenant management.</p>
-        <a href="{{ url_for('main.register') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="400">Start Free Trial <i class="fas fa-rocket ms-2"></i></a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="400">Start Free Trial <i class="fas fa-rocket ms-2"></i></a>
     </div>
 </section>
 
@@ -279,7 +279,7 @@
     <div class="container cta-content">
         <h2 data-aos="fade-down">Ready to Simplify Your Finances?</h2>
         <p data-aos="fade-up" data-aos-delay="200">Join thousands of property owners optimizing their investments with PropertyPayTrack.</p>
-        <a href="{{ url_for('main.register') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="400">Get Started Free <i class="fas fa-rocket ms-2"></i></a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="400">Get Started Free <i class="fas fa-rocket ms-2"></i></a>
     </div>
 </section>
 
