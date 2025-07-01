@@ -14,7 +14,9 @@ from app.extensions import mail
 import traceback
 from flask import Response
 import csv
+import uuid
 from io import StringIO
+
 main = Blueprint('main', __name__)
 
 def send_email(subject, sender, recipients, text_body, html_body=None):
@@ -52,7 +54,16 @@ def landing_page():
 @main.route('/index')
 def index():
     return render_template('index.html')
+@main.route('/features')
+def features():
+    return render_template('features.html')
 
+@main.route('/testimonials')
+def testimonials():
+    return render_template('testimonials.html')
+@main.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
 @main.route('/admin')
 @roles_required('admin')
 def admin():
@@ -332,7 +343,7 @@ def record_payment():
             amount=form.amount.data,
             tenant_id=form.tenant_id.data,
             payment_method=form.payment_method.data,
-            transaction_id=form.transaction_id.data,
+            transaction_id=str(uuid.uuid()),
             payment_date=form.payment_date.data or datetime.utcnow().date(),
             status='confirmed',
             description=form.description.data,
@@ -355,12 +366,19 @@ def record_payment():
 def payments_history():
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
-    print("Landlord properties:", property_ids)
-    tenant_ids = [t.id for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
-    print("Tenants in landlord's properties:", tenant_ids)
+    
+    tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
+    tenant_ids = [t.id for t in tenants]
+
     payments = Payment.query.filter(Payment.tenant_id.in_(tenant_ids)).order_by(Payment.payment_date.desc()).all()
-    print("Payments found:", payments)
+
+    # Add tenant name info
+    for p in payments:
+        tenant = Tenant.query.get(p.tenant_id)
+        p.tenant_name = f"{tenant.first_name} {tenant.last_name}"
+
     return render_template('payments/history.html', payments=payments)
+
 
 @main.route('/overdue/history')
 @login_required
