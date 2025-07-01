@@ -3,41 +3,13 @@
 
 {% block styles %}
 <style>
-    nav.navbar {
-        background-color: var(--card-background);
-        backdrop-filter: blur(10px);
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 1000;
-    }
-
-    .navbar-brand {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.8em;
-        font-weight: 700;
-        color: var(--primary-color);
-    }
-
-    .navbar-nav .nav-link {
-        color: var(--text-color);
-        font-weight: 500;
-        padding: 10px 15px;
-        transition: color 0.3s ease, border-bottom 0.3s ease;
-    }
-
-    .navbar-nav .nav-link:hover {
-        color: var(--primary-color);
-        border-bottom: 2px solid var(--primary-color);
-    }
-
     .hero {
         position: relative;
         min-height: 70vh;
         padding: 100px 20px;
         display: flex;
         align-items: center;
-        background: url('https://source.unsplash.com/random/1920x800/?modern-house,real-estate,financial') no-repeat center center/cover;
+        background: url('/static/img/hero-bg.jpg') no-repeat center center/cover;
     }
 
     .hero .overlay {
@@ -98,13 +70,13 @@
         background-color: var(--card-background);
         border-radius: 12px;
         padding: 30px;
-        box-shadow: 0 8px 20px var(--shadow-light);
+        box-shadow: var(--shadow-light);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .feature-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 25px var(--shadow-medium);
+        box-shadow: var(--shadow-medium);
     }
 
     .feature-card i {
@@ -124,7 +96,7 @@
         background-color: var(--card-background);
         border-radius: 12px;
         padding: 25px;
-        box-shadow: 0 8px 20px var(--shadow-light);
+        box-shadow: var(--shadow-light);
         transition: transform 0.3s ease;
     }
 
@@ -159,160 +131,105 @@
         text-align: center;
     }
 
-    footer {
-        background-color: var(--text-color);
-        color: var(--light-text-color);
-        padding: 40px 0;
-        text-align: center;
-    }
-
-    footer .footer-links a {
-        color: var(--light-text-color);
-        margin: 0 10px;
-        font-size: 1.2em;
-        transition: color 0.3s ease;
-    }
-
-    footer .footer-links a:hover {
-        color: var(--primary-color);
-    }
-
     @media (max-width: 768px) {
         .hero h1 { font-size: 2.8em; }
         .hero p { font-size: 1.1em; }
         .features-section h2, .testimonials-section h2, .cta-section h2 { font-size: 2.2em; }
-        .navbar-nav { text-align: center; }
-        .nav-btn { margin: 15px auto; display: block; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<nav class="navbar navbar-expand-lg">
-    <div class="container">
-        <a class="navbar-brand" href="{{ url_for('main.index') }}">PropertyPayTrack</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-                <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a></li>
-            </ul>
-            <a href="{{ url_for('auth.login') }}" class="btn btn-primary nav-btn ms-3 bubble-effect">Log In</a>
-            <a href="{{ url_for('auth.register') }}" class="btn btn-secondary nav-btn ms-3 bubble-effect">Sign Up</a>
-        </div>
-    </div>
-</nav>
-
 <section class="hero jarallax" data-jarallax data-speed="0.8">
     <div class="overlay"></div>
-    <div class="container hero-content">
-        <h1 data-aos="fade-down">Effortless Real Estate Payment Tracking</h1>
-        <p data-aos="fade-up" data-aos-delay="200">Take control of your property finances with intuitive tools for income, expenses, and tenant management.</p>
-        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="400">Start Free Trial <i class="fas fa-rocket ms-2"></i></a>
+    <div class="hero-content">
+        <h1 data-aos="fade-down">{{ _('Effortless Real Estate Payment Tracking') }}</h1>
+        <p data-aos="fade-up" data-aos-delay="200">{{ _('Take control of your property finances with intuitive tools for income, expenses, and tenant management.') }}</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="400">{{ _('Start Free Trial') }} <i class="fas fa-rocket ms-2"></i></a>
     </div>
 </section>
 
 <section id="features" class="features-section">
-    <div class="container">
-        <h2 data-aos="fade-down">Key Features</h2>
-        <div class="feature-grid">
-            <div class="feature-card bg-glass" data-aos="fade-up">
-                <i class="fas fa-money-check-alt"></i>
-                <h3>Automated Payment Tracking</h3>
-                <p>Track rent payments and expenses effortlessly with real-time updates.</p>
-            </div>
-            <div class="feature-card bg-glass" data-aos="fade-up" data-aos-delay="200">
-                <i class="fas fa-chart-pie"></i>
-                <h3>Financial Reports</h3>
-                <p>Generate detailed reports on profitability and cash flow.</p>
-            </div>
-            <div class="feature-card bg-glass" data-aos="fade-up" data-aos-delay="400">
-                <i class="fas fa-users-cog"></i>
-                <h3>Tenant Management</h3>
-                <p>Organize tenant details and lease agreements in one place.</p>
-            </div>
-            <div class="feature-card bg-glass" data-aos="fade-up" data-aos-delay="600">
-                <i class="fas fa-bell"></i>
-                <h3>Smart Reminders</h3>
-                <p>Get automated alerts for rent, bills, and lease milestones.</p>
-            </div>
+    <h2 data-aos="fade-down">{{ _('Key Features') }}</h2>
+    <div class="feature-grid">
+        <div class="feature-card bg-glass" data-aos="fade-up">
+            <i class="fas fa-money-check-alt"></i>
+            <h3>{{ _('Automated Payment Tracking') }}</h3>
+            <p>{{ _('Track rent payments and expenses effortlessly with real-time updates.') }}</p>
+        </div>
+        <div class="feature-card bg-glass" data-aos="fade-up" data-aos-delay="200">
+            <i class="fas fa-chart-pie"></i>
+            <h3>{{ _('Financial Reports') }}</h3>
+            <p>{{ _('Generate detailed reports on profitability and cash flow.') }}</p>
+        </div>
+        <div class="feature-card bg-glass" data-aos="fade-up" data-aos-delay="400">
+            <i class="fas fa-users-cog"></i>
+            <h3>{{ _('Tenant Management') }}</h3>
+            <p>{{ _('Organize tenant details and lease agreements in one place.') }}</p>
+        </div>
+        <div class="feature-card bg-glass" data-aos="fade-up" data-aos-delay="600">
+            <i class="fas fa-bell"></i>
+            <h3>{{ _('Smart Reminders') }}</h3>
+            <p>{{ _('Get automated alerts for rent, bills, and lease milestones.') }}</p>
         </div>
     </div>
 </section>
 
 <section id="testimonials" class="testimonials-section">
-    <div class="container">
-        <h2 data-aos="fade-down">What Our Users Say</h2>
-        <div class="swiper" id="testimonials-slider">
-            <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="testimonial-item bg-glass">
-                        <p>"PropertyPayTrack saves me hours every month!"</p>
-                        <div class="testimonial-author">Jane M., Nairobi</div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="testimonial-item bg-glass">
-                        <p>"Tax season is a breeze with categorized expenses."</p>
-                        <div class="testimonial-author">David K., Mombasa</div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="testimonial-item bg-glass">
-                        <p>"The interface is intuitive and mobile-friendly."</p>
-                        <div class="testimonial-author">Sarah L., Malindi</div>
-                    </div>
+    <h2 data-aos="fade-down">{{ _('What Our Users Say') }}</h2>
+    <div class="swiper" id="testimonials-slider" role="region" aria-label="Testimonials carousel">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                <div class="testimonial-item bg-glass">
+                    <p>{{ _('"PropertyPayTrack saves me hours every month!"') }}</p>
+                    <div class="testimonial-author">Jane M., Nairobi</div>
                 </div>
             </div>
-            <div class="swiper-button-next" aria-label="Next testimonial"></div>
-            <div class="swiper-button-prev" aria-label="Previous testimonial"></div>
+            <div class="swiper-slide">
+                <div class="testimonial-item bg-glass">
+                    <p>{{ _('"Tax season is a breeze with categorized expenses."') }}</p>
+                    <div class="testimonial-author">David K., Mombasa</div>
+                </div>
+            </div>
+            <div class="swiper-slide">
+                <div class="testimonial-item bg-glass">
+                    <p>{{ _('"The interface is intuitive and mobile-friendly."') }}</p>
+                    <div class="testimonial-author">Sarah L., Malindi</div>
+                </div>
+            </div>
         </div>
+        <div class="swiper-button-next" aria-label="Next testimonial"></div>
+        <div class="swiper-button-prev" aria-label="Previous testimonial"></div>
     </div>
 </section>
 
 <section id="cta" class="cta-section">
     <div class="overlay"></div>
-    <div class="container cta-content">
-        <h2 data-aos="fade-down">Ready to Simplify Your Finances?</h2>
-        <p data-aos="fade-up" data-aos-delay="200">Join thousands of property owners optimizing their investments with PropertyPayTrack.</p>
-        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="400">Get Started Free <i class="fas fa-rocket ms-2"></i></a>
+    <div class="cta-content">
+        <h2 data-aos="fade-down">{{ _('Ready to Simplify Your Finances?') }}</h2>
+        <p data-aos="fade-up" data-aos-delay="200">{{ _('Join thousands of property owners optimizing their investments with PropertyPayTrack.') }}</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="400">{{ _('Get Started Free') }} <i class="fas fa-rocket ms-2"></i></a>
     </div>
 </section>
-
-<footer>
-    <div class="container">
-        <p>&copy; 2025 PropertyPayTrack. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        </div>
-    </div>
-</footer>
 {% endblock %}
 
 {% block scripts %}
+<script src="https://unpkg.com/swiper@8.4.7/swiper-bundle.min.js"></script>
+<script src="https://unpkg.com/jarallax@2.0.2/dist/jarallax.min.js"></script>
 <script>
     new Swiper('#testimonials-slider', {
         navigation: {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
         },
-        keyboard: true,
+        keyboard: {
+            enabled: true,
+        },
         slidesPerView: 1,
         spaceBetween: 20,
         breakpoints: {
             768: { slidesPerView: 2 },
             1024: { slidesPerView: 3 },
-        },
-        aria: {
-            enabled: true,
-            prev: 'Previous slide',
-            next: 'Next slide',
         },
     });
 </script>

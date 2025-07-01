@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from app.extensions import login_manager,migrate
 from .extensions import db, babel, mail
 from .models import User, Role
@@ -52,6 +52,8 @@ def create_app():
     
     app.register_blueprint(main)
     app.register_blueprint(auth)
+    
+    
     with app.app_context():
         db.create_all()
         landlord_role = Role.query.filter_by(name='landlord').first()

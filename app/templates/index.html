@@ -8,7 +8,7 @@
         color: var(--light-text-color);
         padding: 40px 20px;
         text-align: center;
-        box-shadow: 0 4px 10px var(--shadow-medium);
+        box-shadow: var(--shadow-medium);
     }
 
     header h1 {
@@ -23,37 +23,8 @@
         opacity: 0.9;
     }
 
-    nav {
-        background-color: var(--secondary-color);
-        padding: 15px 0;
-        box-shadow: 0 2px 5px var(--shadow-light);
-    }
-
-    nav ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-    }
-
-    nav ul li a {
-        color: var(--light-text-color);
-        text-decoration: none;
-        font-weight: 700;
-        padding: 10px;
-        transition: color 0.3s ease, border-bottom 0.3s ease;
-    }
-
-    nav ul li a:hover,
-    nav ul li a.active {
-        color: var(--accent-color);
-        border-bottom: 2px solid var(--accent-color);
-    }
-
     .hero {
-        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://source.unsplash.com/random/1600x600/?real-estate,house') no-repeat center center/cover;
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/static/img/dashboard-bg.jpg') no-repeat center center/cover;
         padding: 80px 20px;
         text-align: center;
         color: var(--light-text-color);
@@ -94,7 +65,7 @@
         background-color: var(--card-background);
         border-radius: 10px;
         padding: 25px;
-        box-shadow: 0 8px 20px var(--shadow-light);
+        box-shadow: var(--shadow-light);
         transition: transform 0.3s ease;
     }
 
@@ -121,107 +92,74 @@
         text-align: center;
     }
 
-    footer {
-        background-color: var(--text-color);
-        color: var(--light-text-color);
-        padding: 30px 0;
-        text-align: center;
-    }
-
     @media (max-width: 768px) {
         header h1 { font-size: 2.2em; }
         .hero h2 { font-size: 2.2em; }
-        nav ul { flex-direction: column; gap: 10px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <header data-aos="fade-down">
-    <div class="container">
-        <h1>PropertyPayTrack Dashboard</h1>
-        <p>Welcome, {{ current_user.username or 'User' }}! Manage your real estate finances with ease.</p>
-    </div>
+    <h1>{{ _('PropertyPayTrack Dashboard') }}</h1>
+    <p>{{ _('Welcome, %s! Manage your real estate finances with ease.') | format(current_user.username | default('User')) }}</p>
 </header>
 
-<nav data-aos="fade-up">
-    <div class="container">
-        <ul>
-            <li><a href="{{ url_for('main.index') }}" class="active">Dashboard</a></li>
-            <li><a href="{{ url_for('main.tenant_make_payment') }}">Payments</a></li>
-            <li><a href="{{ url_for('main.properties_list') }}">Properties</a></li>
-            <li><a href="{{ url_for('main.reports') }}">Reports</a></li>
-            <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
-            <li><a href="{{ url_for('auth.profile') }}">Profile</a></li>
-        </ul>
-    </div>
-</nav>
-
 <section class="hero jarallax" data-jarallax data-speed="0.8">
-    <div class="container">
-        <h2 data-aos="fade-down">Your Real Estate Control Center</h2>
-        <p data-aos="fade-up">Track payments, manage properties, and gain insights all in one place.</p>
-        <a href="{{ url_for('main.tenant_make_payment') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="200">Make a Payment <i class="fas fa-wallet ms-2"></i></a>
-    </div>
+    <h2 data-aos="fade-down">{{ _('Your Real Estate Control Center') }}</h2>
+    <p data-aos="fade-up">{{ _('Track payments, manage properties, and gain insights all in one place.') }}</p>
+    <a href="{{ url_for('main.tenant_make_payment') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="200">{{ _('Make a Payment') }} <i class="fas fa-wallet ms-2"></i></a>
 </section>
 
 <section class="services">
-    <div class="container">
-        <h2 data-aos="fade-down">Core Tools</h2>
-        <div class="service-cards">
-            <div class="card bg-glass" data-aos="fade-up">
-                <i class="fas fa-wallet"></i>
-                <h3>Payment Tracking</h3>
-                <p>Record rent payments and expenses with real-time updates.</p>
-            </div>
-            <div class="card bg-glass" data-aos="fade-up" data-aos-delay="200">
-                <i class="fas fa-chart-line"></i>
-                <h3>Financial Insights</h3>
-                <p>View comprehensive reports to understand your financial performance.</p>
-            </div>
-            <div class="card bg-glass" data-aos="fade-up" data-aos-delay="400">
-                <i class="fas fa-home"></i>
-                <h3>Property Management</h3>
-                <p>Organize property details and tenant information seamlessly.</p>
-            </div>
+    <h2 data-aos="fade-down">{{ _('Core Tools') }}</h2>
+    <div class="service-cards">
+        <div class="card bg-glass" data-aos="fade-up">
+            <i class="fas fa-wallet"></i>
+            <h3>{{ _('Payment Tracking') }}</h3>
+            <p>{{ _('Record rent payments and expenses with real-time updates.') }}</p>
+        </div>
+        <div class="card bg-glass" data-aos="fade-up" data-aos-delay="200">
+            <i class="fas fa-chart-line"></i>
+            <h3>{{ _('Financial Insights') }}</h3>
+            <p>{{ _('View comprehensive reports to understand your financial performance.') }}</p>
+        </div>
+        <div class="card bg-glass" data-aos="fade-up" data-aos-delay="400">
+            <i class="fas fa-home"></i>
+            <h3>{{ _('Property Management') }}</h3>
+            <p>{{ _('Organize property details and tenant information seamlessly.') }}</p>
         </div>
     </div>
 </section>
 
 <section class="features">
-    <div class="container">
-        <h2 data-aos="fade-down">Why PropertyPayTrack?</h2>
-        <div class="feature-grid">
-            <div class="feature-item bg-glass" data-aos="fade-up">
-                <i class="fas fa-shield-alt"></i>
-                <h3>Secure</h3>
-                <p>Industry-standard security for your financial data.</p>
-            </div>
-            <div class="feature-item bg-glass" data-aos="fade-up" data-aos-delay="200">
-                <i class="fas fa-laptop-code"></i>
-                <h3>Intuitive</h3>
-                <p>User-friendly interface for all users.</p>
-            </div>
-            <div class="feature-item bg-glass" data-aos="fade-up" data-aos-delay="400">
-                <i class="fas fa-mobile-alt"></i>
-                <h3>Accessible</h3>
-                <p>Manage your portfolio from any device.</p>
-            </div>
+    <h2 data-aos="fade-down">{{ _('Why PropertyPayTrack?') }}</h2>
+    <div class="feature-grid">
+        <div class="feature-item bg-glass" data-aos="fade-up">
+            <i class="fas fa-shield-alt"></i>
+            <h3>{{ _('Secure') }}</h3>
+            <p>{{ _('Industry-standard security for your financial data.') }}</p>
+        </div>
+        <div class="feature-item bg-glass" data-aos="fade-up" data-aos-delay="200">
+            <i class="fas fa-laptop-code"></i>
+            <h3>{{ _('Intuitive') }}</h3>
+            <p>{{ _('User-friendly interface for all users.') }}</p>
+        </div>
+        <div class="feature-item bg-glass" data-aos="fade-up" data-aos-delay="400">
+            <i class="fas fa-mobile-alt"></i>
+            <h3>{{ _('Accessible') }}</h3>
+            <p>{{ _('Manage your portfolio from any device.') }}</p>
         </div>
     </div>
 </section>
 
 <section class="cta">
-    <div class="container">
-        <h2 data-aos="fade-down">Take Control Today</h2>
-        <p data-aos="fade-up">Simplify your real estate management with PropertyPayTrack.</p>
-        <a href="{{ url_for('main.properties_list') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="200">View Properties <i class="fas fa-home ms-2"></i></a>
-    </div>
+    <h2 data-aos="fade-down">{{ _('Take Control Today') }}</h2>
+    <p data-aos="fade-up">{{ _('Simplify your real estate management with PropertyPayTrack.') }}</p>
+    <a href="{{ url_for('main.properties_list') }}" class="btn btn-secondary bubble-effect" data-aos="fade-up" data-aos-delay="200">{{ _('View Properties') }} <i class="fas fa-home ms-2"></i></a>
 </section>
+{% endblock %}
 
-<footer>
-    <div class="container">
-        <p>&copy; 2025 PropertyPayTrack. All rights reserved.</p>
-    </div>
-</footer>
+{% block scripts %}
+<script src="https://unpkg.com/jarallax@2.0.2/dist/jarallax.min.js"></script>
 {% endblock %}
