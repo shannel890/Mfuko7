@@ -47,8 +47,13 @@
                         </div>
 
                         <div class="mb-4">
-                            {{ form.transaction_id.label(class="form-label fw-semibold") }}
-                            {{ form.transaction_id(class="form-control form-control-lg", placeholder="Enter transaction ID") }}
+                            {% if form.is_offline.data %}
+                            <div class="mb-4">
+                                {{ form.transaction_id.label(class="form-label fw-semibold") }}
+                                {{ form.transaction_id(class="form-control form-control-lg", placeholder="Enter M-Pesa code") }}
+                            </div>
+                        {% endif %}
+
                             {% if form.transaction_id.errors %}
                                 <div class="text-danger mt-1">
                                     {% for error in form.transaction_id.errors %}
@@ -117,6 +122,19 @@
         </div>
     </div>
 </div>
+<script>
+    const isOfflineCheckbox = document.querySelector('#is_offline');
+    const txnField = document.querySelector('.transaction-id-field');
+
+    isOfflineCheckbox.addEventListener('change', () => {
+        txnField.style.display = isOfflineCheckbox.checked ? 'block' : 'none';
+    });
+
+    // Trigger on load
+    window.addEventListener('DOMContentLoaded', () => {
+        txnField.style.display = isOfflineCheckbox.checked ? 'block' : 'none';
+    });
+</script>
 
 <style>
     .bg-glass {

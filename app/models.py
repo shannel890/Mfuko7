@@ -135,7 +135,7 @@ class Tenant(db.Model):
     grace_period_days = db.Column(db.Integer, default=5)
     lease_start_date = db.Column(db.Date)
     lease_end_date = db.Column(db.Date)
-    property_id = db.Column(db.Integer, db.ForeignKey('property.id', ondelete='CASCADE'), nullable=False, index=True)
+    property_id = db.Column(db.Integer, db.ForeignKey('property.id', ondelete='CASCADE'), nullable=True, index=True)
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id', ondelete='CASCADE'), nullable=True, index=True)
     unit = db.relationship('Unit', foreign_keys=[unit_id], backref='tenant', uselist=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

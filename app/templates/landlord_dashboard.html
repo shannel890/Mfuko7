@@ -353,9 +353,51 @@
                 </div>
             </div>
         </div>
+
+        <!-- Tenant Assign Table -->
+        <div class="row mt-5" data-aos="fade-up" data-aos-delay="1000">
+            <div class="col-12">
+                <div class="card bg-glass">
+                    <div class="card-header bg-glass fw-bold">
+                        <span><i class="fas fa-user-check"></i> {{ _('Assign Property to Tenant') }}</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>{{ _('Tenant Name') }}</th>
+                                        <th>{{ _('Email') }}</th>
+                                        <th>{{ _('Action') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tenant in landlord_tenants %}
+                                    <tr>
+                                        <td data-label="Tenant Name">{{ tenant.first_name }} {{ tenant.last_name }}</td>
+                                        <td data-label="Email">{{ tenant.email }}</td>
+                                        <td data-label="Action">
+                                            <a href="{{ url_for('main.assign_property', tenant_id=tenant.id) }}" class="btn btn-outline-primary btn-sm">
+                                                {{ _('Assign Property') }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">{{ _('No active tenants available.') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
-
+<a href="{{ url_for('main.assign_property') }}" class="text-decoration-none"></a>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from app.extensions import login_manager,migrate
 from .extensions import db, babel, mail
 from .models import User, Role

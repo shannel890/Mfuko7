@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 from app.extensions import db, mail
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm, AssignPropertyForm
 from app.models import Property, Tenant, Payment, Unit, Invoice
 from functools import wraps
 from datetime import datetime, timedelta
@@ -59,6 +59,11 @@ def landing_page():
 @main.route('/index')
 def index():
     try:
+        if current_user.is_authenticated:
+            if current_user.has_role('landlord'):
+                return redirect(url_for('main.landlord_dashboard'))
+            elif current_user.has_role('tenant'):
+                return redirect(url_for('main.tenant_dashboard'))
         return render_template('index.html')
     except Exception as e:
         current_app.logger.error(f"Error loading index: {e}")
@@ -134,11 +139,15 @@ def landlord_dashboard():
             'recent_transactions': 0
         }
         recent_payments = []
+        landlord_tenants = []  # Initialize for later use
         landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
         landlord_property_ids = [p.id for p in landlord_properties]
 
         if landlord_property_ids:
-            landlord_tenants = Tenant.query.filter(Tenant.property_id.in_(landlord_property_ids), Tenant.status == 'active').all()
+            landlord_tenants = Tenant.query.filter(
+                Tenant.property_id.in_(landlord_property_ids),
+                Tenant.status == 'active'
+            ).all()
             landlord_tenant_ids = [t.id for t in landlord_tenants]
             today = datetime.utcnow().date()
             current_month_start = today.replace(day=1)
@@ -171,15 +180,17 @@ def landlord_dashboard():
             ).scalar() or 0.00
 
             # Vacancy Rate
-            total_units = db.session.query(func.sum(Unit.id)).filter(
+            total_units = db.session.query(func.count(Unit.id)).filter(
                 Unit.property_id.in_(landlord_property_ids),
                 Unit.status != 'maintenance'
-            ).count() or 0
+            ).scalar() or 0
+
             occupied_units = len(Tenant.query.filter(
                 Tenant.property_id.in_(landlord_property_ids),
                 Tenant.status == 'active',
                 Tenant.unit_id != None
             ).join(Unit, Tenant.unit_id == Unit.id).all())
+
             if total_units > 0:
                 metrics['vacancy_rate'] = round(((total_units - occupied_units) / total_units) * 100, 2)
             else:
@@ -211,13 +222,18 @@ def landlord_dashboard():
                     'status': payment.status
                 })
 
-        return render_template('landlord_dashboard.html', metrics=metrics, recent_payments=recent_payments)
+        return render_template(
+            'landlord_dashboard.html',
+            metrics=metrics,
+            recent_payments=recent_payments,
+            landlord_tenants=landlord_tenants  # 👈 Added
+        )
 
     except Exception as e:
         logging.error("Dashboard error occurred:")
         logging.error(traceback.format_exc())  # Logs the full traceback
         flash(_l('An error occurred while loading the dashboard. Please try again.'), 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.landing_page'))
 
 
 @main.route('/tenant/dashboard')
@@ -227,8 +243,17 @@ def tenant_dashboard():
     try:
         tenant = Tenant.query.filter_by(user_id=current_user.id).first()
         if not tenant:
-            flash(_l('No tenant profile found. Contact your landlord.'), 'warning')
-            return redirect(url_for('main.index'))
+            tenant = Tenant(
+            user_id=current_user.id,
+            first_name=current_user.first_name,
+            last_name=current_user.last_name,
+            email=current_user.email,
+            status='active',
+            grace_period_days=5
+        )
+        db.session.add(tenant)
+        db.session.commit()
+        flash(_l('Tenant profile created automatically. Please contact landlord to assign a unit.'), 'info')
 
         today = datetime.utcnow().date()
         current_month_start = today.replace(day=1)
@@ -276,9 +301,9 @@ def properties_list():
 @login_required
 @roles_required('landlord')
 def property_add():
-    try:
-        form = PropertyForm()
-        if form.validate_on_submit():
+    form = PropertyForm()
+    if form.validate_on_submit():
+        try:
             property = Property(
                 name=form.name.data,
                 address=form.address.data,
@@ -296,11 +321,15 @@ def property_add():
             db.session.commit()
             flash(_l('Property added successfully!'), 'success')
             return redirect(url_for('main.properties_list'))
-        return render_template('properties/add_edit.html', form=form, edit=False)
-    except Exception as e:
-        current_app.logger.error(f"Error adding property: {e}")
-        flash(_l('Failed to add property.'), 'danger')
-        return redirect(url_for('main.properties_list'))
+        except Exception as e:
+            current_app.logger.error(f"Error adding property: {e}")
+            flash(_l('Failed to add property.'), 'danger')
+            db.session.rollback() 
+            return redirect(url_for('main.properties_list'))
+    else:
+        print(form.errors) 
+    return render_template('properties/add_edit.html', form=form, edit=False)
+
 
 @main.route('/properties/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -317,6 +346,52 @@ def property_edit(id):
         flash(_l('Property updated successfully!'), 'success')
         return redirect(url_for('main.properties_list'))
     return render_template('properties/add_edit.html', form=form, edit=True)
+
+@main.route('/assign-property', defaults={'tenant_id': None}, methods=['GET', 'POST'])
+@main.route('/assign-property/<int:tenant_id>', methods=['GET', 'POST'])
+@login_required
+@roles_required('landlord')
+def assign_property(tenant_id):
+    try:
+        if tenant_id:
+            tenant = Tenant.query.get(tenant_id)
+            if not tenant:
+                flash(_l('Tenant not found.'), 'warning')
+                return redirect(url_for('main.landlord_dashboard'))
+        else:
+            tenant = None
+
+        properties = Property.query.filter_by(landlord_id=current_user.id).all()
+        property_ids = [p.id for p in properties]
+        units = Unit.query.filter(Unit.property_id.in_([p.id for p in properties]), Unit.status == 'vacant').all()
+
+        form = AssignPropertyForm()
+        form.property_id.choices = [(p.id, p.name) for p in properties]
+        form.unit_id.choices = [(u.id, f"{u.name} - {u.property.name}") for u in units]
+        form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name}") for t in Tenant.query.all()]
+
+        if form.validate_on_submit():
+            tenant_id = form.tenant_id.data
+            unit_id = form.unit_id.data
+            tenant = Tenant.query.get(tenant_id)
+            unit = Unit.query.get(unit_id)
+            if tenant and unit:
+                tenant.unit_id = unit.id
+                tenant.property_id = unit.property_id
+                unit.status = 'occupied'
+                db.session.commit()
+                flash(_l('Property assigned successfully!'), 'success')
+                return redirect(url_for('main.landlord_dashboard'))
+            else:
+                flash(_l('Invalid tenant or unit selected.'), 'danger')
+
+        return render_template('assign_property.html', tenant=tenant, properties=properties, units=units, form=form)
+
+    except Exception as e:
+        logging.error("Assign property error:")
+        logging.error(traceback.format_exc())
+        flash(_l('An error occurred while loading the assignment page.'), 'danger')
+        return redirect(url_for('main.landlord_dashboard'))
 
 @main.route('/tenants')
 @login_required
