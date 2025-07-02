@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Assign Property | REPT{% endblock %}
+
+{% block head_content %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .form-card {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .btn-submit {
+            width: 100%;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="form-card">
+        {% if tenant %}
+            <h2 class="form-header">Assign Property to {{ tenant.first_name }} {{ tenant.last_name }}</h2>
+        {% else %}
+            <h2 class="form-header">Assign Property to Tenant</h2>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('main.assign_property', tenant_id=tenant.id if tenant else None) }}">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.tenant_id.label(class="form-label") }}
+                {{ form.tenant_id(class="form-control") }}
+                {% for error in form.tenant_id.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.property_id.label(class="form-label") }}
+                {{ form.property_id(class="form-control") }}
+                {% for error in form.property_id.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.unit_id.label(class="form-label") }}
+                {{ form.unit_id(class="form-control") }}
+                {% for error in form.unit_id.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.submit(class="btn btn-primary btn-submit") }}
+            </div>
+        </form>
+    </div>
+{% endblock %}

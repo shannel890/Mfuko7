@@ -11,6 +11,8 @@ from flask_babel import lazy_gettext as _l
 from app.extensions import mail
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+import traceback
+
 auth = Blueprint('auth',__name__,url_prefix='/auth')
 def send_email(subject, sender, recipients, text_body, html_body=None):
     msg = Message(subject, sender=sender, recipients=recipients)
@@ -43,7 +45,8 @@ def register():
         if existing_user:
             flash("This email is already registered. Please log in or use a different email.", "danger")
             return redirect(url_for('auth.register'))
-        # Hash password and create user
+
+        # Hash and create user
         hashed_password = generate_password_hash(form.password.data)
         new_user = User(
             first_name=form.first_name.data,
@@ -54,33 +57,30 @@ def register():
             active=True
         )
 
-        # Get tenant role
-        default_role = Role.query.filter_by(name='tenant').first()
-        if not default_role:
-            logging.error("Default 'tenant' role not found.")
-            flash(_l('An error occurred during registration. Please try again.'), 'danger')
+        # Assign 'tenant' role
+        tenant_role = Role.query.filter_by(name='tenant').first()
+        if not tenant_role:
+            flash("Tenant role not found. Contact admin.", "danger")
             return redirect(url_for('auth.register'))
 
-        # Add user and role to the session first
-        new_user.roles.append(default_role)
+        new_user.roles.append(tenant_role)
         db.session.add(new_user)
-        db.session.commit()  # new_user.id is now available
+        db.session.commit()  
 
-        # ✅ Now create tenant profile using new_user info
-        default_property_id = 1
+        
         tenant = Tenant(
             user_id=new_user.id,
             first_name=new_user.first_name,
             last_name=new_user.last_name,
             email=new_user.email,
-            property_id=default_property_id,
             status='active',
             grace_period_days=5,
+            # Leave property_id=None if not yet assigned
         )
         db.session.add(tenant)
         db.session.commit()
 
-        flash(_l('Registration successful! Please log in.'), 'success')
+        flash("Registration successful! Please log in.", "success")
         return redirect(url_for('auth.login'))
 
     return render_template('security/register.html', form=form)
@@ -160,33 +160,58 @@ def reset_password(token):
 @auth.route('/logout')
 @login_required
 def logout():
-    logout_user()
-    flash(_l('You have been logged out.'), 'success')
-    return redirect(url_for('auth.login'))
+    try:
+        logout_user()
+        flash(_l('You have been logged out.'), 'success')
+        return redirect(url_for('auth.login'))
+    except Exception as e:
+        current_app.logger.error(f"Logout error: {e}")
+        flash(_l('An error occurred while logging out.'), 'danger')
+        return redirect(url_for('main.index'))
+
 @auth.route('/edit/profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
-    form = ExtendedEditProfileForm(obj=current_user)
-    if current_user.has_role('admin'):
-        form.roles.choices = [(role.id, _l(role.name)) for role in Role.query.all()]
-    else:
-        form.roles.choices = [(role.id, _l(role.name)) for role in current_user.roles]
-        form.roles.data = [role.id for role in current_user.roles]
-    if form.validate_on_submit():
-        if not current_user.has_role('admin'):
+    try:
+        form = ExtendedEditProfileForm(obj=current_user)
+        
+        if current_user.has_role('admin'):
+            form.roles.choices = [(role.id, _l(role.name)) for role in Role.query.all()]
+        else:
+            form.roles.choices = [(role.id, _l(role.name)) for role in current_user.roles]
             form.roles.data = [role.id for role in current_user.roles]
-        form.populate_obj(current_user)
-        db.session.commit()
-        flash(_l('Profile updated successfully!'), 'success')
+
+        if form.validate_on_submit():
+            if not current_user.has_role('admin'):
+                form.roles.data = [role.id for role in current_user.roles]
+            form.populate_obj(current_user)
+            db.session.commit()
+            flash(_l('Profile updated successfully!'), 'success')
+            return redirect(url_for('auth.profile'))
+
+        return render_template('security/edit_profile.html', user=current_user, edit_profile_form=form)
+    
+    except Exception as e:
+        current_app.logger.error(f"Profile edit error: {traceback.format_exc()}")
+        flash(_l('An error occurred while updating your profile.'), 'danger')
         return redirect(url_for('auth.profile'))
-    return render_template('security/edit_profile.html', user=current_user, edit_profile_form=form)
 
 @auth.route('/profile')
 @login_required
 def profile():
-    return render_template('security/profile.html', user=current_user)
+    try:
+        return render_template('security/profile.html', user=current_user)
+    except Exception as e:
+        current_app.logger.error(f"Profile view error: {traceback.format_exc()}")
+        flash(_l('Unable to load your profile.'), 'danger')
+        return redirect(url_for('main.index'))
 
 @auth.route('/roles')
 @roles_required('landlord')
 def roles():
-    return render_template('security/roles.html', roles=current_user.roles)
+    try:
+        return render_template('security/roles.html', roles=current_user.roles)
+    except Exception as e:
+        current_app.logger.error(f"Roles page error: {traceback.format_exc()}")
+        flash(_l('Unable to load roles.'), 'danger')
+        return redirect(url_for('main.index'))

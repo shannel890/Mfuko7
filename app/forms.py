@@ -378,3 +378,27 @@ class ReportFilterForm(FlaskForm):
     start_date = DateField('Start Date', validators=[DataRequired()], format='%Y-%m-%d')
     end_date = DateField('End Date', validators=[DataRequired()], format='%Y-%m-%d')
     submit = SubmitField('Generate Report')
+
+class AssignPropertyForm(FlaskForm):
+    tenant_id = SelectField(
+        _l('Select Tenant'),
+        coerce=int,
+        validators=[DataRequired()],
+        render_kw={"class": "form-select"}
+    )
+
+    property_id = SelectField(
+        _l('Select Property'),
+        coerce=int,
+        validators=[DataRequired()],
+        render_kw={"class": "form-select"}
+    )
+
+    unit_id = SelectField(
+        _l('Select Unit'),
+        coerce=int,
+        validators=[DataRequired()],
+        render_kw={"class": "form-select"}
+    )
+
+    submit = SubmitField(_l('Assign Property'), render_kw={"class": "btn btn-primary w-100"})
