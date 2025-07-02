@@ -1,23 +1,22 @@
-from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for
+from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for, Response
 from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
-from app.extensions import db
+from app.extensions import db, mail
 from sqlalchemy import func
 from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm
 from app.models import Property, Tenant, Payment, Unit, Invoice
 from functools import wraps
 from datetime import datetime, timedelta
 import logging
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
-from app.extensions import mail
 import traceback
-from flask import Response
 import csv
 import uuid
 from io import StringIO
 
 main = Blueprint('main', __name__)
+
 
 def send_email(subject, sender, recipients, text_body, html_body=None):
     msg = Message(subject, sender=sender, recipients=recipients)
@@ -25,6 +24,7 @@ def send_email(subject, sender, recipients, text_body, html_body=None):
     if html_body:
         msg.html = html_body
     mail.send(msg)
+
 def get_serializer():
     return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
 
@@ -44,30 +44,63 @@ def roles_required(*required_roles):
 
 @main.route('/')
 def landing_page():
-    if current_user.is_authenticated:
-        if current_user.has_role('landlord'):
-            return redirect(url_for('main.landlord_dashboard'))
-        elif current_user.has_role('tenant'):
-            return redirect(url_for('main.tenant_dashboard'))
-    return render_template('landing_page.html')
+    try:
+        if current_user.is_authenticated:
+            if current_user.has_role('landlord'):
+                return redirect(url_for('main.landlord_dashboard'))
+            elif current_user.has_role('tenant'):
+                return redirect(url_for('main.tenant_dashboard'))
+        return render_template('landing_page.html')
+    except Exception as e:
+        current_app.logger.error(f"Landing page error: {e}")
+        flash(_l('An error occurred.'), 'danger')
+        return redirect(url_for('main.index'))
 
 @main.route('/index')
 def index():
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        current_app.logger.error(f"Error loading index: {e}")
+        flash(_l('An error occurred loading the page.'), 'danger')
+        return redirect(url_for('main.landing_page'))
+
 @main.route('/features')
 def features():
-    return render_template('features.html')
+    try:
+        return render_template('features.html')
+    except Exception as e:
+        current_app.logger.error(f"Error loading features: {e}")
+        flash(_l('An error occurred loading the page.'), 'danger')
+        return redirect(url_for('main.landing_page'))
 
 @main.route('/testimonials')
 def testimonials():
-    return render_template('testimonials.html')
+    try:
+        return render_template('testimonials.html')
+    except Exception as e:
+        current_app.logger.error(f"Error loading testimonials: {e}")
+        flash(_l('An error occurred loading the page.'), 'danger')
+        return redirect(url_for('main.landing_page'))
+
 @main.route('/pricing')
 def pricing():
-    return render_template('pricing.html')
+    try:
+        return render_template('pricing.html')
+    except Exception as e:
+        current_app.logger.error(f"Error loading pricing: {e}")
+        flash(_l('An error occurred loading the page.'), 'danger')
+        return redirect(url_for('main.landing_page'))
+
 @main.route('/admin')
 @roles_required('admin')
 def admin():
-    return render_template('admin.html')
+    try:
+        return render_template('admin.html')
+    except Exception as e:
+        current_app.logger.error(f"Admin page error: {e}")
+        flash(_l('Failed to load admin page.'), 'danger')
+        return redirect(url_for('main.index'))
 
 @main.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -77,16 +110,17 @@ def contact():
             send_email(
                 subject=f"Contact Form Inquiry: {form.subject.data}",
                 sender=current_app.config['MAIL_DEFAULT_SENDER'],
-                recipients=[current_app.config['MAIL_DEFAULT_SENDER']],  # Ensure correct key here
+                recipients=[current_app.config['MAIL_DEFAULT_SENDER']],
                 text_body=f"From: {form.name.data} <{form.email.data}>\n\nMessage:\n{form.message.data}",
                 html_body=render_template('email/contact_inquiry.html', form=form)
             )
-            flash(_l('Your message has been sent successfully! We will get back to you soon.'), 'success')
+            flash(_l('Your message has been sent successfully!'), 'success')
             return redirect(url_for('main.contact'))
         except Exception as e:
-            flash(_l('There was an error sending your message. Please try again later.'), 'danger')
+            flash(_l('There was an error sending your message.'), 'danger')
             current_app.logger.error(f"Error sending contact email: {e}")
     return render_template('contact.html', title=_l('Contact Us'), form=form)
+
 
 @main.route('/landlord/dashboard')
 @login_required
@@ -229,33 +263,44 @@ def tenant_dashboard():
 @login_required
 @roles_required('landlord')
 def properties_list():
-    properties = Property.query.filter_by(landlord_id=current_user.id).all()
-    return render_template('properties/list.html', properties=properties)
+    try:
+        properties = Property.query.filter_by(landlord_id=current_user.id).all()
+        return render_template('properties/list.html', properties=properties)
+    except Exception as e:
+        current_app.logger.error(f"Error fetching properties: {e}")
+        flash(_l('Failed to load properties.'), 'danger')
+        return redirect(url_for('main.index'))
+
 
 @main.route('/properties/add', methods=['GET', 'POST'])
 @login_required
 @roles_required('landlord')
 def property_add():
-    form = PropertyForm()
-    if form.validate_on_submit():
-        property = Property(
-            name=form.name.data,
-            address=form.address.data,
-            property_type=form.property_type.data,
-            number_of_units=form.number_of_units.data,
-            landlord_id=current_user.id,
-            county_name=form.county.data,
-            amenities=form.amenities.data,
-            utility_bill_types=form.utility_bill_types.data,
-            unit_numbers=form.unit_numbers.data,
-            deposit_amount=form.deposit_amount.data,
-            deposit_policy=form.deposit_policy.data
-        )
-        db.session.add(property)
-        db.session.commit()
-        flash(_l('Property added successfully!'), 'success')
+    try:
+        form = PropertyForm()
+        if form.validate_on_submit():
+            property = Property(
+                name=form.name.data,
+                address=form.address.data,
+                property_type=form.property_type.data,
+                number_of_units=form.number_of_units.data,
+                landlord_id=current_user.id,
+                county_name=form.county.data,
+                amenities=form.amenities.data,
+                utility_bill_types=form.utility_bill_types.data,
+                unit_numbers=form.unit_numbers.data,
+                deposit_amount=form.deposit_amount.data,
+                deposit_policy=form.deposit_policy.data
+            )
+            db.session.add(property)
+            db.session.commit()
+            flash(_l('Property added successfully!'), 'success')
+            return redirect(url_for('main.properties_list'))
+        return render_template('properties/add_edit.html', form=form, edit=False)
+    except Exception as e:
+        current_app.logger.error(f"Error adding property: {e}")
+        flash(_l('Failed to add property.'), 'danger')
         return redirect(url_for('main.properties_list'))
-    return render_template('properties/add_edit.html', form=form, edit=False)
 
 @main.route('/properties/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -364,20 +409,25 @@ def record_payment():
 @login_required
 @roles_required('landlord')
 def payments_history():
-    landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
-    property_ids = [p.id for p in landlord_properties]
-    
-    tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
-    tenant_ids = [t.id for t in tenants]
+    try:
+        landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
+        property_ids = [p.id for p in landlord_properties]
 
-    payments = Payment.query.filter(Payment.tenant_id.in_(tenant_ids)).order_by(Payment.payment_date.desc()).all()
+        tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
+        tenant_ids = [t.id for t in tenants]
 
-    # Add tenant name info
-    for p in payments:
-        tenant = Tenant.query.get(p.tenant_id)
-        p.tenant_name = f"{tenant.first_name} {tenant.last_name}"
+        payments = Payment.query.filter(Payment.tenant_id.in_(tenant_ids)).order_by(Payment.payment_date.desc()).all()
 
-    return render_template('payments/history.html', payments=payments)
+        for p in payments:
+            tenant = Tenant.query.get(p.tenant_id)
+            p.tenant_name = f"{tenant.first_name} {tenant.last_name}"
+
+        return render_template('payments/history.html', payments=payments)
+    except Exception as e:
+        current_app.logger.error(f"Error loading payment history: {e}")
+        flash(_l('Failed to load payment history.'), 'danger')
+        return redirect(url_for('main.index'))
+
 
 
 @main.route('/overdue/history')
@@ -477,33 +527,37 @@ def get_report_data(property_id, start_date, end_date):
 @main.route('/reports', methods=['GET', 'POST'])
 @login_required
 def reports():
-    form = ReportFilterForm()
-    # Mock properties (replace with database query)
-    form.property_id.choices = [('', 'All Properties')] + [(str(i), f'Property {i}') for i in range(1, 4)]
-    
-    # Default report data
-    report_data = {'total_income': 0.0, 'total_expenses': 0.0, 'net_profit': 0.0, 'transactions': []}
-    
-    if form.validate_on_submit():
-        property_id = form.property_id.data
-        start_date = form.start_date.data
-        end_date = form.end_date.data
-        report_data = get_report_data(property_id, start_date, end_date)
-    
-    return render_template('report.html', form=form, report_data=report_data)
+    try:
+        form = ReportFilterForm()
+        form.property_id.choices = [('', 'All Properties')] + [(str(i), f'Property {i}') for i in range(1, 4)]
+        report_data = {'total_income': 0.0, 'total_expenses': 0.0, 'net_profit': 0.0, 'transactions': []}
+        if form.validate_on_submit():
+            report_data = get_report_data(form.property_id.data, form.start_date.data, form.end_date.data)
+        return render_template('report.html', form=form, report_data=report_data)
+    except Exception as e:
+        current_app.logger.error(f"Report error: {e}")
+        flash(_l('Failed to generate report.'), 'danger')
+        return redirect(url_for('main.index'))
+
 @main.route('/reports/export')
 @login_required
 def export_report():
-    form = ReportFilterForm(request.args)
-    report_data = get_report_data(form.property_id.data, form.start_date.data, form.end_date.data)
-    output = StringIO()
-    writer = csv.writer(output)
-    writer.writerow(['Date', 'Description', 'Amount', 'Type'])
-    for t in report_data['transactions']:
-        writer.writerow([t['date'], t['description'], t['amount'], t['type']])
-    output.seek(0)
-    return Response(
-        output,
-        mimetype='text/csv',
-        headers={'Content-Disposition': 'attachment; filename=report.csv'}
-    )
+    try:
+        form = ReportFilterForm(request.args)
+        report_data = get_report_data(form.property_id.data, form.start_date.data, form.end_date.data)
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Date', 'Description', 'Amount', 'Type'])
+        for t in report_data['transactions']:
+            writer.writerow([t['date'], t['description'], t['amount'], t['type']])
+        output.seek(0)
+        return Response(
+            output,
+            mimetype='text/csv',
+            headers={'Content-Disposition': 'attachment; filename=report.csv'}
+        )
+    except Exception as e:
+        current_app.logger.error(f"CSV Export Error: {e}")
+        flash(_l('Failed to export report.'), 'danger')
+        return redirect(url_for('main.reports'))
+
