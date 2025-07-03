@@ -18,3 +18,11 @@ class Config:
     MPESA_SAF_CALLBACK_URL = config('MPESA_SAF_CALLBACK_URL', default=None) # Crucial for M-Pesa callbacks
     MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT')
     MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE')
+    SCHEDULER_API_ENABLED = True
+    MAIL_SERVER = config('MAIL_SERVER', 'smtp.mailtrap.io') # Or your actual SMTP server
+    MAIL_PORT = config('MAIL_PORT', 2525, cast=int)
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes', 'on')                                                                      
+    MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'False').lower() in ('true', '1', 'yes', 'on')
+    MAIL_USERNAME = config('MAIL_USERNAME')
+    MAIL_PASSWORD = config('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = config('MAIL_DEFAULT_SENDER')

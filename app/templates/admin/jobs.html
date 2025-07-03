@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Scheduled Jobs</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Job ID</th>
+            <th>Next Run Time</th>
+            <th>Trigger</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.id }}</td>
+            <td>{{ job.next_run_time }}</td>
+            <td>{{ job.trigger }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

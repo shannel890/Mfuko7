@@ -98,6 +98,29 @@
                                 </div>
                             {% endif %}
                         </div>
+                        <div class="mb-4">
+                            {{ form.paybill_number.label(class="form-label fw-semibold") }}
+                            {{ form.paybill_number(class="form-control form-control-lg", placeholder="Enter PayBill Number (if any)") }}
+                            {% if form.paybill_number.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.paybill_number.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.fees.label(class="form-label fw-semibold") }}
+                            {{ form.fees(class="form-control form-control-lg", placeholder="Enter transaction fees (if applicable)") }}
+                            {% if form.fees.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.fees.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
 
                         <div class="mb-4">
                             {{ form.offline_reference.label(class="form-label fw-semibold") }}
