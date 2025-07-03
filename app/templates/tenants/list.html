@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ _('Tenants') }} - REPT{% endblock %}
+
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>{{ _('Tenants') }}</h2>
     <a href="{{ url_for('main.tenant_add') }}" class="btn btn-primary">{{ _('Add Tenant') }}</a>
 </div>
+
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -27,12 +30,19 @@
                         <td>{{ tenant.phone_number }}</td>
                         <td>{{ tenant.property.name }}</td>
                         <td><span class="badge bg-{{ 'success' if tenant.status == 'active' else 'secondary' }}">{{ _(tenant.status.title()) }}</span></td>
-                        <td>
-                            <a href="{{ url_for('main.tenant_edit', id=tenant.id) }}" class="btn btn-sm btn-outline-secondary">{{ _('Edit') }}</a>
+                       <td>
+                            <a href="{{ url_for('main.tenant_edit', id=tenant.id) }}" class="btn btn-sm btn-outline-primary">{{ _('Edit') }}</a>
+                            <form action="{{ url_for('main.delete_tenant', tenant_id=tenant.id) }}" method="POST" class="d-inline">
+                               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-danger">{{ _('Delete') }}</button>
+                            </form>
                         </td>
+
                     </tr>
                     {% else %}
-                    <tr><td colspan="6" class="text-center text-muted">{{ _('No tenants yet. Click "Add Tenant"!') }}</td></tr>
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">{{ _('No tenants yet. Click "Add Tenant"!') }}</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>

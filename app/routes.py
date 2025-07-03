@@ -449,6 +449,7 @@ def tenant_edit(id):
         flash(_l('Tenant updated successfully!'), 'success')
         return redirect(url_for('main.tenants_list'))
     return render_template('tenants/add_edit.html', form=form, edit=True)
+    
 
 @main.route('/payments/record', methods=['GET', 'POST'])
 @login_required
@@ -656,3 +657,12 @@ def export_report():
         flash(_l('Failed to export report.'), 'danger')
         return redirect(url_for('main.reports'))
 
+@main.route('/tenant/delete/<int:tenant_id>', methods=['POST'])
+@login_required
+@roles_required('landlord')
+def delete_tenant(tenant_id):
+    tenant = Tenant.query.get_or_404(tenant_id)
+    db.session.delete(tenant)
+    db.session.commit()
+    flash('Tenant deleted successfully', 'success')
+    return redirect(url_for('main.tenants_list'))

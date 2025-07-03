@@ -1,6 +1,6 @@
 from flask import Flask
 from app.extensions import login_manager,migrate
-from .extensions import db, babel, mail
+from .extensions import db, babel, mail, csrf
 from .models import User, Role
 from app.routes import main
 from app.auth.routes import auth
@@ -41,6 +41,7 @@ def create_app():
     db.init_app(app)
     babel.init_app(app)
     mail.init_app(app)
+    csrf.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login' 
