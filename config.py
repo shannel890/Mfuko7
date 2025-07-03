@@ -16,3 +16,5 @@ class Config:
     MPESA_PAYBILL = config('MPESA_PAYBILL', default='174379') # Daraja test till number as default
     MPESA_INITIATOR_PASSWORD = config('MPESA_INITIATOR_PASSWORD', default='Safaricom999!') # Daraja test initiator password as default
     MPESA_SAF_CALLBACK_URL = config('MPESA_SAF_CALLBACK_URL', default=None) # Crucial for M-Pesa callbacks
+    MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT')
+    MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE')

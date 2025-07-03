@@ -35,7 +35,7 @@ class User(db.Model, UserMixin):
     login_count = db.Column(db.Integer)
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
-    us_phone_number = db.Column(db.String(20))
+    phone_number = db.Column(db.String(20))
     county_id = db.Column(db.Integer, db.ForeignKey('county.id', ondelete='SET NULL'), nullable=True)
     county = db.relationship('County', backref='users')
     language = db.Column(db.String(10), default='en')
