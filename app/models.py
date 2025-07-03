@@ -88,12 +88,12 @@ class Property(db.Model):
     landlord_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False, index=True)
     county_name = db.Column(db.String(100), nullable=False)
     amenities = db.Column(db.Text, nullable=True)
-    utility_bill = db.Column(db.Text, nullable=True)
+    utility_bill_types = db.Column(db.Text, nullable=True)
+    unit_numbers = db.Column(db.Text, nullable=False)
     deposit_amount = db.Column(db.Numeric(10, 2), nullable=True)
     deposit_policy = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
-    units = db.relationship('Unit', backref='property', lazy=True, cascade="all, delete-orphan")
     tenants = db.relationship('Tenant', backref='property', lazy=True, cascade="all, delete-orphan")
 
     @property
@@ -129,7 +129,8 @@ class Tenant(db.Model):
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=True)
     phone_number = db.Column(db.String(20))
-    rent_amount = db.Column(db.Numeric(10, 2), nullable=True, default=0.00)  # ✅ Add this line
+    rent_amount = db.Column(db.Numeric(10, 2), nullable=True, default=0.00)  
+    national_id = db.Column(db.String(50), nullable=True)
     status = db.Column(db.String(50), default='active')
     due_day_of_month = db.Column(db.Integer)
     grace_period_days = db.Column(db.Integer, default=5)
@@ -147,6 +148,7 @@ class Tenant(db.Model):
 
 class Unit(db.Model):
     __tablename__ = 'unit'
+
     id = db.Column(db.Integer, primary_key=True)
     unit_number = db.Column(db.String(50), nullable=False)
     rent_amount = db.Column(db.Numeric(10, 2), nullable=False)
@@ -155,7 +157,12 @@ class Unit(db.Model):
     bathrooms = db.Column(db.Integer, nullable=True)
     size_sqft = db.Column(db.Integer, nullable=True)
     status = db.Column(db.String(50), default='vacant')
+
     property_id = db.Column(db.Integer, db.ForeignKey('property.id', ondelete='CASCADE'), nullable=False, index=True)
+
+
+    property = db.relationship('Property', backref='units')
+
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

@@ -14,6 +14,21 @@
                         <div class="text-danger small">{{ error }}</div>
                     {% endfor %}
                 </div>
+                 <div>
+                    {{ form.county.label }}<br>
+                    {{ form.county(size=40) }}
+                    {% for error in form.county.errors %}
+                        <span style="color: red;">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.unit_numbers.label(class="form-label") }}
+                    {{ form.unit_numbers() }}
+                    {% for error in form.unit_numbers.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
                 <div class="mb-3">
                     {{ form.address.label(class_="form-label") }}
                     {{ form.address(class_="form-control") }}

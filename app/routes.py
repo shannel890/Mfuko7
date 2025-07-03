@@ -367,7 +367,8 @@ def assign_property(tenant_id):
 
         form = AssignPropertyForm()
         form.property_id.choices = [(p.id, p.name) for p in properties]
-        form.unit_id.choices = [(u.id, f"{u.name} - {u.property.name}") for u in units]
+        form.unit_id.choices = [(u.id, f"{u.unit_number} - {u.property.name}") for u in units]
+        print("Vacant units:", [(u.id, u.unit_number, u.status) for u in units])
         form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name}") for t in Tenant.query.all()]
 
         if form.validate_on_submit():
@@ -384,6 +385,9 @@ def assign_property(tenant_id):
                 return redirect(url_for('main.landlord_dashboard'))
             else:
                 flash(_l('Invalid tenant or unit selected.'), 'danger')
+                print("Units:", [(u.id, u.first_name, u.status) for u in units])
+                print("Form unit choices:", form.unit_id.choices)
+
 
         return render_template('assign_property.html', tenant=tenant, properties=properties, units=units, form=form)
 
@@ -452,7 +456,7 @@ def tenant_edit(id):
 def record_payment():
     form = RecordPaymentForm()
     tenants = Tenant.query.all()
-    form.tenant_id.choices = [(tenant.id, tenant.name) for tenant in tenants]
+    form.tenant_id.choices = [(tenant.id, tenant.first_name) for tenant in tenants]
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
     form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name} ({t.property.name})")
@@ -463,7 +467,7 @@ def record_payment():
             amount=form.amount.data,
             tenant_id=form.tenant_id.data,
             payment_method=form.payment_method.data,
-            transaction_id=str(uuid.uuid()),
+            transaction_id=str(uuid.uuid4()),
             payment_date=form.payment_date.data or datetime.utcnow().date(),
             status='confirmed',
             description=form.description.data,
@@ -562,7 +566,7 @@ def tenant_make_payment():
         # Initiate M-Pesa STK push
         
         checkout_id = mpesa_api.initiate_stk_push(
-            us_phone_number=phone_number,
+            phone_number=phone_number,
             amount=amount,
             account_reference=account_reference,
             transaction_description='Monthly Rent'

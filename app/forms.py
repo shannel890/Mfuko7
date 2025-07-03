@@ -212,13 +212,13 @@ class PropertyForm(FlaskForm):
         render_kw={"rows": 2, "placeholder": _l("e.g., Water, Electricity, Garbage")}
     )
     unit_numbers = TextAreaField(
-        _l('Unit Numbers/Identifiers (comma separated)'),
-        validators=[
-            DataRequired(_l('At least one unit number is required.')),
-            Length(max=500, message=_l('Unit numbers list too long.'))
-        ],
-        render_kw={"rows": 3, "placeholder": _l("e.g., A1, B2, Penthouse")}
-    )
+    _l('Unit Numbers'),
+    validators=[
+        DataRequired(_l('At least one unit number is required.')),
+        Length(max=500, message=_l('Unit numbers list too long.'))
+    ],
+    render_kw={"rows": 3, "placeholder": _l("e.g., A1, B2, Penthouse"), "class": "form-control"}
+)
     deposit_amount = DecimalField(
         _l('Security Deposit Amount (KSh)'),
         validators=[Optional(), NumberRange(min=0, message=_l('Deposit cannot be negative.'))],
