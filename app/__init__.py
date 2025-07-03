@@ -1,6 +1,6 @@
 from flask import Flask
 from app.extensions import login_manager,migrate
-from .extensions import db, babel, mail, csrf
+from app.extensions import db, babel, mail, csrf, scheduler
 from .models import User, Role
 from app.routes import main
 from app.auth.routes import auth
@@ -9,6 +9,8 @@ import uuid
 from app.extensions import mail
 from werkzeug.security import generate_password_hash
 import logging
+from app.job import notify_due_payments
+
 
 
 logging.basicConfig(
@@ -42,10 +44,22 @@ def create_app():
     babel.init_app(app)
     mail.init_app(app)
     csrf.init_app(app)
+    scheduler.init_app(app)
+    scheduler.start()
     migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login' 
     login_manager.login_message_category = 'info'
+
+
+    scheduler.add_job(
+        id='notify_due_payments',
+        func=notify_due_payments,
+        trigger='cron',
+        hour=8,
+        replace_existing=True
+    )
+    
 
     @login_manager.user_loader
     def load_user(user_id):

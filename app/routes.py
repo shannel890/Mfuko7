@@ -559,46 +559,54 @@ def tenant_make_payment():
     amount_due = invoice.amount_due if invoice else tenant.rent_amount
 
     if form.validate_on_submit():
-        phone_number = current_user.phone_number  # Make sure it's in correct format
-        amount = form.amount.data
-        account_reference = f"Tenant-{current_user.id}"
-        if not mpesa_api.access_token or mpesa_api.token_expiry < datetime.utcnow():
-            mpesa_api.refresh_token()
-        # Initiate M-Pesa STK push
-        
-        checkout_id = mpesa_api.initiate_stk_push(
-            phone_number=phone_number,
-            amount=amount,
-            account_reference=account_reference,
-            transaction_description='Monthly Rent'
+        payment = Payment(
+            amount=form.amount.data,
+            tenant_id=tenant.id,
+            payment_method=form.payment_method.data,
+            transaction_id=form.transaction_id.data if not form.is_offline.data else None,
+            payment_date=form.payment_date.data,
+            paybill_number=form.paybill_number.data,
+            fees=form.fees.data,
+            status='pending' if form.payment_method.data == 'mpesa' else 'completed',
+            is_offline=form.is_offline.data,
+            offline_reference=form.offline_reference.data,
+            description=form.description.data
         )
 
-        if checkout_id:
-            # Optionally save the pending payment with the checkout ID
-            payment = Payment(
-                amount=amount,
-                tenant_id=current_user.id,
-                transaction_id=checkout_id,
-                payment_date=datetime.utcnow(),
-                payment_method='mpesa',
-                is_offline=False,
-                description=form.description.data
+        # If M-Pesa online payment
+        if form.payment_method.data == 'mpesa' and not form.is_offline.data:
+            phone_number = current_user.phone_number
+            account_reference = f"Tenant-{tenant.id}"
+
+            if not mpesa_api.access_token or mpesa_api.token_expiry < datetime.utcnow():
+                mpesa_api.refresh_token()
+
+            checkout_id = mpesa_api.initiate_stk_push(
+                phone_number=phone_number,
+                amount=form.amount.data,
+                account_reference=account_reference,
+                transaction_description='Monthly Rent'
             )
-            db.session.add(payment)
-            db.session.commit()
-            flash(_l('Payment initiated. Confirm on your phone.'), 'success')
-        else:
-            flash(_l('Payment initiation failed. Try again.'), 'danger')
+
+            if checkout_id:
+                payment.transaction_id = checkout_id
+                payment.status = 'pending'
+                flash(_l('Payment initiated. Confirm on your phone.'), 'success')
+            else:
+                flash(_l('Payment initiation failed. Try again.'), 'danger')
+                return redirect(url_for('main.tenant_make_payment'))
+
+        db.session.add(payment)
+
         if invoice:
             invoice.amount_due -= payment.amount
             invoice.status = 'paid' if invoice.amount_due <= 0 else 'partially_paid'
+
         db.session.commit()
-        flash("Your payment has been submitted and is pending confirmation.", "success")
+        flash("Your payment has been submitted.", "success")
         return redirect(url_for('main.tenant_dashboard'))
 
     return render_template('payments/tenant_make_payment.html', form=form, amount_due=amount_due)
-
-
 
 
 # Mock data function (replace with database queries)

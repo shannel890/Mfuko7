@@ -367,11 +367,14 @@ class ExtendedEditProfileForm(FlaskForm):
 class TenantPaymentForm(FlaskForm):
     amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=1)], places=2)
     payment_method = SelectField("Payment Method", choices=[("mpesa", "M-Pesa"), ("bank", "Bank"), ("cash", "Cash")], validators=[DataRequired()])
-    transaction_id = StringField("Transaction ID", validators=[DataRequired()])
+    transaction_id = StringField("Transaction ID", validators=[Optional()])
+    paybill_number = StringField("PayBill Number", validators=[Optional()])
     payment_date = DateField("Payment Date", validators=[DataRequired()])
+    fees = DecimalField("Transaction Fees", validators=[Optional()], places=2)
     description = TextAreaField("Description (optional)")
     is_offline = BooleanField("Is this an offline payment?")
     offline_reference = StringField("Offline Reference (optional)")
+
 
 class ReportFilterForm(FlaskForm):
     property_id = SelectField('Property', choices=[('', 'All Properties')], coerce=str)

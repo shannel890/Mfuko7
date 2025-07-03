@@ -4,7 +4,9 @@ from flask_babel import Babel
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
+from flask_apscheduler import APScheduler
 
+scheduler = APScheduler()
 db = SQLAlchemy()
 login_manager = LoginManager()
 babel = Babel()
