@@ -402,3 +402,6 @@ class AssignPropertyForm(FlaskForm):
     )
 
     submit = SubmitField(_l('Assign Property'), render_kw={"class": "btn btn-primary w-100"})
+
+class DeleteTenantForm(FlaskForm):
+    submit = SubmitField('Delete')
