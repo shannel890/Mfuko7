@@ -14,7 +14,7 @@ import traceback
 import csv
 import uuid
 from io import StringIO
-
+from app.mpesa.mpesa_api import mpesa_api 
 main = Blueprint('main', __name__)
 
 
@@ -554,20 +554,36 @@ def tenant_make_payment():
     amount_due = invoice.amount_due if invoice else tenant.rent_amount
 
     if form.validate_on_submit():
-        payment = Payment(
-            amount=form.amount.data,
-            tenant_id=tenant.id,
-            payment_method=form.payment_method.data,
-            transaction_id=form.transaction_id.data,
-            payment_date=form.payment_date.data or datetime.utcnow().date(),
-            status='pending',  # Set to 'confirmed' if auto-confirmed
-            description=form.description.data,
-            is_offline=form.is_offline.data,
-            offline_reference=form.offline_reference.data,
-            invoice_id=invoice.id if invoice else None
+        phone_number = current_user.phone_number  # Make sure it's in correct format
+        amount = form.amount.data
+        account_reference = f"Tenant-{current_user.id}"
+        if not mpesa_api.access_token or mpesa_api.token_expiry < datetime.utcnow():
+            mpesa_api.refresh_token()
+        # Initiate M-Pesa STK push
+        
+        checkout_id = mpesa_api.initiate_stk_push(
+            us_phone_number=phone_number,
+            amount=amount,
+            account_reference=account_reference,
+            transaction_description='Monthly Rent'
         )
 
-        db.session.add(payment)
+        if checkout_id:
+            # Optionally save the pending payment with the checkout ID
+            payment = Payment(
+                amount=amount,
+                tenant_id=current_user.id,
+                transaction_id=checkout_id,
+                payment_date=datetime.utcnow(),
+                payment_method='mpesa',
+                is_offline=False,
+                description=form.description.data
+            )
+            db.session.add(payment)
+            db.session.commit()
+            flash(_l('Payment initiated. Confirm on your phone.'), 'success')
+        else:
+            flash(_l('Payment initiation failed. Try again.'), 'danger')
         if invoice:
             invoice.amount_due -= payment.amount
             invoice.status = 'paid' if invoice.amount_due <= 0 else 'partially_paid'
