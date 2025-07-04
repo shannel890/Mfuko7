@@ -5,6 +5,33 @@
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-7 col-md-9">
+
+            {% if tenant.rent_amount and due_date %}
+            <div class="card bg-light border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    {% if tenant.rent_amount and due_date %}
+                        <ul>
+                            <li><strong>Monthly Rent:</strong> KES {{ "%.2f"|format(tenant.rent_amount) }}</li>
+                            <li><strong>Rent Due Date:</strong> {{ due_date.strftime('%d %B, %Y') }}</li>
+                            {% if lease_start_date %}
+                            <li><strong>Lease Start:</strong> {{ lease_start_date.strftime('%d %b %Y') }}</li>
+                            {% endif %}
+                            {% if lease_end_date %}
+                            <li><strong>Lease End:</strong> {{ lease_end_date.strftime('%d %b %Y') }}</li>
+                            {% endif %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">Rent details not configured yet.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center fw-semibold">
+                Rent details not configured yet.
+            </div>
+            {% endif %}
+
             <div class="card border-0 shadow-sm bg-glass" data-aos="fade-up">
                 <div class="card-body p-5">
                     <h2 class="text-center fw-bold mb-4 text-primary">Make Monthly Payment</h2>
@@ -48,11 +75,11 @@
 
                         <div class="mb-4">
                             {% if form.is_offline.data %}
-                            <div class="mb-4">
+                            <div class="mb-4 transaction-id-field">
                                 {{ form.transaction_id.label(class="form-label fw-semibold") }}
                                 {{ form.transaction_id(class="form-control form-control-lg", placeholder="Enter M-Pesa code") }}
                             </div>
-                        {% endif %}
+                            {% endif %}
 
                             {% if form.transaction_id.errors %}
                                 <div class="text-danger mt-1">
@@ -88,8 +115,8 @@
                         </div>
 
                         <div class="form-check mb-4">
-                            {{ form.is_offline(class="form-check-input") }}
-                            {{ form.is_offline.label(class="form-check-label fw-semibold") }}
+                            {{ form.is_offline(class="form-check-input", id="is_offline") }}
+                            {{ form.is_offline.label(class="form-check-label fw-semibold", for="is_offline") }}
                             {% if form.is_offline.errors %}
                                 <div class="text-danger mt-1">
                                     {% for error in form.is_offline.errors %}
@@ -98,6 +125,7 @@
                                 </div>
                             {% endif %}
                         </div>
+
                         <div class="mb-4">
                             {{ form.paybill_number.label(class="form-label fw-semibold") }}
                             {{ form.paybill_number(class="form-control form-control-lg", placeholder="Enter PayBill Number (if any)") }}
@@ -145,18 +173,19 @@
         </div>
     </div>
 </div>
+
 <script>
     const isOfflineCheckbox = document.querySelector('#is_offline');
     const txnField = document.querySelector('.transaction-id-field');
 
-    isOfflineCheckbox.addEventListener('change', () => {
-        txnField.style.display = isOfflineCheckbox.checked ? 'block' : 'none';
-    });
+    function toggleTxnField() {
+        if (txnField) {
+            txnField.style.display = isOfflineCheckbox.checked ? 'block' : 'none';
+        }
+    }
 
-    // Trigger on load
-    window.addEventListener('DOMContentLoaded', () => {
-        txnField.style.display = isOfflineCheckbox.checked ? 'block' : 'none';
-    });
+    isOfflineCheckbox?.addEventListener('change', toggleTxnField);
+    window.addEventListener('DOMContentLoaded', toggleTxnField);
 </script>
 
 <style>

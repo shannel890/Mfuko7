@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 import base64
 from flask import current_app
 
-# Load environment variables from .env file
 load_dotenv()
 
 class MpesaAPI:
@@ -166,8 +165,6 @@ class MpesaAPI:
             phone_number = '254' + phone_number
         return phone_number
 
-
-# ✅ Optional: standalone fallback function (not needed if using class above)
 def get_access_token():
     url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
     consumer_key = os.getenv("CONSUMER_KEY")
@@ -176,6 +173,4 @@ def get_access_token():
     response.raise_for_status()
     return response.json()['access_token']
 
-
-# ✅ Initialize the M-Pesa API handler
 mpesa_api = MpesaAPI()

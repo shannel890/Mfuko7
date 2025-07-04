@@ -173,6 +173,12 @@ class PropertyForm(FlaskForm):
         ],
         render_kw={"placeholder": _l("e.g., Plot 123, Off Ring Road, Nairobi")}
     )
+    payment_method = SelectField('Payment Method', choices=[
+        ('mpesa', 'M-Pesa'),
+        ('bank', 'Bank Transfer'),
+        ('cash', 'Cash')
+    ], validators=[DataRequired()])
+    
     property_type = SelectField(
         _l('Property Type'),
         validators=[DataRequired(_l('Property type is required.'))],
@@ -392,14 +398,15 @@ class AssignPropertyForm(FlaskForm):
 
     property_id = SelectField(
         _l('Select Property'),
+        choices=[...],
         coerce=int,
         validators=[DataRequired()],
         render_kw={"class": "form-select"}
     )
 
-    unit_id = SelectField(
+    unit_id = IntegerField(
         _l('Select Unit'),
-        coerce=int,
+        
         validators=[DataRequired()],
         render_kw={"class": "form-select"}
     )
