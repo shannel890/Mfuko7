@@ -3,133 +3,105 @@
 
 {% block head_content %}
 <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="PropertyPayTrack - Tenant Dashboard">
-<meta name="author" content="PropertyPayTrack">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
 
 <style>
     :root {
         --primary-color: #34c759;
         --secondary-color: #2aa648;
-        --accent-color: #ffd700;
-        --text-color: #1a1a1a;
-        --light-text-color: #ffffff;
-        --background-color: #eef5fb;
-        --card-background: rgba(255, 255, 255, 0.25);
-        --shadow-light: rgba(0, 0, 0, 0.08);
-        --shadow-medium: rgba(0, 0, 0, 0.18);
-        --shadow-strong: rgba(0, 0, 0, 0.3);
+        --card-bg: rgba(255, 255, 255, 0.2);
+        --overlay-color: rgba(0, 0, 0, 0.5);
     }
 
     body {
         font-family: 'Roboto', sans-serif;
-        background-color: var(--background-color);
-        color: var(--text-color);
-        background-image: linear-gradient(to bottom right, #c8e8ff, #e6f5ff);
-        background-blend-mode: soft-light;
-        background-attachment: fixed;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+        background: url('https://images.pexels.com/photos/3075993/pexels-photo-3075993.jpeg') no-repeat center center fixed;
         background-size: cover;
+        position: relative;
+    }
+
+    .overlay {
+        background: var(--overlay-color);
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 0;
+    }
+
+    .dashboard-container {
+        position: relative;
+        z-index: 1;
+        padding: 60px 15px;
+        min-height: 100vh;
     }
 
     h1 {
         font-family: 'Playfair Display', serif;
-        font-size: 2.6em;
-        font-weight: bold;
+        font-size: 2.5rem;
         color: var(--primary-color);
         margin-bottom: 30px;
     }
 
-    .dashboard-container {
-        padding: 60px 20px;
-        min-height: 100vh;
-        position: relative;
-    }
-
-    .overlay-lighter {
-        background: rgba(0, 0, 0, 0.3);
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        z-index: -1;
-    }
-
     .card {
-        background-color: var(--card-background);
-        backdrop-filter: blur(16px);
+        background-color: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
         border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 20px var(--shadow-medium);
-        border-radius: 12px;
-        transition: all 0.3s ease-in-out;
-    }
-
-    .card:hover {
-        transform: scale(1.01);
-        box-shadow: 0 12px 25px var(--shadow-strong);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        color: #fff;
     }
 
     .card-header {
-        background-color: rgba(255, 255, 255, 0.4);
-        font-family: 'Playfair Display', serif;
-        font-size: 1.4em;
+        background: transparent;
         font-weight: 600;
-        color: var(--text-color);
-        padding: 15px 20px;
+        font-size: 1.2rem;
     }
 
-    .card-body {
-        color: #222;
-        padding: 20px;
+    .card-body p {
+        margin-bottom: 10px;
     }
 
-    .table th {
-        background-color: rgba(52, 199, 89, 0.1);
-        color: #333;
-        padding: 15px;
-    }
-
-    .table td {
-        color: #444;
-        padding: 15px;
-    }
-
-    .table tbody tr:hover {
-        background-color: rgba(0, 0, 0, 0.02);
+    .table th, .table td {
+        color: #fff;
+        background-color: transparent;
     }
 
     .btn-success {
         background-color: var(--primary-color);
         border: none;
-        font-weight: 600;
-        padding: 14px 28px;
-        font-size: 1.1rem;
-        border-radius: 10px;
-        transition: all 0.3s ease-in-out;
+        padding: 12px 25px;
+        font-weight: bold;
     }
 
     .btn-success:hover {
         background-color: var(--secondary-color);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px var(--shadow-strong);
     }
 
     @media (max-width: 768px) {
-        h1 { font-size: 2em; }
-        .btn-success { width: 100%; margin-top: 1rem; }
-        .card { margin-bottom: 20px; }
-        .card-header { font-size: 1.2em; }
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .card-header {
+            font-size: 1rem;
+        }
     }
 </style>
-{% endblock head_content %}
+{% endblock %}
 
 {% block content %}
-<div class="dashboard-container jarallax" data-jarallax data-speed="0.8">
-    <div class="overlay-lighter"></div>
+<div class="overlay"></div>
+<div class="dashboard-container">
     <div class="container">
         <h1 data-aos="fade-down"><i class="fas fa-user-check"></i> {{ _('Welcome,') }} {{ current_user.first_name }} {{ current_user.last_name }}</h1>
 
@@ -152,7 +124,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-calendar-alt me-2"></i>{{ _('My Rent Due Info') }}
@@ -170,7 +142,7 @@
             </div>
         </div>
 
-        <div class="row" data-aos="fade-up" data-aos-delay="400">
+        <div class="row" data-aos="fade-up" data-aos-delay="200">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
@@ -218,6 +190,5 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script> AOS.init({ duration: 1200 }); </script>
-<script src="https://unpkg.com/jarallax@2.0.2/dist/jarallax.min.js"></script>
+<script>AOS.init({ duration: 1200 });</script>
 {% endblock %}

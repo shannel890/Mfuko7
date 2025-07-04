@@ -13,6 +13,7 @@ from flask_mail import Message
 import traceback
 import csv
 import uuid
+from sqlalchemy import extract
 from io import StringIO
 from app.mpesa.mpesa_api import mpesa_api 
 main = Blueprint('main', __name__)
@@ -226,7 +227,7 @@ def landlord_dashboard():
             'landlord_dashboard.html',
             metrics=metrics,
             recent_payments=recent_payments,
-            landlord_tenants=landlord_tenants  # 👈 Added
+            landlord_tenants=landlord_tenants 
         )
 
     except Exception as e:
@@ -242,27 +243,33 @@ def landlord_dashboard():
 def tenant_dashboard():
     try:
         tenant = Tenant.query.filter_by(user_id=current_user.id).first()
+
         if not tenant:
             tenant = Tenant(
-            user_id=current_user.id,
-            first_name=current_user.first_name,
-            last_name=current_user.last_name,
-            email=current_user.email,
-            status='active',
-            grace_period_days=5
-        )
-        db.session.add(tenant)
-        db.session.commit()
-        flash(_l('Tenant profile created automatically. Please contact landlord to assign a unit.'), 'info')
+                user_id=current_user.id,
+                first_name=current_user.first_name,
+                last_name=current_user.last_name,
+                email=current_user.email,
+                status='active',
+                grace_period_days=5
+            )
+            db.session.add(tenant)
+            db.session.commit()
+            flash(_l('Tenant profile created automatically. Please contact landlord to assign a unit.'), 'info')
 
+        # Calculate due date
         today = datetime.utcnow().date()
         current_month_start = today.replace(day=1)
         due_day = tenant.due_day_of_month or 1
+
         try:
             due_date = current_month_start.replace(day=due_day)
         except ValueError:
-            due_date = (current_month_start.replace(day=1) + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+            # For months with fewer days (e.g. due_day = 31 in February)
+            next_month = (current_month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
+            due_date = next_month - timedelta(days=1)
 
+        # Get list of available properties
         units = Unit.query.filter(Unit.status == 'vacant').all()
         available_properties = {}
         for unit in units:
@@ -275,9 +282,24 @@ def tenant_dashboard():
                     'units_available': 0
                 }
             available_properties[prop.id]['units_available'] += 1
+
         available_properties = list(available_properties.values())
 
-        return render_template('tenant_dashboard.html', tenant=tenant, due_date=due_date, available_properties=available_properties)
+        # Pass rent-related details to template
+        return render_template(
+            'tenant_dashboard.html',
+            tenant=tenant,
+            due_date=due_date,
+            rent_amount=tenant.rent_amount,
+            lease_start_date=tenant.lease_start_date,
+            lease_end_date=tenant.lease_end_date,
+            available_properties=available_properties
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Dashboard error: {str(e)}")
+        flash(_l('An error occurred while loading the dashboard.'), 'danger')
+        return redirect(url_for('main.index'))
 
     except Exception as e:
         logging.error(f"Dashboard error: {str(e)}")
@@ -307,6 +329,8 @@ def property_add():
             property = Property(
                 name=form.name.data,
                 address=form.address.data,
+                payment_method=form.payment_method.data or 'mpesa',
+                status='pending',
                 property_type=form.property_type.data,
                 number_of_units=form.number_of_units.data,
                 landlord_id=current_user.id,
@@ -606,9 +630,7 @@ def tenant_make_payment():
         flash("Your payment has been submitted.", "success")
         return redirect(url_for('main.tenant_dashboard'))
 
-    return render_template('payments/tenant_make_payment.html', form=form, amount_due=amount_due)
-
-
+    return render_template('payments/tenant_make_payment.html', form=form, amount_due=amount_due,tenant=tenant)
 # Mock data function (replace with database queries)
 def get_report_data(property_id, start_date, end_date):
     # Ensure numeric values with defaults
