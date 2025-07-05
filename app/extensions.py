@@ -5,6 +5,8 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
 from flask_apscheduler import APScheduler
+from authlib.integrations.flask_client import OAuth
+oauth = OAuth()
 
 scheduler = APScheduler()
 db = SQLAlchemy()

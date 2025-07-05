@@ -26,3 +26,5 @@ class Config:
     MAIL_USERNAME = config('MAIL_USERNAME')
     MAIL_PASSWORD = config('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = config('MAIL_DEFAULT_SENDER')
+    GOOGLE_CLIENT_ID = config("40390178093-mkcjv5rq2es3lugj4km7nidm0psvavat.apps.googleusercontent.com") 
+    GOOGLE_CLIENT_SECRET = config("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")

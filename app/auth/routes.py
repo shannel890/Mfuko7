@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, current_app, url_for, flash, redirect
+from flask import Blueprint, render_template, current_app, url_for, flash, redirect, session,request
 from flask_login import login_required,login_user, logout_user, current_user
-from app.models import User, Role, Tenant
-from app.extensions import db
+from app.models import User, Role, Tenant,County
+from app.extensions import db, oauth
 from app.forms import RegistrationForm, LoginForm, ForgotPasswordRequestForm, ResetPasswordForm, ExtendedEditProfileForm
 import uuid
 import logging
@@ -12,6 +12,7 @@ from app.extensions import mail
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import traceback
+
 
 auth = Blueprint('auth',__name__,url_prefix='/auth')
 def send_email(subject, sender, recipients, text_body, html_body=None):
@@ -174,27 +175,40 @@ def logout():
 def edit_profile():
     try:
         form = ExtendedEditProfileForm(obj=current_user)
-        
+
+        # Populate role choices
         if current_user.has_role('admin'):
             form.roles.choices = [(role.id, _l(role.name)) for role in Role.query.all()]
         else:
             form.roles.choices = [(role.id, _l(role.name)) for role in current_user.roles]
-            form.roles.data = [role.id for role in current_user.roles]
+            if request.method == 'GET':
+                form.roles.data = [role.id for role in current_user.roles]
+        form.county.choices = [(c.id, c.name) for c in County.query.all()]
 
         if form.validate_on_submit():
-            if not current_user.has_role('admin'):
-                form.roles.data = [role.id for role in current_user.roles]
-            form.populate_obj(current_user)
+            current_user.username = form.username.data
+            current_user.first_name = form.first_name.data
+            current_user.email = form.email.data
+            current_user.phone_number = form.phone_number.data
+            current_user.county = County.query.get(form.county.data)
+            current_user.language = form.language.data
+
+            if form.roles.data:
+                current_user.roles = Role.query.filter(Role.id.in_(form.roles.data)).all()
+
+            db.session.add(current_user)
             db.session.commit()
+
             flash(_l('Profile updated successfully!'), 'success')
             return redirect(url_for('auth.profile'))
 
         return render_template('security/edit_profile.html', user=current_user, edit_profile_form=form)
-    
+
     except Exception as e:
         current_app.logger.error(f"Profile edit error: {traceback.format_exc()}")
         flash(_l('An error occurred while updating your profile.'), 'danger')
         return redirect(url_for('auth.profile'))
+
 
 @auth.route('/profile')
 @login_required
@@ -215,3 +229,47 @@ def roles():
         current_app.logger.error(f"Roles page error: {traceback.format_exc()}")
         flash(_l('Unable to load roles.'), 'danger')
         return redirect(url_for('main.index'))
+    
+
+
+# initialize OAuth in your app factory
+def init_oauth(app):
+    oauth.init_app(app)
+    oauth.register(
+        name='google',
+        client_id=app.config['GOOGLE_CLIENT_ID'],
+        client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+        access_token_url='https://oauth2.googleapis.com/token',
+        access_token_params=None,
+        authorize_url='https://accounts.google.com/o/oauth2/auth',
+        authorize_params={
+            "access_type": "offline",
+            "prompt": "consent"
+        },
+        api_base_url='https://www.googleapis.com/oauth2/v2/',
+        client_kwargs={'scope': 'openid email profile'},
+    )
+@auth.route('/google-login')
+def google_login():
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@auth.route('/auth/google/callback')
+def google_callback():
+    token = oauth.google.authorize_access_token()
+    user_info = oauth.google.get('userinfo').json()
+
+    email = user_info['email']
+    name = user_info.get('name', 'No Name')
+    
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # auto-register
+        user = User(email=email, first_name=name.split()[0], last_name=name.split()[-1])
+        db.session.add(user)
+        db.session.commit()
+
+    # store user in session
+    session['user_id'] = user.id
+    flash("Logged in with Google", "success")
+    return redirect(url_for('main.dashboard'))
