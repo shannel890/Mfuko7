@@ -257,14 +257,20 @@
 {% block content %}
 <div class="dashboard-container jarallax" data-jarallax data-speed="0.8">
     <div class="overlay-lighter"></div>
-    <div class="container">
-        <h1 class="mb-4" data-aos="fade-down"><i class="fas fa-tachometer-alt"></i> {{ _('Dashboard') }}</h1>
-        <div class="row g-4 mb-4">
-            <div class="col-6 col-md-3" data-aos="fade-up">
+
+    <div class="container-fluid px-3 px-md-5">
+        <!-- Dashboard Header -->
+        <h1 class="mb-5 text-center" data-aos="fade-down">
+            <i class="fas fa-tachometer-alt"></i> {{ _('Dashboard') }}
+        </h1>
+
+        <!-- Dashboard Cards -->
+        <section class="row g-4 mb-5 py-4 px-3 bg-glass rounded" data-aos="fade-up">
+            <div class="col-sm-6 col-lg-3">
                 <a href="{{ url_for('main.overdue_payment') }}" class="text-decoration-none">
-                    <div class="card text-center bg-glass">
+                    <div class="card text-center bg-glass h-100">
                         <div class="card-body">
-                            <h6 class="card-title text-muted">
+                            <h6 class="card-title">
                                 <i class="fas fa-exclamation-circle text-danger"></i> {{ _('Overdue Payments') }}
                             </h6>
                             <div class="display-6 fw-bold text-danger">{{ metrics.overdue_payments or 0 }}</div>
@@ -272,11 +278,11 @@
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
+            <div class="col-sm-6 col-lg-3">
                 <a href="{{ url_for('main.payments_history') }}" class="text-decoration-none">
-                    <div class="card text-center bg-glass">
+                    <div class="card text-center bg-glass h-100">
                         <div class="card-body">
-                            <h6 class="card-title text-muted">
+                            <h6 class="card-title">
                                 <i class="fas fa-money-bill-wave text-success"></i> {{ _('Total Collections') }}
                             </h6>
                             <div class="display-6 fw-bold text-success">KSh {{ "%.2f"|format(metrics.total_collections) }}</div>
@@ -284,37 +290,43 @@
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="400">
-                <div class="card text-center bg-glass">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card text-center bg-glass h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-muted">
+                        <h6 class="card-title">
                             <i class="fas fa-home text-warning"></i> {{ _('Vacancy Rate') }}
                         </h6>
-                        <div class="progress">
-                            <div class="progress-bar bg-warning" role="progressbar" width: {{ metrics.vacancy_rate }}% aria-valuenow="{{ metrics.vacancy_rate }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-warning" role="progressbar"
+                                width: {{ metrics.vacancy_rate }}%; aria-valuenow="{{ metrics.vacancy_rate }}"
+                                aria-valuemin="0" aria-valuemax="100">
                                 {{ "%.2f"|format(metrics.vacancy_rate) }}%
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="600">
-                <div class="card text-center bg-glass">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card text-center bg-glass h-100">
                     <div class="card-body">
-                        <h6 class="card-title text-muted">
+                        <h6 class="card-title">
                             <i class="fas fa-history"></i> {{ _('Recent Transactions') }}
                         </h6>
                         <div class="display-6 fw-bold">{{ metrics.recent_transactions or 0 }}</div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row" data-aos="fade-up" data-aos-delay="800">
+        </section>
+
+        <!-- Recent Payments Section -->
+        <section class="row mb-5" data-aos="fade-up" data-aos-delay="200">
             <div class="col-12">
                 <div class="card bg-glass">
-                    <div class="card-header bg-glass fw-bold">
-                        <span><i class="fas fa-receipt"></i> {{ _('Recent Payments') }}</span>
-                        <a href="{{ url_for('main.payments_history') }}" class="btn btn-sm btn-outline-primary">{{ _('View All') }}</a>
+                    <div class="card-header bg-glass fw-bold d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-receipt me-2"></i> {{ _('Recent Payments') }}</span>
+                        <a href="{{ url_for('main.payments_history') }}" class="btn btn-sm btn-outline-primary">
+                            {{ _('View All') }}
+                        </a>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -352,14 +364,14 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Tenant Assign Table -->
-        <div class="row mt-5" data-aos="fade-up" data-aos-delay="1000">
+        <!-- Assign Property Section -->
+        <section class="row mb-5" data-aos="fade-up" data-aos-delay="400">
             <div class="col-12">
                 <div class="card bg-glass">
                     <div class="card-header bg-glass fw-bold">
-                        <span><i class="fas fa-user-check"></i> {{ _('Assign Property to Tenant') }}</span>
+                        <i class="fas fa-user-check me-2"></i> {{ _('Assign Property to Tenant') }}
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -393,11 +405,12 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
     </div>
 </div>
-<a href="{{ url_for('main.assign_property') }}" class="text-decoration-none"></a>
+
+<!-- External Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>

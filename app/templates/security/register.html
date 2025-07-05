@@ -1,308 +1,162 @@
 {% extends "base.html" %}
-{% block title %}PropertyPayTrack - Register{% endblock %}
+{% block title %}Register | REPT{% endblock %}
 
 {% block styles %}
 <style>
-    :root {
-        --primary-color: #34c759; /* Matches index.html, home.html */
-        --secondary-color: #2aa648;
-        --accent-color: #ffd700;
-        --text-color: #222;
-        --light-text-color: #ffffff;
-        --background-color: #466e6e; /* Consistent with other templates */
-        --card-background: rgba(115, 221, 203, 0.2); /* Unified glassmorphism */
-        --shadow-light: rgba(87, 59, 59, 0.08);
-        --shadow-medium: rgba(0, 0, 0, 0.15);
-        --shadow-strong: rgba(0, 0, 0, 0.25);
-    }
-
     body {
+        background: linear-gradient(135deg, #f0f4fa, #d9e6f2);
         font-family: 'Roboto', sans-serif;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        background: linear-gradient(135deg, #f0f4fa 0%, #d9e6f2 100%); /* Gradient for performance */
-        color: var(--text-color);
-        line-height: 1.7;
     }
 
-    .auth-container {
+    .auth-wrapper {
         min-height: 100vh;
         display: flex;
-        align-items: center;
         justify-content: center;
-        padding: 50px 20px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .auth-container .overlay {
-        background: rgba(0, 0, 0, 0.4);
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
+        align-items: center;
+        padding: 1rem;
     }
 
     .auth-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         max-width: 500px;
         width: 100%;
-        background-color: var(--card-background);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 12px;
-        padding: 40px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 15px 30px var(--shadow-medium);
-        position: relative;
-        z-index: 1;
-        margin: 0 auto;
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
 
-    .auth-header {
+    .auth-card h2 {
+        color: #2aa648;
+        font-weight: 600;
         text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .auth-header h1 {
-        font-family: 'Playfair Display', serif;
-        font-size: 2.5em;
-        color: var(--primary-color);
-        margin-bottom: 10px;
-    }
-
-    .auth-header p {
-        font-size: 1.1em;
-        color: var(--text-color);
-        opacity: 0.9;
+        margin-bottom: 1rem;
     }
 
     .form-floating {
-        position: relative;
-        margin-bottom: 20px;
+        margin-bottom: 1.2rem;
     }
 
-    .form-control {
-        background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        color: var(--text-color);
-        padding: 14px 16px;
-        border-radius: 8px;
-        font-size: 1em;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-    }
-
-    .form-control:focus {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-color: var(--accent-color);
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-        transform: scale(1.02);
-        outline: none;
-    }
-
-    .form-control::placeholder {
-        color: rgba(0, 0, 0, 0.6);
-        font-family: 'Roboto', sans-serif;
-    }
-
-    .form-floating > label {
-        color: var(--text-color);
-        opacity: 0.8;
-        padding: 14px 16px;
-        transition: all 0.2s ease;
-    }
-
-    .form-control.is-invalid {
-        border-color: #dc3545;
-        box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
-    }
-
-    .invalid-feedback {
-        color: #dc3545;
-        font-size: 0.9em;
-        margin-top: 5px;
-    }
-
-    .btn-primary {
-        background-color: var(--primary-color);
+    .btn-register {
+        background-color: #2aa648;
         border: none;
-        color: var(--light-text-color);
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 1.1em;
-        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        padding: 12px;
+        font-weight: 600;
         width: 100%;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
+        margin-bottom: 1rem;
+        transition: 0.3s;
     }
 
-    .btn-primary:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px var(--shadow-strong);
+    .btn-register:hover {
+        background-color: #238f3a;
     }
 
-    .bubble-effect::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: width 0.6s ease, height 0.6s ease;
-    }
-
-    .bubble-effect:hover::after {
-        width: 200%;
-        height: 200%;
-    }
-
-    .footer-links {
-        text-align: center;
-        margin-top: 20px;
-    }
-
-    .footer-links ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
+    .google-btn {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        color: #444;
+        width: 100%;
+        padding: 10px;
+        font-weight: 500;
         display: flex;
+        align-items: center;
         justify-content: center;
-        gap: 15px;
+        gap: 10px;
+        border-radius: 8px;
+        transition: 0.3s;
     }
 
-    .footer-links a {
-        color: var(--text-color);
+    .google-btn:hover {
+        background-color: #f5f5f5;
+    }
+
+    .text-link {
+        text-align: center;
+        font-size: 0.95rem;
+        margin-top: 1rem;
+    }
+
+    .text-link a {
+        color: #2aa648;
         text-decoration: none;
-        font-size: 0.95em;
-        transition: color 0.3s ease;
     }
 
-    .footer-links a:hover {
-        color: var(--accent-color);
-    }
-
-    @media (max-width: 768px) {
-        .auth-card {
-            padding: 30px;
-            max-width: 90%;
-        }
-
-        .auth-header h1 {
-            font-size: 2em;
-        }
-
-        .auth-header p {
-            font-size: 1em;
-        }
-
-        .btn-primary {
-            font-size: 1em;
-            padding: 10px 20px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .auth-card {
-            padding: 20px;
-        }
-
-        .auth-header h1 {
-            font-size: 1.8em;
-        }
-
-        .auth-header p {
-            font-size: 0.9em;
-        }
+    .text-link a:hover {
+        text-decoration: underline;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="auth-container" data-aos="fade-up">
-    <div class="overlay"></div>
-    <div class="auth-card bg-glass">
-        <div class="auth-header">
-            <h1>Create Your Account</h1>
-            <p>Join PropertyPayTrack to simplify your real estate finances.</p>
-        </div>
-        <div class="auth-body">
-            <form method="POST" novalidate>
-                {{ form.hidden_tag() }}
-                <div class="form-floating" data-aos="fade-up" data-aos-delay="100">
-                    {{ form.first_name(class="form-control", placeholder="First Name", id="firstName") }}
-                    {{ form.first_name.label }}
-                    {% if form.first_name.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.first_name.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="form-floating" data-aos="fade-up" data-aos-delay="200">
-                    {{ form.last_name(class="form-control", placeholder="Last Name", id="lastName") }}
-                    {{ form.last_name.label }}
-                    {% if form.last_name.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.last_name.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="form-floating" data-aos="fade-up" data-aos-delay="300">
-                    {{ form.email(class="form-control", placeholder="Email Address", id="email") }}
-                    {{ form.email.label }}
-                    {% if form.email.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.email.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="form-floating" data-aos="fade-up" data-aos-delay="400">
-                    {{ form.password(class="form-control", placeholder="Password", id="password") }}
-                    {{ form.password.label }}
-                    {% if form.password.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.password.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="form-floating" data-aos="fade-up" data-aos-delay="500">
-                    {{ form.confirm_password(class="form-control", placeholder="Confirm Password", id="confirmPassword") }}
-                    {{ form.confirm_password.label }}
-                    {% if form.confirm_password.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.confirm_password.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="bubble-effect" data-aos="fade-up" data-aos-delay="600">
-                    {{ form.submit(class="btn btn-primary") }}
-                </div>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2>Create Your REPT Account</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-            </form>
-        </div>
-        <div class="footer-links">
-            <ul>
-                <li><a href="{{ url_for('auth.login') }}">Already have an account? Log In</a></li>
-                <li><a href="{{ url_for('main.contact') }}">Need Help? Contact Us</a></li>
-            </ul>
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="form-floating">
+                {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), placeholder="First Name") }}
+                <label for="first_name">First Name</label>
+                {% for error in form.first_name.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating">
+                {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), placeholder="Last Name") }}
+                <label for="last_name">Last Name</label>
+                {% for error in form.last_name.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating">
+                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Email Address") }}
+                <label for="email">Email Address</label>
+                {% for error in form.email.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating">
+                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Password") }}
+                <label for="password">Password</label>
+                {% for error in form.password.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating">
+                {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirm Password") }}
+                <label for="confirm_password">Confirm Password</label>
+                {% for error in form.confirm_password.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="d-grid">
+                {{ form.submit(class="btn btn-register") }}
+            </div>
+
+             <a href="{{ url_for('auth.google_login') }}" class="google-btn">
+                <i class="fab fa-google"></i> Continue with Google
+            </a>
+        </form>
+
+        <div class="text-link">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log In</a></p>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}
