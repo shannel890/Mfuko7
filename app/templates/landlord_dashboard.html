@@ -1,420 +1,727 @@
-{% extends 'base.html' %}
-{% block title %}{{ _('Landlord Dashboard') }} | REPT{% endblock %}
-
-{% block head_content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="PropertyPayTrack - Landlord Dashboard">
-    <meta name="author" content="PropertyPayTrack">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPT Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlalDLuL+oOQf9n1S0z8S10NqD0/1V/0sBwW9r0/B9s0bB0e8zW/W0zT3L8W7S0F0w5r0pG5z5y0/Y9tA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
     <style>
-        :root {
-            --primary-color: #34c759;
-            --secondary-color: #2aa648;
-            --accent-color: #ffd700;
-            --text-color: #222;
-            --light-text-color: #ffffff;
-            --background-color: #f5f9fc;
-            --card-background: rgba(255, 255, 255, 0.2);
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --shadow-medium: rgba(0, 0, 0, 0.15);
-            --shadow-strong: rgba(0, 0, 0, 0.25);
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
+        /* Base styles */
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.7;
-            background-image: url('https://source.unsplash.com/random/1920x1080/?modern-house,real-estate,financial');
-            background-size: cover;
-            background-attachment: fixed;
         }
 
-        .bg-glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 20px var(--shadow-medium);
-        }
-
-        .overlay-lighter {
-            background: rgba(0, 0, 0, 0.3);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .text-center { text-align: center; }
-        .text-primary { color: var(--primary-color); }
-        .text-accent { color: var(--accent-color); }
-        .bg-primary { background-color: var(--primary-color); }
-        .raised { box-shadow: 0 10px 20px var(--shadow-medium); }
-        .raised-sm { box-shadow: 0 5px 15px var(--shadow-light); }
-
-        .dashboard-container {
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            padding: 50px 20px;
+            color: #1f2937;
+        }
+
+        /* Navigation Specific Styles */
+        .navbar-brand-custom {
+            font-family: 'Playfair Display', serif; /* Optional: If you want a distinct font for the brand */
+            font-size: 1.5rem; /* Equivalent to text-xl */
+            font-weight: 700; /* Equivalent to font-semibold */
+            color: #1f2937; /* Default text-gray-800 */
+        }
+        .nav-link-custom {
+            color: #4b5563; /* text-gray-700 */
+            transition: color 0.3s ease;
+        }
+        .nav-link-custom:hover {
+            color: #4f46e5; /* text-indigo-600 */
+        }
+        .logout-btn-custom {
+            background-color: #4f46e5; /* bg-indigo-600 */
+            color: white;
+            padding: 0.5rem 1rem; /* px-4 py-2 */
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: background-color 0.3s ease;
+        }
+        .logout-btn-custom:hover {
+            background-color: #4338ca; /* hover:bg-indigo-700 */
+        }
+
+        /* General dashboard styles */
+        .dashboard-container {
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .space-y-8 > * + * {
+            margin-top: 2rem;
+        }
+
+        /* Header Section */
+        .header-section {
             position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            color: white;
         }
 
-        .dashboard-container .overlay-lighter {
-            z-index: 0;
-        }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.8em;
-            color: var(--light-text-color);
-            margin-bottom: 30px;
-            text-shadow: 1px 1px 5px var(--shadow-medium);
-        }
-
-        .card {
-            background-color: var(--card-background);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px var(--shadow-medium);
-        }
-
-        .card-body {
-            padding: 20px;
-            color: var(--light-text-color);
-        }
-
-        .card-title {
-            font-family: 'Roboto', sans-serif;
-            font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .display-6 {
-            font-size: 2.5em;
-            font-weight: 700;
-        }
-
-        .text-danger { color: #ff4d4f !important; }
-        .text-success { color: var(--primary-color) !important; }
-        .text-warning { color: var(--accent-color) !important; }
-
-        .progress {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            height: 20px;
-            margin-top: 15px;
-        }
-
-        .progress-bar {
-            background-color: var(--accent-color);
-            border-radius: 8px;
-            transition: width 0.6s ease;
-        }
-
-        .card-header {
-            background-color: var(--card-background);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 20px;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5em;
-            color: var(--light-text-color);
+        .header-content {
+            position: relative;
+            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .btn-outline-primary {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-            border-radius: 8px;
-            padding: 5px 15px;
-            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        .header-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
         }
 
-        .btn-outline-primary:hover {
-            background-color: var(--accent-color);
-            color: var(--text-color);
-            transform: translateY(-2px);
+        .header-text p {
+            font-size: 1.125rem;
+            opacity: 0.9;
         }
 
-        .table {
-            background-color: transparent;
-            color: var(--light-text-color);
+        .header-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .table-responsive {
-            border-radius: 0 0 12px 12px;
+        .header-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-decoration-1 {
+            position: absolute;
+            top: -1rem;
+            right: -4rem;
+            width: 8rem;
+            height: 8rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-decoration-2 {
+            position: absolute;
+            bottom: -2rem;
+            left: -2rem;
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+        }
+
+        .stat-card-header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 1.5rem 0.75rem;
+        }
+
+        .stat-card-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .stat-icon {
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-card-content {
+            position: relative;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .text-success { color: #10b981; }
+        .text-destructive { color: #ef4444; }
+        .text-primary { color: #667eea; }
+        .text-secondary { color: #764ba2; }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
         }
 
-        .table thead th {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--light-text-color);
-            font-weight: 500;
-            padding: 15px;
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .table tbody tr {
-            transition: background-color 0.3s ease;
+        .card-header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .table tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
         }
 
-        .table td {
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            vertical-align: middle;
+        .card-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .view-all-btn {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-all-btn:hover {
+            background: #f9fafb;
+        }
+
+        /* Payment Item */
+        .payment-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .payment-item:hover {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .payment-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .payment-icon {
+            padding: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .payment-icon.paid {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .payment-icon.overdue {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .payment-details h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .payment-details p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.125rem;
+        }
+
+        .payment-right {
+            text-align: right;
+        }
+
+        .payment-amount {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
         }
 
         .badge {
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 0.9em;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
 
-        .bg-success { background-color: var(--primary-color) !important; }
-        .bg-warning { background-color: var(--accent-color) !important; color: var(--text-color) !important; }
-        .bg-pending { background-color: #17a2b8 !important; color: var(--light-text-color) !important; }
+        .badge.paid {
+            background: #10b981;
+            color: white;
+        }
 
+        .badge.overdue {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .action-btn:hover .action-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-icon {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .action-text {
+            flex: 1;
+        }
+
+        .action-arrow {
+            opacity: 0.6;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            h1 { font-size: 2.2em; }
-            .card { margin-bottom: 20px; }
-            .card-title { font-size: 1em; }
-            .display-6 { font-size: 2em; }
-            .card-header {
-                font-size: 1.3em;
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
+            .dashboard-container {
+                padding: 1rem;
             }
-            .btn-outline-primary {
-                width: 100%;
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
                 text-align: center;
             }
-            .table thead { display: none; }
-            .table tbody tr {
-                display: block;
-                margin-bottom: 15px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+            .header-text h1 {
+                font-size: 2rem;
             }
-            .table td {
-                display: block;
-                text-align: left;
-                padding: 10px 15px;
+
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
-            .table td:before {
-                content: attr(data-label);
-                font-weight: 700;
-                display: inline-block;
-                width: 40%;
-                margin-right: 10px;
+
+            .main-grid {
+                grid-template-columns: 1fr;
             }
-            .table td[data-label="Tenant"] { font-weight: 700; }
-            .table td[data-label="Status"] { border-bottom: none; }
         }
 
-        @media (max-width: 480px) {
-            h1 { font-size: 1.8em; }
-            .display-6 { font-size: 1.8em; }
+        /* Icons */
+        .lucide-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .lucide-icon-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .hidden-mobile {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .hidden-mobile {
+                display: flex;
+            }
         }
     </style>
-{% endblock head_content %}
+</head>
 
-{% block content %}
-<div class="dashboard-container jarallax" data-jarallax data-speed="0.8">
-    <div class="overlay-lighter"></div>
+<body>
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
+              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+            </a>
+          </div>
 
-    <div class="container-fluid px-3 px-md-5">
-        <!-- Dashboard Header -->
-        <h1 class="mb-5 text-center" data-aos="fade-down">
-            <i class="fas fa-tachometer-alt"></i> {{ _('Dashboard') }}
-        </h1>
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
+            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
+            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
+            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
+          </div>
 
-        <!-- Dashboard Cards -->
-        <section class="row g-4 mb-5 py-4 px-3 bg-glass rounded" data-aos="fade-up">
-            <div class="col-sm-6 col-lg-3">
-                <a href="{{ url_for('main.overdue_payment') }}" class="text-decoration-none">
-                    <div class="card text-center bg-glass h-100">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                <i class="fas fa-exclamation-circle text-danger"></i> {{ _('Overdue Payments') }}
-                            </h6>
-                            <div class="display-6 fw-bold text-danger">{{ metrics.overdue_payments or 0 }}</div>
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
+
+            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+              <i data-lucide="menu" class="lucide-icon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
+        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
+        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
+        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
+        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+      </div>
+    </nav>
+    <div class="dashboard-container">
+        <div class="space-y-8">
+            <div class="header-section">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1>Welcome to REPT</h1>
+                        <p>Manage your properties, tenants, and payments efficiently with modern tools</p>
+                    </div>
+                    <div class="hidden-mobile">
+                        <button class="header-button" aria-label="View Analytics">
+                            <i data-lucide="activity" class="lucide-icon"></i>
+                            View Analytics
+                        </button>
+                    </div>
+                </div>
+                <div class="header-decoration-1"></div>
+                <div class="header-decoration-2"></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">Total Properties</div>
+                        <div class="stat-icon text-primary">
+                            <a href="{{ url_for('main.properties_list') }}" class="stat-icon text-primary">
+                                <i data-lucide="building-2" class="lucide-icon"></i>
+                            </a>
                         </div>
                     </div>
-                </a>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <a href="{{ url_for('main.payments_history') }}" class="text-decoration-none">
-                    <div class="card text-center bg-glass h-100">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                <i class="fas fa-money-bill-wave text-success"></i> {{ _('Total Collections') }}
-                            </h6>
-                            <div class="display-6 fw-bold text-success">KSh {{ "%.2f"|format(metrics.total_collections) }}</div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">12</div>
+                        <div class="stat-change text-success">
+                            <i data-lucide="arrow-up-right" class="lucide-icon-sm"></i>
+                            +2 from last month
                         </div>
                     </div>
-                </a>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">Active Tenants</div>
+                        <div class="stat-icon text-secondary">
+                            <i data-lucide="users" class="lucide-icon"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">28</div>
+                        <div class="stat-change text-success">
+                            <i data-lucide="arrow-up-right" class="lucide-icon-sm"></i>
+                            +4 from last month
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">Monthly Revenue</div>
+                        <div class="stat-icon text-success">
+                            <i data-lucide="credit-card" class="lucide-icon"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">KSh 420,000</div>
+                        <div class="stat-change text-success">
+                            <i data-lucide="arrow-up-right" class="lucide-icon-sm"></i>
+                            +12% from last month
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">Overdue Payments</div>
+                        <div class="stat-icon text-destructive">
+                            <a href="{{ url_for('main.overdue_payment')}}" class="stat-icon text-destructive">
+                                <i data-lucide="alert-circle" class="lucide-icon"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">3</div>
+                        <div class="stat-change text-success">
+                            <i data-lucide="arrow-up-right" class="lucide-icon-sm"></i>
+                            -2 from last month
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card text-center bg-glass h-100">
-                    <div class="card-body">
-                        <h6 class="card-title">
-                            <i class="fas fa-home text-warning"></i> {{ _('Vacancy Rate') }}
-                        </h6>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-warning" role="progressbar"
-                                width: {{ metrics.vacancy_rate }}%; aria-valuenow="{{ metrics.vacancy_rate }}"
-                                aria-valuemin="0" aria-valuemax="100">
-                                {{ "%.2f"|format(metrics.vacancy_rate) }}%
+
+            <div class="main-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-flex">
+                            <div>
+                                <div class="card-title">Recent Payments</div>
+                                <div class="card-description">
+                                    Latest payment transactions from your tenants
+                                </div>
+                            </div>
+                            <a href="{{ url_for('main.payments_history') }}" class="view-all-btn" aria-label="View All Payments">
+                                View All
+                                <i data-lucide="arrow-up-right" class="lucide-icon-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="payment-item">
+                            <div class="payment-left">
+                                <div class="payment-icon paid">
+                                    <i data-lucide="check-circle" class="lucide-icon-sm"></i>
+                                </div>
+                                <div class="payment-details">
+                                    <h4>Sarah Wanjiku</h4>
+                                    <p>Green Valley Apt 2B</p>
+                                    <p>Dec 1, 2024</p>
+                                </div>
+                            </div>
+                            <div class="payment-right">
+                                <div class="payment-amount">KSh 25,000</div>
+                                <span class="badge paid">Paid</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-item">
+                            <div class="payment-left">
+                                <div class="payment-icon paid">
+                                    <i data-lucide="check-circle" class="lucide-icon-sm"></i>
+                                </div>
+                                <div class="payment-details">
+                                    <h4>John Kimani</h4>
+                                    <p>Sunset Heights 5A</p>
+                                    <p>Nov 30, 2024</p>
+                                </div>
+                            </div>
+                            <div class="payment-right">
+                                <div class="payment-amount">KSh 30,000</div>
+                                <span class="badge paid">Paid</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-item">
+                            <div class="payment-left">
+                                <div class="payment-icon overdue">
+                                    <i data-lucide="alert-circle" class="lucide-icon-sm"></i>
+                                </div>
+                                <div class="payment-details">
+                                    <h4>Grace Achieng</h4>
+                                    <p>Palm Court 1C</p>
+                                    <p>Nov 29, 2024</p>
+                                </div>
+                            </div>
+                            <div class="payment-right">
+                                <div class="payment-amount">KSh 20,000</div>
+                                <span class="badge overdue">Overdue</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card text-center bg-glass h-100">
-                    <div class="card-body">
-                        <h6 class="card-title">
-                            <i class="fas fa-history"></i> {{ _('Recent Transactions') }}
-                        </h6>
-                        <div class="display-6 fw-bold">{{ metrics.recent_transactions or 0 }}</div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Recent Payments Section -->
-        <section class="row mb-5" data-aos="fade-up" data-aos-delay="200">
-            <div class="col-12">
-                <div class="card bg-glass">
-                    <div class="card-header bg-glass fw-bold d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-receipt me-2"></i> {{ _('Recent Payments') }}</span>
-                        <a href="{{ url_for('main.payments_history') }}" class="btn btn-sm btn-outline-primary">
-                            {{ _('View All') }}
-                        </a>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Quick Actions</div>
+                        <div class="card-description">
+                            Common tasks and shortcuts
+                        </div>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>{{ _('Tenant') }}</th>
-                                        <th>{{ _('Property') }}</th>
-                                        <th>{{ _('Amount') }}</th>
-                                        <th>{{ _('Date') }}</th>
-                                        <th>{{ _('Status') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for payment in recent_payments %}
-                                    <tr>
-                                        <td data-label="Tenant">{{ payment.tenant_name }}</td>
-                                        <td data-label="Property">{{ payment.property_name }}</td>
-                                        <td data-label="Amount">KSh {{ "%.2f"|format(payment.amount) }}</td>
-                                        <td data-label="Date">{{ payment.payment_date.strftime('%d/%m/%Y') }}</td>
-                                        <td data-label="Status">
-                                            <span class="badge bg-{{ 'success' if payment.status == 'confirmed' else 'pending' if payment.status == 'pending' else 'warning' }}">
-                                                {{ _(payment.status.title()) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    {% else %}
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">{{ _('No recent payments.') }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                    <div class="card-content">
+                        <div class="quick-actions">
+                          <a href="{{url_for('main.property_add')}}" class="action-btn" aria-label="Add New Property">
+                                <div class="action-icon">
+                                    <i data-lucide="home" class="lucide-icon-sm"></i>
+                                </div>
+                                <span class="action-text">Add New Property</span>
+                                <i data-lucide="plus" class="lucide-icon-sm action-arrow"></i>
+                          </a>
+
+                            <a href="{{url_for('main.tenant_add')}}" class="action-btn" aria-label="Add New Tenant">
+                                <div class="action-icon">
+                                    <i data-lucide="users" class="lucide-icon-sm"></i>
+                                </div>
+                                <span class="action-text">Add New Tenant</span>
+                                <i data-lucide="plus" class="lucide-icon-sm action-arrow"></i>
+                            </a>
+
+                            <a href="{{url_for('main.record_payment')}}" class="action-btn" aria-label="Record Payment">
+                                <div class="action-icon">
+                                    <i data-lucide="credit-card" class="lucide-icon-sm"></i>
+                                </div>
+                                <span class="action-text">Record Payment</span>
+                                <i data-lucide="plus" class="lucide-icon-sm action-arrow"></i>
+                            </a>
+
+                            <a href="{{url_for('main.export_report')}}" class="action-btn" aria-label="Generate Report">
+                                <div class="action-icon">
+                                    <i data-lucide="trending-up" class="lucide-icon-sm"></i>
+                                </div>
+                                <span class="action-text">Generate Report</span>
+                                <i data-lucide="arrow-up-right" class="lucide-icon-sm action-arrow"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Assign Property Section -->
-        <section class="row mb-5" data-aos="fade-up" data-aos-delay="400">
-            <div class="col-12">
-                <div class="card bg-glass">
-                    <div class="card-header bg-glass fw-bold">
-                        <i class="fas fa-user-check me-2"></i> {{ _('Assign Property to Tenant') }}
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>{{ _('Tenant Name') }}</th>
-                                        <th>{{ _('Email') }}</th>
-                                        <th>{{ _('Action') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for tenant in landlord_tenants %}
-                                    <tr>
-                                        <td data-label="Tenant Name">{{ tenant.first_name }} {{ tenant.last_name }}</td>
-                                        <td data-label="Email">{{ tenant.email }}</td>
-                                        <td data-label="Action">
-                                            <a href="{{ url_for('main.assign_property', tenant_id=tenant.id) }}" class="btn btn-outline-primary btn-sm">
-                                                {{ _('Assign Property') }}
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% else %}
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted">{{ _('No active tenants available.') }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+        </div>
     </div>
-</div>
 
-<!-- External Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-    AOS.init({ duration: 1200 });
-</script>
-<script src="https://unpkg.com/jarallax@2.0.2/dist/jarallax.min.js"></script>
-{% endblock %}
+    <script>
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Re-call Lucide creation just in case, though it should ideally run once
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', function () {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+
+        // Add some interactivity (from your original script)
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function(event) {
+                // Prevent default link behavior if you want to use the alert for now
+                // event.preventDefault();
+                const action = this.querySelector('.action-text').textContent;
+                // alert(`${action} functionality would be implemented here`);
+            });
+        });
+
+        document.querySelector('.view-all-btn').addEventListener('click', function(event) {
+            // event.preventDefault(); // Prevent default link behavior if you want the alert
+            // alert('View all payments functionality would be implemented here');
+        });
+
+        document.querySelector('.header-button').addEventListener('click', function(event) {
+            // event.preventDefault(); // Prevent default button behavior if you want the alert
+            // alert('Analytics view would be implemented here');
+        });
+    </script>
+</body>
+</html>

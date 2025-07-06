@@ -1,7 +1,3 @@
-{% extends "base.html" %}
-{% block title %}{{ _('Profile') }} - {{ user.full_name or user.username }}{% endblock %}
-
-{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ _('Profile') }} - {{ user.full_name or user.username }}</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- External Libraries -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
 
     <style>
         :root {
@@ -26,6 +22,11 @@
             --white: #ffffff;
             --bg: #f4f8fb;
             --glass: rgba(255, 255, 255, 0.15);
+            /* Define some common colors for consistency with other pages */
+            --indigo-600: #4f46e5;
+            --indigo-700: #4338ca;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
         }
 
         body {
@@ -35,6 +36,151 @@
             background-attachment: fixed;
             color: var(--text);
             margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Navigation Specific Styles (using Tailwind equivalent values) */
+        nav {
+            background-color: rgba(255, 255, 255, 0.8); /* bg-white/80 */
+            -webkit-backdrop-filter: blur(14px); /* backdrop-blur-md for older browsers */
+            backdrop-filter: blur(14px); /* changed to 14px to match profile card blur */
+            border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        nav .max-w-7xl {
+            max-width: 80rem; /* max-w-7xl */
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+        }
+        @media (min-width: 640px) { /* sm:px-6 */
+            nav .max-w-7xl {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+        @media (min-width: 1024px) { /* lg:px-8 */
+            nav .max-w-7xl {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        nav .flex {
+            display: flex;
+        }
+        nav .justify-between {
+            justify-content: space-between;
+        }
+        nav .h-16 {
+            height: 4rem; /* h-16 */
+        }
+
+        nav .items-center {
+            align-items: center;
+        }
+        nav .space-x-4 > *:not(:first-child) {
+            margin-left: 1rem; /* space-x-4 */
+        }
+        nav .space-x-6 > *:not(:first-child) {
+            margin-left: 1.5rem; /* space-x-6 */
+        }
+
+        nav .text-xl {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+        }
+        nav .font-semibold {
+            font-weight: 600;
+        }
+        nav .text-gray-800 {
+            color: var(--gray-800);
+        }
+
+        /* PropertyPayTrack Brand */
+        .navbar-brand-ppt span.text-green-500 { color: #22c55e; } /* Tailwind green-500 equivalent */
+        .navbar-brand-ppt span.text-orange-500 { color: #f97316; } /* Tailwind orange-500 equivalent */
+        .navbar-brand-ppt span.text-blue-500 { color: #3b82f6; } /* Tailwind blue-500 equivalent */
+
+        /* Nav links (desktop) */
+        nav .text-gray-700 {
+            color: var(--gray-700);
+        }
+        nav .hover\:text-indigo-600:hover {
+            color: var(--indigo-600);
+        }
+        nav .transition {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        /* Logout button (desktop) */
+        nav .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        nav .text-white {
+            color: var(--white);
+        }
+        nav .bg-indigo-600 {
+            background-color: var(--indigo-600);
+        }
+        nav .hover\:bg-indigo-700:hover {
+            background-color: var(--indigo-700);
+        }
+        nav .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        nav .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        nav .rounded-lg {
+            border-radius: 0.5rem;
+        }
+
+        /* Mobile specific classes */
+        nav .hidden {
+            display: none;
+        }
+        @media (min-width: 768px) { /* md:flex */
+            nav .md\:flex {
+                display: flex;
+            }
+            nav .md\:inline-block {
+                display: inline-block;
+            }
+            nav .md\:hidden {
+                display: none;
+            }
+        }
+
+        /* Mobile menu */
+        #mobileMenu {
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+            padding-bottom: 1rem; /* pb-4 */
+            border-top: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        #mobileMenu a {
+            display: block;
+            padding-top: 0.5rem; /* py-2 */
+            padding-bottom: 0.5rem; /* py-2 */
+        }
+
+        /* Lucide Icons */
+        .lucide-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke-width: 2px; /* Default stroke for Lucide icons */
+            vertical-align: middle; /* Align with text */
         }
 
         .profile-wrapper {
@@ -59,6 +205,7 @@
             padding: 20px 25px;
             font-family: 'Playfair Display', serif;
             font-size: 2rem;
+            text-align: center; /* Center the header text */
         }
 
         .profile-body {
@@ -70,6 +217,7 @@
             flex-wrap: wrap;
             padding: 10px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            align-items: center; /* Align items vertically */
         }
 
         .info-row:last-child {
@@ -86,13 +234,17 @@
             flex: 1;
             opacity: 0.9;
             color: #333;
+            word-break: break-word; /* Prevent long words from breaking layout */
         }
 
         .badge.bg-info {
-            background-color: #17a2b8 !important;
+            background-color: #17a2b8 !important; /* Keep Bootstrap's info color */
             border-radius: 20px;
             padding: 6px 12px;
             font-size: 0.85rem;
+            display: inline-flex; /* Use flex to align icon and text in badge */
+            align-items: center;
+            gap: 5px; /* Space between icon and text */
         }
 
         .profile-footer {
@@ -100,6 +252,7 @@
             justify-content: space-between;
             padding: 20px 25px;
             background-color: rgba(255, 255, 255, 0.05);
+            gap: 15px; /* Add gap for consistent spacing on small screens */
         }
 
         .btn-custom {
@@ -108,6 +261,11 @@
             font-size: 1rem;
             border-radius: 8px;
             transition: all 0.3s ease;
+            text-decoration: none; /* Ensure buttons look like buttons */
+            display: inline-flex; /* For icon alignment */
+            align-items: center;
+            justify-content: center; /* Center content in button */
+            gap: 5px; /* Space between icon and text */
         }
 
         .btn-custom.btn-primary {
@@ -135,98 +293,178 @@
         }
 
         @media (max-width: 768px) {
+            .profile-header {
+                font-size: 1.75rem; /* Adjust font size for smaller screens */
+            }
             .profile-footer {
                 flex-direction: column;
-                gap: 15px;
+                align-items: stretch; /* Stretch buttons to full width */
             }
 
             .info-label, .info-value {
                 width: 100%;
+                text-align: left;
+            }
+            .info-label {
+                margin-bottom: 5px; /* Space between label and value on small screens */
             }
         }
     </style>
 </head>
 <body data-aos-easing="ease" data-aos-duration="1200">
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800 navbar-brand-ppt">
+                        <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+                    </a>
+                </div>
 
-<div class="profile-wrapper">
-    <div class="container">
-        <div class="row justify-content-center" data-aos="fade-up">
-            <div class="col-lg-8">
-                <div class="profile-card">
-                    <div class="profile-header">
-                        {{ _('User Profile') }}
-                    </div>
-                    <div class="profile-body">
-                        <div class="info-row">
-                            <div class="info-label">{{ _('Username') }}:</div>
-                            <div class="info-value">{{ user.username }}</div>
+                <div class="hidden md:flex items-center space-x-6">
+                    {% if current_user.has_role('landlord') %}
+                        <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+                        <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
+                        <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
+                        <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+                        <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign Property</a>
+                    {% elif current_user.has_role('tenant') %}
+                        <a href="{{ url_for('main.tenant_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+                        <a href="{{ url_for('main.tenant_make_payment') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+                        <a href="#" class="text-gray-700 hover:text-indigo-600 transition">Notices</a>
+                        <a href="#" class="text-gray-700 hover:text-indigo-600 transition">Support</a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-sm text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                    <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+                        <i data-lucide="menu" class="lucide-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+            {% if current_user.has_role('landlord') %}
+                <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+                <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
+                <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
+                <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+                <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign Property</a>
+            {% elif current_user.has_role('tenant') %}
+                <a href="{{ url_for('main.tenant_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+                <a href="{{ url_for('main.tenant_make_payment') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+                <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">Notices</a>
+                <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">Support</a>
+            {% endif %}
+            <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
+            <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+        </div>
+    </nav>
+
+    <div class="profile-wrapper">
+        <div class="container">
+            <div class="row justify-content-center" data-aos="fade-up">
+                <div class="col-lg-8">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            {{ _('User Profile') }}
                         </div>
-                        <div class="info-row">
-                            <div class="info-label">{{ _('First Name') }}:</div>
-                            <div class="info-value">{{ user.first_name or _('Not provided') }}</div>
-                        </div>
-                        <div class="info-row">
-                            <div class="info-label">{{ _('Email') }}:</div>
-                            <div class="info-value">{{ user.email }}</div>
-                        </div>
-                        <div class="info-row">
-                            <div class="info-label">{{ _('Phone Number') }}:</div>
-                            <div class="info-value">{{ user.phone_number or _('Not provided') }}</div>
-                        </div>
-                        <div class="info-row">
-                            <div class="info-label">{{ _('County') }}:</div>
-                            <div class="info-value">{{ user.county.name if user.county else _('Not specified') }}</div>
-                        </div>
-                        <div class="info-row">
-                            <div class="info-label">{{ _('Roles') }}:</div>
-                            <div class="info-value">
-                                {% if user.roles %}
-                                    {% for role in user.roles %}
-                                        <span class="badge bg-info me-1">{{ role.name }}</span>
-                                    {% endfor %}
-                                {% else %}
-                                    {{ _('No roles') }}
-                                {% endif %}
+                        <div class="profile-body">
+                            <div class="info-row">
+                                <div class="info-label">{{ _('Username') }}:</div>
+                                <div class="info-value">{{ user.username }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">{{ _('First Name') }}:</div>
+                                <div class="info-value">{{ user.first_name or _('Not provided') }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">{{ _('Last Name') }}:</div> {# Added Last Name #}
+                                <div class="info-value">{{ user.last_name or _('Not provided') }}</div> {# Added Last Name #}
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">{{ _('Email') }}:</div>
+                                <div class="info-value">{{ user.email }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">{{ _('Phone Number') }}:</div>
+                                <div class="info-value">{{ user.phone_number or _('Not provided') }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">{{ _('County') }}:</div>
+                                <div class="info-value">{{ user.county.name if user.county else _('Not specified') }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">{{ _('Roles') }}:</div>
+                                <div class="info-value">
+                                    {% if user.roles %}
+                                        {% for role in user.roles %}
+                                            <span class="badge bg-info me-1"><i class="fas fa-user-tag me-1"></i>{{ role.name }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ _('No roles') }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">{{ _('Language') }}:</div>
+                                <div class="info-value">
+                                    {% if user.language == 'en' %}
+                                        {{ _('English') }}
+                                    {% elif user.language == 'sw' %}
+                                        {{ _('Swahili') }}
+                                    {% else %}
+                                        {{ _('Not set') }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">{{ _('Last Login') }}:</div>
+                                <div class="info-value">
+                                    {{ user.current_login_at.strftime('%Y-%m-%d %H:%M:%S') if user.current_login_at else _('Never') }}
+                                </div>
                             </div>
                         </div>
-                        <div class="info-row">
-                            <div class="info-label">{{ _('Language') }}:</div>
-                            <div class="info-value">
-                                {% if user.language == 'en' %}
-                                    {{ _('English') }}
-                                {% elif user.language == 'sw' %}
-                                    {{ _('Swahili') }}
-                                {% else %}
-                                    {{ _('Not set') }}
-                                {% endif %}
-                            </div>
+                        <div class="profile-footer">
+                            <a href="{{ url_for('auth.forgot_password') }}" class="btn btn-warning btn-custom">
+                                <i class="fas fa-key"></i> {{ _('Change Password') }}
+                            </a>
+                            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-primary btn-custom">
+                                <i class="fas fa-edit"></i> {{ _('Edit Profile') }}
+                            </a>
                         </div>
-                        <div class="info-row">
-                            <div class="info-label">{{ _('Last Login') }}:</div>
-                            <div class="info-value">
-                                {{ user.current_login_at.strftime('%Y-%m-%d %H:%M:%S') if user.current_login_at else _('Never') }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-footer">
-                        <a href="{{ url_for('auth.forgot_password') }}" class="btn btn-warning btn-custom">
-                            <i class="fas fa-key me-1"></i> {{ _('Change Password') }}
-                        </a>
-                        <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-primary btn-custom">
-                            <i class="fas fa-edit me-1"></i> {{ _('Edit Profile') }}
-                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>AOS.init({ duration: 1200 });</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1200 });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons for the navigation bar
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Mobile menu toggle logic
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>
-{% endblock %}

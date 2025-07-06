@@ -4,261 +4,686 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PropertyPayTrack - Simplify Your Real Estate Finances">
+    <meta name="description" content="PropertyPayTrack - Simplify Your Real Estate Finances with Smart Payment Tracking">
     <meta name="author" content="PropertyPayTrack">
-    <!-- Open Graph for SEO -->
-    <meta property="og:title" content="PropertyPayTrack">
-    <meta property="og:description" content="Simplify your real estate finances with intuitive tools for payment tracking and property management.">
+    <meta name="keywords" content="property management, rental payments, real estate, landlord, tenant, payment tracking">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:title" content="PropertyPayTrack - Smart Property Management">
+    <meta property="og:description" content="Streamline your real estate finances with intuitive tools for payment tracking and property management.">
     <meta property="og:image" content="/static/img/og-image.jpg">
     <meta property="og:url" content="https://www.propertypaytrack.com">
+    <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <title>{% block title %}{% endblock %}</title>
-    <!-- Bootstrap 5.3.3 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouA9xWKRbQ+0D3AN5h18dz3x4E4Q+6V3VRP23uW2V5ls2r6M4B9kYb+sPS7S8oRXdneKr2m0Tw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- AOS -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
-    <!-- Swiper -->
-    <link rel="stylesheet" href="https://unpkg.com/swiper@8.4.7/swiper-bundle.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #34c759;
-            --secondary-color: #2aa648;
-            --accent-color: #ffd700;
-            --text-color: #222;
-            --light-text-color: #ffffff;
-            --background-color: #f0f4fa;
-            --card-background: rgba(155, 252, 240, 0.774);
-            --shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1);
-            --shadow-medium: 0 8px 16px rgba(0, 0, 0, 0.15);
-            --shadow-strong: 0 12px 24px rgba(0, 0, 0, 0.2);
-        }
+    <meta name="twitter:title" content="PropertyPayTrack - Smart Property Management">
+    <meta name="twitter:description" content="Streamline your real estate finances with intuitive tools for payment tracking and property management.">
+    <meta name="twitter:image" content="/static/img/og-image.jpg">
 
-        body {
-            font-family: 'Roboto', sans-serif;
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
+
+    <title>{% block title %}PropertyPayTrack - Smart Property Management{% endblock %}</title>
+
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" as="style">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+
+    <style>
+        /* Base styles */
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            scroll-behavior: smooth;
         }
 
-        .container {
-            max-width: 1200px;
+        body {
+            font-family: 'Inter', sans-serif; /* Changed to Inter for better consistency with modern UIs */
+            background: linear-gradient(135deg, #f8f7f8 0%, #860175 100%);
+            min-height: 100vh;
+            color: #010811;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Skip to Content */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+        .focus\:not-sr-only:focus {
+            position: static;
+            width: auto;
+            height: auto;
+            overflow: visible;
+            clip: auto;
+            white-space: normal;
+        }
+        .focus\:absolute:focus {
+            position: absolute;
+        }
+        .focus\:top-4:focus {
+            top: 1rem; /* 16px */
+        }
+        .focus\:left-4:focus {
+            left: 1rem; /* 16px */
+        }
+        .bg-primary { 
+            background-color: #667eea; /* A shade of indigo, matching your header */
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0; /* Hidden by default */
+            transform: translateY(20px);
+            z-index: 1000;
+        }
+        .scroll-top.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .scroll-top:hover {
+            background-color: #764ba2;
+        }
+
+        .navbar-brand-custom {
+            font-family: 'Playfair Display', serif; /* Optional: If you want a distinct font for the brand */
+            font-size: 1.5rem; /* Equivalent to text-xl */
+            font-weight: 700; /* Equivalent to font-semibold */
+            color: #1f2937; /* Default text-gray-800 */
+        }
+        .nav-link-custom {
+            color: #4b5563; /* text-gray-700 */
+            transition: color 0.3s ease;
+        }
+        .nav-link-custom:hover {
+            color: #4f46e5; /* text-indigo-600 */
+        }
+        .logout-btn-custom {
+            background-color: #4f46e5; /* bg-indigo-600 */
+            color: white;
+            padding: 0.5rem 1rem; /* px-4 py-2 */
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: background-color 0.3s ease;
+        }
+        .logout-btn-custom:hover {
+            background-color: #4338ca; /* hover:bg-indigo-700 */
+        }
+
+        /* General dashboard styles */
+        .dashboard-container {
+            padding: 1.5rem;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
         }
 
-        .bg-glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: var(--shadow-medium);
+        .space-y-8 > * + * {
+            margin-top: 2rem;
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            border: none;
-            color: var(--light-text-color);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-strong);
-        }
-
-        .btn-secondary {
-            background-color: var(--accent-color);
-            border: none;
-            color: var(--text-color);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background-color: #ffe066;
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-strong);
-        }
-
-        .bubble-effect {
+        /* Header Section */
+        .header-section {
             position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            color: white;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .header-text p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .header-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .header-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-decoration-1 {
+            position: absolute;
+            top: -1rem;
+            right: -4rem;
+            width: 8rem;
+            height: 8rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-decoration-2 {
+            position: absolute;
+            bottom: -2rem;
+            left: -2rem;
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+        }
+
+        .stat-card-header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 1.5rem 0.75rem;
+        }
+
+        .stat-card-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .stat-icon {
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-card-content {
+            position: relative;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .text-success { color: #10b981; }
+        .text-destructive { color: #ef4444; }
+        .text-primary { color: #667eea; }
+        .text-secondary { color: #764ba2; }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
         }
 
-        .bubble-effect::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(132, 100, 158, 0.05);
+        }
+
+        .card-header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .view-all-btn {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-all-btn:hover {
+            background: #f9fafb;
+        }
+
+        /* Payment Item */
+        .payment-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .payment-item:hover {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .payment-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .payment-icon {
+            padding: 0.5rem;
             border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
         }
 
-        .bubble-effect:hover::after {
-            width: 200%;
-            height: 200%;
+        .payment-icon.paid {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
         }
 
-        .navbar {
-            background-color: var(--card-background);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+        .payment-icon.overdue {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
         }
 
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8em;
+        .payment-details h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .payment-details p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.125rem;
+        }
+
+        .payment-right {
+            text-align: right;
+        }
+
+        .payment-amount {
+            font-size: 1.125rem;
             font-weight: 700;
-            color: var(--primary-color);
+            margin-bottom: 0.25rem;
         }
 
-        .navbar-nav .nav-link {
-            color: var(--text-color);
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
             font-weight: 500;
-            padding: 10px 15px;
-            transition: color 0.3s ease, border-bottom 0.3s ease;
         }
 
-        .navbar-nav .nav-link:hover {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
+        .badge.paid {
+            background: #10b981;
+            color: white;
         }
 
-        footer {
-            position: relative;
-            bottom: 0;
-            width: 100%;
-            background-color: var(--card-background);
-            backdrop-filter: blur(10px);
-            padding: 20px 0;
-            text-align: center;
-            z-index: 1000;
+        .badge.overdue {
+            background: #ef4444;
+            color: white;
         }
 
-        .footer-links a {
-            margin: 0 10px;
-            color: var(--text-color);
-            font-size: 1.2em;
-            transition: color 0.3s ease;
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
-        .footer-links a:hover {
-            color: var(--primary-color);
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
         }
 
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .action-btn:hover .action-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-icon {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .action-text {
+            flex: 1;
+        }
+
+        .action-arrow {
+            opacity: 0.6;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .btn-primary, .btn-secondary {
-                font-size: 1em;
-                padding: 10px 20px;
+            .dashboard-container {
+                padding: 1rem;
             }
 
-            .navbar-nav { text-align: center; }
-            .nav-btn { margin: 15px auto; display: block; }
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
 
-            footer {
-                padding: 10px 0;
+            .header-text h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
             }
         }
+
+        /* Icons */
+        .lucide-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .lucide-icon-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .hidden-mobile {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .hidden-mobile {
+                display: flex;
+            }
+        }
+
     </style>
     {% block styles %}{% endblock %}
 </head>
-<body data-aos-easing="ease" data-aos-duration="1200" data-aos-delay="0">
-    <div class="d-flex flex-column min-100">
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">PropertyPayTrack</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<body data-aos-easing="ease-out-cubic" data-aos-duration="800" data-aos-delay="0">
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    {% if current_user.is_authenticated %}
-                        {% if current_user.has_role('landlord') %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.landlord_dashboard') }}">{{ _('Dashboard') }}</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.properties_list') }}">{{ _('Properties') }}</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.tenants_list') }}">{{ _('Tenants') }}</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.payments_history') }}">{{ _('Payments') }}</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.assign_property') }}">{{_('Assign property') }}</a></li>
-                        {% endif %}
-                        {% if current_user.has_role('tenant') %} 
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.tenant_dashboard') }}">{{ _('Dashboard') }}</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.tenant_make_payment') }}">{{ _('Make Payment') }}</a></li>
-                        {% endif %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.profile') }}">{{ _('Profile') }}</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.features') }}">{{ _('Features') }}</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.testimonials') }}">{{ _('Testimonials') }}</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.pricing') }}">{{ _('Pricing') }}</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">{{ _('Contact') }}</a></li>
-                        <li class="nav-item"><a class="nav-link btn btn-primary nav-btn ms-3 bubble-effect" href="{{ url_for('auth.login') }}">{{ _('Log In') }}</a></li>
-                        <li class="nav-item"><a class="nav-link btn btn-secondary nav-btn ms-3 bubble-effect" href="{{ url_for('auth.register') }}">{{ _('Sign Up') }}</a></li>
-                    {% endif %}
-                </ul>
-            </div>
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('main.index') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
+              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+            </a>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
+            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
+            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
+            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
+
+            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+              <i data-lucide="menu" class="lucide-icon"></i>
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
+        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
+        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
+        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
+        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+      </div>
     </nav>
-</div>
-    <!-- Flash messages -->
-    <div class="container mt-3">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message | safe }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
     </div>
 
-   <main class="flex-grow-1">
-        {% block content %}{% endblock %}
-    </main>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-white px-4 py-2 rounded">
+        Skip to main content
+    </a>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p class="mt-3 mb-0">© 2025 PropertyPayTrack. All rights reserved.</p>
-            <div class="footer-links">
-                <a href="https://facebook.com" aria-label="Facebook" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://twitter.com" aria-label="Twitter" target="_blank"><i class="fab fa-twitter"></i></a>
-                <a href="https://instagram.com" aria-label="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
-            </div>
+    <div class="d-flex flex-column min-100">
+        {% block navbar %}{% endblock %}
+
+        <div class="container mt-3">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert" data-aos="fade-down">
+                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'info-circle' if category == 'info' else 'times-circle' }} me-2"></i>
+                            {{ message | safe }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
         </div>
-    </footer>
 
-    <!-- Core JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <main class="flex-grow-1" id="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        {% block footer %}{% endblock %}
+    </div>
+
+    <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ duration: 1200 });
+        AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true, offset: 100 });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Scroll to top button functionality
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            if (scrollTopBtn) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 300) {
+                        scrollTopBtn.classList.add('show');
+                    } else {
+                        scrollTopBtn.classList.remove('show');
+                    }
+                });
+
+                scrollTopBtn.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Hide loading spinner after page loads
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            if (loadingSpinner) {
+                window.addEventListener('load', () => {
+                    loadingSpinner.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingSpinner.style.display = 'none';
+                    }, 500); // Allow time for fade out
+                });
+            }
+        });
     </script>
-    {% block scripts %}{% endblock %}
 </body>
 </html>

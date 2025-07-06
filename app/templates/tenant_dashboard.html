@@ -1,194 +1,857 @@
-{% extends 'base.html' %}
-{% block title %}{{ _('Tenant Dashboard') }} | REPT{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PropertyPayTrack - Tenant Dashboard">
 
-{% block head_content %}
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="PropertyPayTrack - Tenant Dashboard">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
 
-<style>
-    :root {
-        --primary-color: #34c759;
-        --secondary-color: #2aa648;
-        --card-bg: rgba(255, 255, 255, 0.2);
-        --overlay-color: rgba(0, 0, 0, 0.5);
-    }
+    <title>Tenant Dashboard - PropertyPayTrack</title>
 
-    body {
-        font-family: 'Roboto', sans-serif;
-        margin: 0;
-        padding: 0;
-        color: #fff;
-        background: url('https://images.pexels.com/photos/3075993/pexels-photo-3075993.jpeg') no-repeat center center fixed;
-        background-size: cover;
-        position: relative;
-    }
-
-    .overlay {
-        background: var(--overlay-color);
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        z-index: 0;
-    }
-
-    .dashboard-container {
-        position: relative;
-        z-index: 1;
-        padding: 60px 15px;
-        min-height: 100vh;
-    }
-
-    h1 {
-        font-family: 'Playfair Display', serif;
-        font-size: 2.5rem;
-        color: var(--primary-color);
-        margin-bottom: 30px;
-    }
-
-    .card {
-        background-color: var(--card-bg);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        color: #fff;
-    }
-
-    .card-header {
-        background: transparent;
-        font-weight: 600;
-        font-size: 1.2rem;
-    }
-
-    .card-body p {
-        margin-bottom: 10px;
-    }
-
-    .table th, .table td {
-        color: #fff;
-        background-color: transparent;
-    }
-
-    .btn-success {
-        background-color: var(--primary-color);
-        border: none;
-        padding: 12px 25px;
-        font-weight: bold;
-    }
-
-    .btn-success:hover {
-        background-color: var(--secondary-color);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        transform: translateY(-2px);
-    }
-
-    @media (max-width: 768px) {
-        h1 {
-            font-size: 1.8rem;
+    <style>
+        :root {
+            --primary-color: #10b981;
+            --primary-dark: #059669;
+            --secondary-color: #6366f1;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .card-header {
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-gradient);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        /* Custom styles for Lucide Icons */
+        .lucide-icon {
+            width: 1.25rem; /* Equivalent to w-5 */
+            height: 1.25rem; /* Equivalent to h-5 */
+        }
+
+        /* Navigation Specific Styles (matching Tailwind classes for clarity) */
+        nav {
+            background-color: rgba(255, 255, 255, 0.8); /* bg-white/80 */
+            -webkit-backdrop-filter: blur(10px); /* backdrop-blur-md for older browsers */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        nav .max-w-7xl {
+            max-width: 80rem; /* max-w-7xl */
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+        }
+        @media (min-width: 640px) { /* sm:px-6 */
+            nav .max-w-7xl {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+        @media (min-width: 1024px) { /* lg:px-8 */
+            nav .max-w-7xl {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        nav .flex {
+            display: flex;
+        }
+        nav .justify-between {
+            justify-content: space-between;
+        }
+        nav .h-16 {
+            height: 4rem; /* h-16 */
+        }
+
+        nav .items-center {
+            align-items: center;
+        }
+        nav .space-x-4 > *:not(:first-child) {
+            margin-left: 1rem; /* space-x-4 */
+        }
+        nav .space-x-6 > *:not(:first-child) {
+            margin-left: 1.5rem; /* space-x-6 */
+        }
+
+        nav .text-xl {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+        }
+        nav .font-semibold {
+            font-weight: 600;
+        }
+        nav .text-gray-800 {
+            color: #1f2937;
+        }
+        
+        /* REPT Branding Specifics */
+        .navbar-brand-rept span {
+            color: #1f2937; /* Default text color */
+        }
+
+        /* Nav links (desktop) */
+        nav .text-gray-700 {
+            color: #374151;
+        }
+        nav .hover\:text-indigo-600:hover {
+            color: #4f46e5;
+        }
+        nav .transition {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        /* Logout button (desktop) */
+        nav .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        nav .text-white {
+            color: #ffffff;
+        }
+        nav .bg-indigo-600 {
+            background-color: #4f46e5;
+        }
+        nav .hover\:bg-indigo-700:hover {
+            background-color: #4338ca;
+        }
+        nav .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        nav .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        nav .rounded-lg {
+            border-radius: 0.5rem;
+        }
+
+        /* Mobile specific classes */
+        nav .hidden {
+            display: none;
+        }
+        @media (min-width: 768px) { /* md:flex */
+            nav .md\:flex {
+                display: flex;
+            }
+            nav .md\:inline-block {
+                display: inline-block;
+            }
+            nav .md\:hidden {
+                display: none;
+            }
+        }
+
+        /* Mobile menu */
+        #mobileMenu {
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+            padding-bottom: 1rem; /* pb-4 */
+            border-top: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        #mobileMenu a {
+            display: block;
+            padding-top: 0.5rem; /* py-2 */
+            padding-bottom: 0.5rem; /* py-2 */
+        }
+        
+        .dashboard-container {
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-header {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .welcome-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .welcome-subtitle {
+            color: #6b7280;
+            font-size: 1.125rem;
+            font-weight: 400;
+        }
+
+        .enhanced-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+            height: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .enhanced-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-header-enhanced {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1f2937;
             font-size: 1rem;
         }
-    }
-</style>
-{% endblock %}
 
-{% block content %}
-<div class="overlay"></div>
-<div class="dashboard-container">
-    <div class="container">
-        <h1 data-aos="fade-down"><i class="fas fa-user-check"></i> {{ _('Welcome,') }} {{ current_user.first_name }} {{ current_user.last_name }}</h1>
+        .table-enhanced {
+            background: transparent;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
 
-        <div class="row g-4 mb-4">
-            <div class="col-md-6" data-aos="fade-up">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-home me-2"></i>{{ _('My Property') }}
-                    </div>
-                    <div class="card-body">
-                        {% if tenant.unit and tenant.property %}
-                            <p><strong>{{ _('Property Name:') }}</strong> {{ tenant.property.name }}</p>
-                            <p><strong>{{ _('Address:') }}</strong> {{ tenant.property.address }}</p>
-                            <p><strong>{{ _('Type:') }}</strong> {{ tenant.property.property_type }}</p>
-                            <p><strong>{{ _('Unit:') }}</strong> {{ tenant.unit.unit_number }}</p>
-                        {% else %}
-                            <p class="text-muted">{{ _('You are not assigned to a property yet.') }}</p>
-                        {% endif %}
-                    </div>
+        .table-enhanced th {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1f2937;
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table-enhanced td {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .table-enhanced tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .btn-enhanced {
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary-enhanced {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .btn-secondary-enhanced {
+            background: linear-gradient(135deg, var(--secondary-color), #4f46e5);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .progress-enhanced {
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar-enhanced {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            transition: var(--transition);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-description {
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .dashboard-header {
+                padding: 1.5rem;
+            }
+
+            .enhanced-card {
+                padding: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-enhanced {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .table-responsive {
+                border-radius: var(--border-radius);
+                overflow: hidden;
+            }
+
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            animation: ripple-animation 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('main.tenant_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800 navbar-brand-rept">
+                        <i data-lucide="home" class="lucide-icon"></i>
+                        <span>REPT</span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">My Profile</a>
+                    <a href="{{ url_for('main.tenant_make_payment') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+                    
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-sm text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                    <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+                        <i data-lucide="menu" class="lucide-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="md:hidden hidden px-4 pb-4">
+            <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">My Profile</a>
+            <a href="{{ url_for('main.tenant_make_payment') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+           
+            <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="container-fluid">
+            <div class="dashboard-header" data-aos="fade-down">
+                <div class="welcome-title">
+                    <i class="fas fa-user-check"></i>
+                    {{ _('Welcome,') }} {{ current_user.first_name }} {{ current_user.last_name }}!
+                </div>
+                <div class="welcome-subtitle">
+                    {{ _('Manage your property and payments from your personalized dashboard') }}
                 </div>
             </div>
 
-            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-calendar-alt me-2"></i>{{ _('My Rent Due Info') }}
+            <div class="quick-stats" data-aos="fade-up">
+                <div class="stat-card">
+                    <div class="stat-value">
+                        {% if tenant.rent_amount %}
+                            KSh {{ tenant.rent_amount|floatformat(0) }}
+                        {% else %}
+                            --
+                        {% endif %}
                     </div>
-                    <div class="card-body">
+                    <div class="stat-label">{{ _('Monthly Rent') }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">
                         {% if tenant.due_day_of_month %}
-                            <p><strong>{{ _('Rent Amount:') }}</strong> KSh {{ tenant.rent_amount|floatformat(2) }}</p>
-                            <p><strong>{{ _('Due Every Month On:') }}</strong> {{ tenant.due_day_of_month }}</p>
-                            <p><strong>{{ _('Grace Period:') }}</strong> {{ tenant.grace_period_days or 0 }} {{ _('days') }}</p>
+                            {{ tenant.due_day_of_month }}
                         {% else %}
-                            <p class="text-muted">{{ _('Rent details not configured yet.') }}</p>
+                            --
                         {% endif %}
                     </div>
+                    <div class="stat-label">{{ _('Due Date') }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">
+                        {{ tenant.grace_period_days or 0 }}
+                    </div>
+                    <div class="stat-label">{{ _('Grace Period (Days)') }}</div>
                 </div>
             </div>
-        </div>
 
-        <div class="row" data-aos="fade-up" data-aos-delay="200">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-building me-2"></i>{{ _('Available Properties for Leasing') }}
-                    </div>
-                    <div class="card-body p-0">
-                        {% if available_properties %}
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>{{ _('Name') }}</th>
-                                        <th>{{ _('Address') }}</th>
-                                        <th>{{ _('Type') }}</th>
-                                        <th>{{ _('Units Available') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for prop in available_properties %}
-                                    <tr>
-                                        <td>{{ prop.name }}</td>
-                                        <td>{{ prop.address }}</td>
-                                        <td>{{ prop.property_type }}</td>
-                                        <td>{{ prop.units_available }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="enhanced-card">
+                        <div class="card-header-enhanced">
+                            <div class="card-icon" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title">{{ _('My Property') }}</h3>
+                            </div>
                         </div>
+
+                        {% if tenant.unit and tenant.property %}
+                            <div class="status-badge status-active">
+                                <i class="fas fa-check-circle"></i>
+                                {{ _('Active Tenant') }}
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">{{ _('Property Name') }}</span>
+                                <span class="info-value">{{ tenant.property.name }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">{{ _('Address') }}</span>
+                                <span class="info-value">{{ tenant.property.address }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">{{ _('Property Type') }}</span>
+                                <span class="info-value">{{ tenant.property.property_type }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">{{ _('Unit Number') }}</span>
+                                <span class="info-value">#{{ tenant.unit.unit_number }}</span>
+                            </div>
                         {% else %}
-                        <div class="p-3 text-muted text-center">{{ _('No available properties at the moment.') }}</div>
+                            <div class="status-badge status-pending">
+                                <i class="fas fa-clock"></i>
+                                {{ _('Pending Assignment') }}
+                            </div>
+
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="empty-state-title">{{ _('No Property Assigned') }}</div>
+                                <div class="empty-state-description">
+                                    {{ _('You are not currently assigned to a property. Please contact your property manager.') }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="enhanced-card">
+                        <div class="card-header-enhanced">
+                            <div class="card-icon" style="background: linear-gradient(135deg, var(--secondary-color), #4f46e5);">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title">{{ _('Rent Details') }}</h3>
+                            </div>
+                        </div>
+
+                        {% if tenant.due_day_of_month %}
+                            <div class="status-badge status-active">
+                                <i class="fas fa-info-circle"></i>
+                                {{ _('Configured') }}
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">{{ _('Monthly Amount') }}</span>
+                                <span class="info-value">KSh {{ tenant.rent_amount|floatformat(2) }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">{{ _('Due Date') }}</span>
+                                <span class="info-value">{{ tenant.due_day_of_month }}{{ _('th of each month') }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">{{ _('Grace Period') }}</span>
+                                <span class="info-value">{{ tenant.grace_period_days or 0 }} {{ _('days') }}</span>
+                            </div>
+                        {% else %}
+                            <div class="status-badge status-pending">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                {{ _('Pending Setup') }}
+                            </div>
+
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-calendar-times"></i>
+                                </div>
+                                <div class="empty-state-title">{{ _('Rent Not Configured') }}</div>
+                                <div class="empty-state-description">
+                                    {{ _('Your rent details have not been set up yet. Please contact your property manager.') }}
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="text-center mt-4" data-aos="zoom-in">
-            <a href="{{ url_for('main.tenant_make_payment') }}" class="btn btn-success">
-                <i class="fas fa-credit-card me-2"></i> {{ _('Pay Now') }}
-            </a>
+            <div class="row" data-aos="fade-up" data-aos-delay="300">
+                <div class="col-12">
+                    <div class="enhanced-card">
+                        <div class="card-header-enhanced">
+                            <div class="card-icon" style="background: linear-gradient(135deg, var(--info-color), #1d4ed8);">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title">{{ _('Available Properties for Leasing') }}</h3>
+                            </div>
+                        </div>
+
+                        {% if available_properties %}
+                            <div class="table-responsive">
+                                <table class="table table-enhanced">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ _('Property Name') }}</th>
+                                            <th>{{ _('Location') }}</th>
+                                            <th>{{ _('Type') }}</th>
+                                            <th>{{ _('Available Units') }}</th>
+                                            <th>{{ _('Action') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for prop in available_properties %}
+                                        <tr>
+                                            <td>
+                                                <div class="fw-semibold">{{ prop.name }}</div>
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                                                {{ prop.address }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">{{ prop.property_type }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">{{ prop.units_available }} {{ _('available') }}</span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> {{ _('View') }}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="empty-state-title">{{ _('No Properties Available') }}</div>
+                                <div class="empty-state-description">
+                                    {{ _('There are currently no properties available for leasing. Check back later for new listings.') }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons" data-aos="zoom-in" data-aos-delay="400">
+                <a href="{{ url_for('main.tenant_make_payment') }}" class="btn btn-primary-enhanced btn-enhanced">
+                    <i class="fas fa-credit-card"></i>
+                    {{ _('Make Payment') }}
+                </a>
+
+                <a href="#" class="btn btn-secondary-enhanced btn-enhanced">
+                    <i class="fas fa-history"></i>
+                    {{ _('Payment History') }}
+                </a>
+
+                <a href="#" class="btn btn-secondary-enhanced btn-enhanced">
+                    <i class="fas fa-file-invoice"></i>
+                    {{ _('Download Receipts') }}
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>AOS.init({ duration: 1200 });</script>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Enhanced Card hover effects
+            const cards = document.querySelectorAll('.enhanced-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Button ripple effect
+            const buttons = document.querySelectorAll('.btn-enhanced');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+
+                    this.appendChild(ripple);
+
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

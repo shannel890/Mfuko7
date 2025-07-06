@@ -139,7 +139,27 @@ def landlord_dashboard():
             'vacancy_rate': 0.00,
             'recent_transactions': 0
         }
-        recent_payments = []
+        recent_payments = [{
+            'tenant': 'Sarah Wanjiku',
+            'property': 'Green Valley Apt 2B',
+            'amount': 'KSh 25,000',
+            'date': 'Dec 1, 2024',
+            'status': 'paid'
+        },
+        {
+            'tenant': 'John Kimani',
+            'property': 'Sunset Heights 5A',
+            'amount': 'KSh 30,000',
+            'date': 'Nov 30, 2024',
+            'status': 'paid'
+        },
+        {
+            'tenant': 'Grace Achieng',
+            'property': 'Palm Court 1C',
+            'amount': 'KSh 20,000',
+            'date': 'Nov 29, 2024',
+            'status': 'overdue'
+        }]
         landlord_tenants = []  # Initialize for later use
         landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
         landlord_property_ids = [p.id for p in landlord_properties]
@@ -212,6 +232,9 @@ def landlord_dashboard():
             ).join(Tenant).order_by(Payment.payment_date.desc()).limit(5).all()
 
             for payment in recent_payments_query:
+                if isinstance(payment.payment_date, str):
+                    payment.payment_date = datetime.strptime(payment.payment_date, "%Y-%m-%d")  # or adjust format
+                payment.formatted_date = payment.payment_date.strftime("%d/%m/%Y")
                 tenant = payment.tenant
                 if not tenant:
                     continue
