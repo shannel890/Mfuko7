@@ -80,6 +80,7 @@ class County(db.Model):
 
 class Property(db.Model):
     __tablename__ = 'property'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     address = db.Column(db.String(255), nullable=False)
@@ -88,6 +89,7 @@ class Property(db.Model):
     paybill_number = db.Column(db.String(20), nullable=True)  
     fees = db.Column(db.Numeric(10, 2), nullable=True)  
     tenants = db.relationship('Tenant', back_populates='property', cascade="all, delete-orphan", lazy=True)
+
     status = db.Column(db.String(20), default='pending')
     property_type = db.Column(db.String(50), nullable=False)
     number_of_units = db.Column(db.Integer, nullable=False, default=1)
@@ -96,12 +98,13 @@ class Property(db.Model):
     amenities = db.Column(db.Text, nullable=True)
     utility_bill_types = db.Column(db.Text, nullable=True)
     unit_numbers = db.Column(db.Text, nullable=False)
-    paybill_number = db.Column(db.String(20), nullable=True)
     deposit_amount = db.Column(db.Numeric(10, 2), nullable=True)
     deposit_policy = db.Column(db.Text, nullable=True)
+
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
+    units = db.relationship('Unit', back_populates='property', lazy=True)  # 🔄 Use back_populates here
     @property
     def amenities_list(self):
         try:
@@ -164,14 +167,14 @@ class Unit(db.Model):
     bathrooms = db.Column(db.Integer, nullable=True)
     size_sqft = db.Column(db.Integer, nullable=True)
     status = db.Column(db.String(50), default='vacant')
-
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenant.id'), nullable=True) 
     property_id = db.Column(db.Integer, db.ForeignKey('property.id', ondelete='CASCADE'), nullable=False, index=True)
 
-
-    property = db.relationship('Property', backref='units')
+    property = db.relationship('Property', back_populates='units')  # 🔄 Use back_populates here
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
 
     def __repr__(self):
         return f'<Unit {self.unit_number}>'

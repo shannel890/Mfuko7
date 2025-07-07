@@ -1,57 +1,361 @@
-{% extends 'base.html' %}
-{% block title %}{{ _('Add/Edit Property') }} - REPT{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm p-4">
-            <h2 class="mb-4 text-center">{{ _('Property Details') }}</h2>
-            <form method="POST" novalidate>
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    {{ form.name.label(class_="form-label") }}
-                    {{ form.name(class_="form-control") }}
-                    {% for error in form.name.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
-                </div>
-                 <div>
-                    {{ form.county.label }}<br>
-                    {{ form.county(size=40) }}
-                    {% for error in form.county.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                    {% endfor %}
-                </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ _('Property Details') }}</title>
 
-                <div class="mb-3">
-                    {{ form.unit_numbers.label(class="form-label") }}
-                    {{ form.unit_numbers() }}
-                    {% for error in form.unit_numbers.errors %}
-                        <div class="text-danger">{{ error }}</div>
-                    {% endfor %}
-                </div>
-                <div class="mb-3">
-                    {{ form.address.label(class_="form-label") }}
-                    {{ form.address(class_="form-control") }}
-                    {% for error in form.address.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
-                </div>
-                <div class="form-group">
-                    {{ form.payment_method.label(class="form-label") }}
-                    {{ form.payment_method(class="form-control") }}
-                </div>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-                <div class="mb-3">
-                    {{ form.property_type.label(class_="form-label") }}
-                    {{ form.property_type(class_="form-select") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.number_of_units.label(class_="form-label") }}
-                    {{ form.number_of_units(class_="form-control") }}
-                </div>
-                <button type="submit" class="btn btn-primary w-100">{{ _('Save Property') }}</button>
-            </form>
+  <style>
+    :root {
+      --primary: 142 76% 36%;
+      --primary-foreground: 0 0% 98%;
+      --secondary: 25 95% 53%;
+      --accent: 43 74% 49%;
+      --background: 0 0% 100%;
+      --card: 0 0% 100%;
+      --muted: 210 40% 96.1%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+      --border: 214.3 31.8% 91.4%;
+      --destructive: 0 84.2% 60.2%;
+      --foreground: 222 47% 11%;
+    }
+
+    .form-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.75rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 42rem;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.5rem;
+      background: hsl(var(--background));
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: hsl(var(--primary));
+      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 6rem;
+    }
+
+    .btn-primary {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      font-size: 1rem;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: hsl(var(--primary) / 0.9);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: hsl(var(--muted-foreground));
+      border: 1px solid hsl(var(--border));
+      padding: 0.75rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-secondary:hover {
+      background: hsl(var(--muted));
+      border-color: hsl(var(--primary));
+    }
+
+    .error-message {
+      color: hsl(var(--destructive));
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .form-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: hsl(var(--muted-foreground));
+      font-size: 1rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 1rem 0.5rem;
+      }
+
+      .form-card {
+        padding: 1.5rem;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .btn-secondary {
+        width: 100%;
+      }
+    }
+
+    .input-icon {
+      position: relative;
+    }
+
+    .input-icon i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: hsl(var(--muted-foreground));
+    }
+
+    .input-icon .form-input {
+      padding-left: 2.5rem;
+    }
+  </style>
+</head>
+
+<body>
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
+              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+            </a>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
+            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
+            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
+            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
+
+            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+              <i data-lucide="menu" class="lucide-icon"></i>
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
+        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
+        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
+        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
+        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+      </div>
+    </nav>
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">{{ _('Property Details') }}</h1>
+      <p class="page-subtitle">{{ _('Add or edit property information') }}</p>
     </div>
-</div>
-{% endblock %}
+
+    <div class="form-card">
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-row">
+          <div class="form-group">
+            {{ form.name.label(class_="form-label") }}
+            <div class="input-icon">
+              <i class="fas fa-building"></i>
+              {{ form.name(class_="form-input", placeholder=_("Enter property name")) }}
+            </div>
+            {% for error in form.name.errors %}
+              <div class="error-message">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="form-group">
+            {{ form.property_type.label(class_="form-label") }}
+            {{ form.property_type(class_="form-select") }}
+            {% for error in form.property_type.errors %}
+              <div class="error-message">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          {{ form.address.label(class_="form-label") }}
+          <div class="input-icon">
+            <i class="fas fa-map-marker-alt"></i>
+            {{ form.address(class_="form-input", placeholder=_("Enter full address")) }}
+          </div>
+          {% for error in form.address.errors %}
+            <div class="error-message">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            {{ form.county.label(class_="form-label") }}
+            <div class="input-icon">
+              <i class="fas fa-map"></i>
+              {{ form.county(class_="form-input", placeholder=_("Select county")) }}
+            </div>
+            {% for error in form.county.errors %}
+              <div class="error-message">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="form-group">
+            {{ form.number_of_units.label(class_="form-label") }}
+            <div class="input-icon">
+              <i class="fas fa-home"></i>
+              {{ form.number_of_units(class_="form-input", placeholder=_("Number of units")) }}
+            </div>
+            {% for error in form.number_of_units.errors %}
+              <div class="error-message">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            {{ form.unit_numbers.label(class_="form-label") }}
+            <div class="input-icon">
+              <i class="fas fa-list-ol"></i>
+              {{ form.unit_numbers(class_="form-input", placeholder=_("e.g., 1A, 1B, 2A, 2B")) }}
+            </div>
+            {% for error in form.unit_numbers.errors %}
+              <div class="error-message">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="form-group">
+            {{ form.payment_method.label(class_="form-label") }}
+            {{ form.payment_method(class_="form-select") }}
+            {% for error in form.payment_method.errors %}
+              <div class="error-message">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-save mr-2"></i>{{ _('Save Property') }}
+          </button>
+          <a href="{{ url_for('main.properties_list') }}" class="btn-secondary">
+            <i class="fas fa-times mr-2"></i>{{ _('Cancel') }}
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Form validation feedback
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.querySelector('form');
+      const inputs = form.querySelectorAll('.form-input, .form-select');
+
+      inputs.forEach(input => {
+        input.addEventListener('blur', function () {
+          validateField(this);
+        });
+
+        input.addEventListener('input', function () {
+          if (this.classList.contains('error')) {
+            validateField(this);
+          }
+        });
+      });
+
+      function validateField(field) {
+        const value = field.value.trim();
+        const isRequired = field.hasAttribute('required');
+
+        if (isRequired && !value) {
+          field.style.borderColor = 'hsl(var(--destructive))';
+          field.classList.add('error');
+        } else {
+          field.style.borderColor = 'hsl(var(--border))';
+          field.classList.remove('error');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

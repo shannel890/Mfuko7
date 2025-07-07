@@ -1,171 +1,419 @@
-{% extends "base.html" %}
-{% block title %}Make Payment | REPT{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Properties | PropertyPayTrack</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  />
+<style>
+    /* Enhanced CSS Styles */
+    .bg-glass {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+    }
 
-{% block content %}
-<div class="container mt-5 mb-5">
+    .form-control, .form-select {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 0 0.25rem rgba(52, 199, 89, 0.25);
+        border-color: #34c759;
+        transform: translateY(-1px);
+    }
+
+    .input-group-text {
+        background-color: rgba(52, 199, 89, 0.1);
+        border-color: rgba(0, 0, 0, 0.1);
+        color: #34c759;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #34c759, #2aa648);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2aa648, #228b3b);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(52, 199, 89, 0.3);
+    }
+
+    .btn-primary:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-outline-secondary {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        transform: translateY(-1px);
+    }
+
+    .alert {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        border-radius: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+
+    .form-check-input:checked {
+        background-color: #34c759;
+        border-color: #34c759;
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(52, 199, 89, 0.25);
+    }
+
+    .text-primary {
+        color: #34c759 !important;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .transaction-id-field {
+        animation: fadeInUp 0.3s ease;
+    }
+
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 2rem !important;
+        }
+        
+        .form-control-lg, .form-select-lg {
+            padding: 0.75rem 1rem;
+        }
+        
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+        }
+    }
+
+    /* Loading state */
+    .btn-primary:disabled {
+        cursor: not-allowed;
+    }
+
+    /* Tooltip custom styling */
+    .tooltip-inner {
+        background-color: #34c759;
+        border-radius: 8px;
+    }
+
+    .tooltip.bs-tooltip-top .tooltip-arrow::before {
+        border-top-color: #34c759;
+    }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen transition-colors duration-300">
+  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <a href="{{ url_for('main.landlord_dashboard') }}" class="text-xl font-bold text-indigo-600">
+          <span class="text-green-500">Property</span><span class="text-yellow-500">Pay</span><span class="text-pink-500">Track</span>
+        </a>
+        <div class="hidden md:flex space-x-6">
+          <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-pink-600">Dashboard</a>
+          <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-pink-600">Properties</a>
+          <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-pink-600">Tenants</a>
+          <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-pink-600">Payments</a>
+          <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-pink-600">Assign</a>
+          <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-pink-600">Profile</a>
+        </div>
+        <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-pink-600">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-7 col-md-9">
 
+            <!-- Rent Information Card -->
             {% if tenant.rent_amount and due_date %}
-            <div class="card bg-light border-0 shadow-sm mb-4">
+            <div class="card bg-light border-0 shadow-sm mb-4" data-aos="fade-up">
                 <div class="card-body">
-                    {% if tenant.rent_amount and due_date %}
-                        <ul>
-                            <li><strong>Monthly Rent:</strong> KES {{ "%.2f"|format(tenant.rent_amount) }}</li>
-                            <li><strong>Rent Due Date:</strong> {{ due_date.strftime('%d %B, %Y') }}</li>
+                    <h5 class="card-title text-primary mb-3">
+                        <i class="fas fa-home me-2"></i>Rent Information
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>Monthly Rent:</strong> KES {{ "%.2f"|format(tenant.rent_amount) }}</p>
+                            <p class="mb-2"><strong>Rent Due Date:</strong> {{ due_date.strftime('%d %B, %Y') }}</p>
+                        </div>
+                        <div class="col-md-6">
                             {% if lease_start_date %}
-                            <li><strong>Lease Start:</strong> {{ lease_start_date.strftime('%d %b %Y') }}</li>
+                            <p class="mb-2"><strong>Lease Start:</strong> {{ lease_start_date.strftime('%d %b %Y') }}</p>
                             {% endif %}
                             {% if lease_end_date %}
-                            <li><strong>Lease End:</strong> {{ lease_end_date.strftime('%d %b %Y') }}</li>
+                            <p class="mb-2"><strong>Lease End:</strong> {{ lease_end_date.strftime('%d %b %Y') }}</p>
                             {% endif %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted">Rent details not configured yet.</p>
-                    {% endif %}
+                        </div>
+                    </div>
                 </div>
-
             </div>
             {% else %}
-            <div class="alert alert-warning text-center fw-semibold">
-                Rent details not configured yet.
+            <div class="alert alert-warning text-center fw-semibold" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Rent details not configured yet. Please contact your landlord.
             </div>
             {% endif %}
 
-            <div class="card border-0 shadow-sm bg-glass" data-aos="fade-up">
+            <!-- Payment Form -->
+            <div class="card border-0 shadow-lg bg-glass" data-aos="fade-up" data-aos-delay="100">
                 <div class="card-body p-5">
-                    <h2 class="text-center fw-bold mb-4 text-primary">Make Monthly Payment</h2>
+                    <h2 class="text-center fw-bold mb-4 text-primary">
+                        <i class="fas fa-credit-card me-2"></i>Make Monthly Payment
+                    </h2>
 
+                    <!-- Amount Due Display -->
                     {% if amount_due is not none %}
-                        <p class="text-success text-center fs-5 mb-4">
-                            Amount Due: <strong>KSh {{ "%.2f"|format(amount_due) }}</strong>
-                        </p>
+                        <div class="alert alert-success text-center mb-4" role="alert">
+                            <h5 class="mb-0">
+                                <i class="fas fa-money-bill-wave me-2"></i>
+                                Amount Due: <strong>KSh {{ "%.2f"|format(amount_due) }}</strong>
+                            </h5>
+                        </div>
                     {% else %}
-                        <p class="text-danger text-center fs-5 mb-4">
-                            Amount Due: <strong>Unavailable</strong>
-                        </p>
+                        <div class="alert alert-danger text-center mb-4" role="alert">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Amount Due: <strong>Unavailable</strong>
+                            </h5>
+                        </div>
                     {% endif %}
 
-                    <form method="POST" novalidate>
+                    <form method="POST" novalidate id="paymentForm">
                         {{ form.hidden_tag() }}
 
+                        <!-- Amount Field -->
                         <div class="mb-4">
                             {{ form.amount.label(class="form-label fw-semibold") }}
-                            {{ form.amount(class="form-control form-control-lg", placeholder="Enter amount") }}
+                            <div class="input-group">
+                                <span class="input-group-text">KSh</span>
+                                {{ form.amount(class="form-control form-control-lg", placeholder="Enter amount", 
+                                   **{"data-bs-toggle": "tooltip", "data-bs-placement": "top", 
+                                      "title": "Enter the amount you want to pay"}) }}
+                            </div>
                             {% if form.amount.errors %}
                                 <div class="text-danger mt-1">
                                     {% for error in form.amount.errors %}
-                                        <small>{{ error }}</small>
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
 
+                        <!-- Payment Method -->
                         <div class="mb-4">
                             {{ form.payment_method.label(class="form-label fw-semibold") }}
-                            {{ form.payment_method(class="form-select form-select-lg") }}
+                            {{ form.payment_method(class="form-select form-select-lg", 
+                               **{"data-bs-toggle": "tooltip", "data-bs-placement": "top", 
+                                  "title": "Select your preferred payment method"}) }}
                             {% if form.payment_method.errors %}
                                 <div class="text-danger mt-1">
                                     {% for error in form.payment_method.errors %}
-                                        <small>{{ error }}</small>
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
 
-                        <div class="mb-4">
-                            {% if form.is_offline.data %}
-                            <div class="mb-4 transaction-id-field">
-                                {{ form.transaction_id.label(class="form-label fw-semibold") }}
-                                {{ form.transaction_id(class="form-control form-control-lg", placeholder="Enter M-Pesa code") }}
-                            </div>
-                            {% endif %}
-
-                            {% if form.transaction_id.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.transaction_id.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-4">
-                            {{ form.payment_date.label(class="form-label fw-semibold") }}
-                            {{ form.payment_date(class="form-control form-control-lg", type="date") }}
-                            {% if form.payment_date.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.payment_date.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-4">
-                            {{ form.description.label(class="form-label fw-semibold") }}
-                            {{ form.description(class="form-control form-control-lg", placeholder="Enter description (optional)", rows="3") }}
-                            {% if form.description.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.description.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
+                        <!-- Offline Payment Toggle -->
                         <div class="form-check mb-4">
                             {{ form.is_offline(class="form-check-input", id="is_offline") }}
                             {{ form.is_offline.label(class="form-check-label fw-semibold", for="is_offline") }}
+                            <small class="form-text text-muted d-block">
+                                Check this if you've already made the payment and want to record it
+                            </small>
                             {% if form.is_offline.errors %}
                                 <div class="text-danger mt-1">
                                     {% for error in form.is_offline.errors %}
-                                        <small>{{ error }}</small>
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
 
-                        <div class="mb-4">
-                            {{ form.paybill_number.label(class="form-label fw-semibold") }}
-                            {{ form.paybill_number(class="form-control form-control-lg", placeholder="Enter PayBill Number (if any)") }}
-                            {% if form.paybill_number.errors %}
+                        <!-- Transaction ID Field (conditionally shown) -->
+                        <div class="mb-4 transaction-id-field" style="display: none;">
+                            {{ form.transaction_id.label(class="form-label fw-semibold") }}
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                                {{ form.transaction_id(class="form-control form-control-lg", 
+                                   placeholder="Enter M-Pesa confirmation code") }}
+                            </div>
+                            {% if form.transaction_id.errors %}
                                 <div class="text-danger mt-1">
-                                    {% for error in form.paybill_number.errors %}
-                                        <small>{{ error }}</small>
+                                    {% for error in form.transaction_id.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
 
+                        <!-- Payment Date -->
                         <div class="mb-4">
-                            {{ form.fees.label(class="form-label fw-semibold") }}
-                            {{ form.fees(class="form-control form-control-lg", placeholder="Enter transaction fees (if applicable)") }}
-                            {% if form.fees.errors %}
+                            {{ form.payment_date.label(class="form-label fw-semibold") }}
+                            {{ form.payment_date(class="form-control form-control-lg", type="date", 
+                               **{"data-bs-toggle": "tooltip", "data-bs-placement": "top", 
+                                  "title": "Select the date when payment was made"}) }}
+                            {% if form.payment_date.errors %}
                                 <div class="text-danger mt-1">
-                                    {% for error in form.fees.errors %}
-                                        <small>{{ error }}</small>
+                                    {% for error in form.payment_date.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
 
+                        <!-- Description -->
                         <div class="mb-4">
-                            {{ form.offline_reference.label(class="form-label fw-semibold") }}
-                            {{ form.offline_reference(class="form-control form-control-lg", placeholder="Enter offline reference (if applicable)") }}
-                            {% if form.offline_reference.errors %}
+                            {{ form.description.label(class="form-label fw-semibold") }}
+                            {{ form.description(class="form-control form-control-lg", 
+                               placeholder="Enter description (optional)", rows="3",
+                               **{"data-bs-toggle": "tooltip", "data-bs-placement": "top", 
+                                  "title": "Add any additional notes about this payment"}) }}
+                            <small class="form-text text-muted">Optional: Add any notes about this payment</small>
+                            {% if form.description.errors %}
                                 <div class="text-danger mt-1">
-                                    {% for error in form.offline_reference.errors %}
-                                        <small>{{ error }}</small>
+                                    {% for error in form.description.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
 
-                        <div class="d-grid mt-1">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane me-2"></i> Submit Payment
+                        <!-- Expandable Additional Details -->
+                        <div class="mb-4">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                    data-bs-toggle="collapse" data-bs-target="#additionalDetails" 
+                                    aria-expanded="false" aria-controls="additionalDetails">
+                                <i class="fas fa-plus me-2"></i>Additional Details (Optional)
                             </button>
+                        </div>
+
+                        <div class="collapse mb-4" id="additionalDetails">
+                            <div class="card card-body bg-light">
+                                <!-- PayBill Number -->
+                                <div class="mb-3">
+                                    {{ form.paybill_number.label(class="form-label fw-semibold") }}
+                                    {{ form.paybill_number(class="form-control", 
+                                       placeholder="Enter PayBill Number (if any)") }}
+                                    {% if form.paybill_number.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in form.paybill_number.errors %}
+                                                <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Fees -->
+                                <div class="mb-3">
+                                    {{ form.fees.label(class="form-label fw-semibold") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">KSh</span>
+                                        {{ form.fees(class="form-control", 
+                                           placeholder="Transaction fees (if applicable)") }}
+                                    </div>
+                                    {% if form.fees.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in form.fees.errors %}
+                                                <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Offline Reference -->
+                                <div class="mb-0">
+                                    {{ form.offline_reference.label(class="form-label fw-semibold") }}
+                                    {{ form.offline_reference(class="form-control", 
+                                       placeholder="Enter offline reference (if applicable)") }}
+                                    {% if form.offline_reference.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in form.offline_reference.errors %}
+                                                <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                <span class="btn-text">Submit Payment</span>
+                                <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                            </button>
+                        </div>
+
+                        <!-- Help Text -->
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Having trouble? <a href="{{url_for('main.contact')}}" class="text-primary">Contact Support</a>
+                            </small>
                         </div>
                     </form>
                 </div>
@@ -174,50 +422,113 @@
     </div>
 </div>
 
-<script>
-    const isOfflineCheckbox = document.querySelector('#is_offline');
-    const txnField = document.querySelector('.transaction-id-field');
+  <script>
+    // Enhanced JavaScript functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const isOfflineCheckbox = document.querySelector('#is_offline');
+        const txnField = document.querySelector('.transaction-id-field');
+        const form = document.querySelector('#paymentForm');
+        const submitBtn = document.querySelector('#submitBtn');
+        const spinner = submitBtn.querySelector('.spinner-border');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const additionalDetailsBtn = document.querySelector('[data-bs-target="#additionalDetails"]');
+        const additionalDetailsIcon = additionalDetailsBtn.querySelector('i');
 
-    function toggleTxnField() {
-        if (txnField) {
-            txnField.style.display = isOfflineCheckbox.checked ? 'block' : 'none';
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Toggle transaction ID field
+        function toggleTxnField() {
+            if (txnField) {
+                if (isOfflineCheckbox.checked) {
+                    txnField.style.display = 'block';
+                    txnField.style.animation = 'fadeInUp 0.3s ease';
+                } else {
+                    txnField.style.display = 'none';
+                }
+            }
         }
-    }
 
-    isOfflineCheckbox?.addEventListener('change', toggleTxnField);
-    window.addEventListener('DOMContentLoaded', toggleTxnField);
+        // Toggle additional details button icon
+        function toggleAdditionalDetailsIcon() {
+            const isExpanded = additionalDetailsBtn.getAttribute('aria-expanded') === 'true';
+            additionalDetailsIcon.className = isExpanded ? 'fas fa-minus me-2' : 'fas fa-plus me-2';
+        }
+
+        // Form validation
+        function validateForm() {
+            const amount = document.querySelector('#amount').value;
+            const paymentMethod = document.querySelector('#payment_method').value;
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showAlert('Please enter a valid amount', 'danger');
+                return false;
+            }
+            
+            if (!paymentMethod) {
+                showAlert('Please select a payment method', 'danger');
+                return false;
+            }
+            
+            if (isOfflineCheckbox.checked) {
+                const transactionId = document.querySelector('#transaction_id').value;
+                if (!transactionId) {
+                    showAlert('Please enter the transaction ID for offline payments', 'danger');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Form submission handler
+        form.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            btnText.textContent = 'Processing...';
+        });
+
+        // Event listeners
+        isOfflineCheckbox?.addEventListener('change', toggleTxnField);
+        additionalDetailsBtn?.addEventListener('click', toggleAdditionalDetailsIcon);
+        
+        // Initialize
+        toggleTxnField();
+        
+        // Set default payment date to today
+        const paymentDateField = document.querySelector('#payment_date');
+        if (paymentDateField && !paymentDateField.value) {
+            paymentDateField.value = new Date().toISOString().split('T')[0];
+        }
+    });
 </script>
-
-<style>
-    .bg-glass {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 16px;
-    }
-
-    .form-control, .form-select {
-        background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        transition: box-shadow 0.3s ease, border-color 0.3s ease;
-    }
-
-    .form-control:focus, .form-select:focus {
-        box-shadow: 0 0 0 0.25rem rgba(52, 199, 89, 0.25);
-        border-color: #34c759;
-    }
-
-    .btn-primary {
-        background-color: #34c759;
-        border: none;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        background-color: #2aa648;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
-    }
-</style>
-{% endblock %}
+</body>
+</html>

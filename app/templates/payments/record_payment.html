@@ -1,39 +1,879 @@
-{% extends 'base.html' %}
-{% block title %}{{ _('Record Payment') }} - REPT{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm p-4">
-            <h2 class="mb-4 text-center">{{ _('Record Payment') }}</h2>
-            <form method="POST" novalidate>
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    {{ form.tenant_id.label(class_="form-label") }}
-                    {{ form.tenant_id(class_="form-select") }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Payment - PropertyPayTrack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-orb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .gradient-orb-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: float 6s ease-in-out infinite reverse;
+        }
+
+        .gradient-orb-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .glassmorphism {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .dark .hover-lift:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shimmer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-gradient:hover::before {
+            opacity: 1;
+        }
+
+        .btn-gradient > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Form Styles */
+        .form-container {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 1024px) {
+            .form-container {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-card);
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .form-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: hsl(var(--primary) / 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: hsl(var(--primary));
+            font-size: 1.25rem;
+        }
+
+        .form-title-section {
+            flex: 1;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: hsl(var(--foreground));
+        }
+
+        .form-description {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-label i {
+            color: hsl(var(--primary));
+            width: 1rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.8);
+            transition: var(--transition-smooth);
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .modern-select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .amount-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency {
+            position: absolute;
+            left: 1rem;
+            color: hsl(var(--muted-foreground));
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .amount-input {
+            padding-left: 3rem;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .tenant-info-display {
+            margin-top: 1rem;
+        }
+
+        .tenant-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: hsl(var(--primary) / 0.05);
+            border: 1px solid hsl(var(--primary) / 0.2);
+            border-radius: var(--radius);
+        }
+
+        .tenant-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background: hsl(var(--primary) / 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: hsl(var(--primary));
+        }
+
+        .tenant-name {
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.25rem;
+        }
+
+        .tenant-property,
+        .tenant-rent {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 0.125rem;
+        }
+
+        .quick-amounts {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: hsl(var(--accent) / 0.05);
+            border: 1px solid hsl(var(--accent) / 0.2);
+            border-radius: var(--radius);
+        }
+
+        .quick-amounts-header {
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .amount-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .amount-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid hsl(var(--accent));
+            background: transparent;
+            color: hsl(var(--accent));
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .amount-btn:hover {
+            background: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid hsl(var(--border));
+        }
+
+        .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid hsl(var(--border));
+            background: transparent;
+            color: hsl(var(--muted-foreground));
+            border-radius: var(--radius);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-secondary:hover {
+            background: hsl(var(--muted));
+            color: hsl(var(--foreground));
+        }
+
+        .form-error {
+            color: hsl(var(--destructive));
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .form-error::before {
+            content: "⚠";
+            font-size: 0.75rem;
+        }
+
+        .form-hint {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            height: fit-content;
+            top: 2rem;
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .summary-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .summary-header i {
+            color: hsl(var(--primary));
+            font-size: 1.25rem;
+        }
+
+        .summary-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-label {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .btn-primary-custom {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: var(--radius);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary-custom.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-primary-custom.loading::after {
+            content: "";
+            position: absolute;
+            width: 1rem;
+            height: 1rem;
+            top: 50%;
+            left: 50%;
+            margin-left: -0.5rem;
+            margin-top: -0.5rem;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .form-card {
+                padding: 1.5rem;
+            }
+
+            .form-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .form-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .summary-card {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
+              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+            </a>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
+            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
+            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
+            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
+
+            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+              <i data-lucide="menu" class="lucide-icon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
+        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
+        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
+        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
+        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+      </div>
+    </nav>
+    <div class="dashboard-container px-4 sm:px-6 lg:px-8 pt-8">
+        <!-- Header Section -->
+        <div class="relative bg-white dark:bg-gray-800 rounded-2xl card-shadow hover-lift p-8 mb-8 overflow-hidden group">
+            <div class="absolute -top-4 -left-4 w-24 h-24 gradient-orb rounded-full opacity-20 blur-xl"></div>
+            <div class="absolute -bottom-6 -right-6 w-32 h-32 gradient-orb-2 rounded-full opacity-15 blur-2xl"></div>
+            <div class="absolute top-1/2 left-1/4 w-16 h-16 gradient-orb-3 rounded-full opacity-10 blur-lg"></div>
+            <div class="absolute inset-0 opacity-5 dark:opacity-10">
+                <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.15) 1px, transparent 0); background-size: 20px 20px;"></div>
+            </div>
+            <div class="relative z-10 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                <div class="mb-6 sm:mb-0">
+                    <div class="flex items-center mb-2">
+                        <div class="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-4"></div>
+                        <h1 class="text-4xl font-bold text-gray-900 dark:text-white leading-tight text-gradient">
+                            Record Payment
+                        </h1>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 text-base font-medium ml-6">
+                        Add a new rental payment to the system
+                    </p>
+                    <div class="flex items-center mt-3 ml-6 text-sm text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-home mr-2"></i>
+                        <span>Dashboard</span>
+                        <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                        <span>Payments</span>
+                        <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                        <span class="text-blue-600 dark:text-blue-400 font-medium">Record Payment</span>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    {{ form.amount.label(class_="form-label") }}
-                    {{ form.amount(class_="form-control") }}
+                <div class="flex items-center space-x-3">
+                    <div class="hidden sm:flex items-center space-x-2">
+                        <button class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 group">
+                            <i class="fas fa-search text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"></i>
+                        </button>
+                        <button class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 group">
+                            <i class="fas fa-filter text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"></i>
+                        </button>
+                    </div>
+                    <a href="{{url_for('main.payments_history')}}" class="inline-flex items-center px-6 py-3 btn-gradient text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 shimmer">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <span>Back to History</span>
+                    </a>
                 </div>
-                <div class="mb-3">
-                    {{ form.payment_method.label(class_="form-label") }}
-                    {{ form.payment_method(class_="form-select") }}
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-20"></div>
+        </div>
+
+        <!-- Payment Form -->
+        <div class="form-container">
+            <div class="form-card hover-lift">
+                <div class="form-header">
+                    <div class="form-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="form-title-section">
+                        <h2 class="form-title">Payment Details</h2>
+                        <p class="form-description">Fill in the payment information below</p>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    {{ form.payment_date.label(class_="form-label") }}
-                    {{ form.payment_date(class_="form-control") }}
+                <form method="POST" novalidate class="payment-form" id="paymentForm">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="tenant_id" class="form-label">
+                                <i class="fas fa-user"></i>
+                                Tenant
+                            </label>
+                            <select name="tenant_id" id="tenantSelect" class="form-select modern-select">
+                                <option value="">Select a tenant</option>
+                                <!-- Tenant options would be populated dynamically -->
+                            </select>
+                            <div class="tenant-info-display" id="tenantInfo" style="display: none;">
+                                <div class="tenant-card">
+                                    <div class="tenant-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="tenant-details">
+                                        <div class="tenant-name" id="selectedTenantName"></div>
+                                        <div class="tenant-property" id="selectedTenantProperty"></div>
+                                        <div class="tenant-rent" id="selectedTenantRent"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount" class="form-label">
+                                <i class="fas fa-dollar-sign"></i>
+                                Amount
+                            </label>
+                            <div class="amount-input-wrapper">
+                                <span class="currency">KSh</span>
+                                <input type="number" name="amount" class="form-input amount-input" placeholder="0.00" step="0.01">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment_method" class="form-label">
+                                <i class="fas fa-credit-card"></i>
+                                Payment Method
+                            </label>
+                            <select name="payment_method" class="form-select modern-select">
+                                <option value="mpesa">M-Pesa</option>
+                                <option value="bank">Bank Transfer</option>
+                                <option value="cash">Cash</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment_date" class="form-label">
+                                <i class="fas fa-calendar"></i>
+                                Payment Date
+                            </label>
+                            <input type="date" name="payment_date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="transaction_id" class="form-label">
+                                <i class="fas fa-hashtag"></i>
+                                Transaction ID
+                            </label>
+                            <input type="text" name="transaction_id" class="form-input" placeholder="e.g., MP12345678">
+                            <div class="form-hint">Optional: Reference number from payment provider</div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-comment"></i>
+                                Description
+                            </label>
+                            <textarea name="description" class="form-textarea" rows="3" placeholder="Add any additional notes about this payment..."></textarea>
+                        </div>
+                    </div>
+                    <div class="quick-amounts" id="quickAmounts" style="display: none;">
+                        <div class="quick-amounts-header">
+                            <span>Quick Amount Selection</span>
+                        </div>
+                        <div class="amount-buttons">
+                            <button type="button" class="amount-btn" data-amount="full">Full Rent</button>
+                            <button type="button" class="amount-btn" data-amount="half">Half Rent</button>
+                            <button type="button" class="amount-btn" data-amount="partial">Partial</button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="history.back()">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-primary-custom" id="submitBtn">
+                            <i class="fas fa-save"></i>
+                            Record Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="summary-card hover-lift" id="paymentSummary" style="display: none;">
+                <div class="summary-header">
+                    <h3>Payment Summary</h3>
+                    <i class="fas fa-receipt"></i>
                 </div>
-                <div class="mb-3">
-                    {{ form.transaction_id.label(class_="form-label") }}
-                    {{ form.transaction_id(class_="form-control") }}
+                <div class="summary-content">
+                    <div class="summary-item">
+                        <span class="summary-label">Tenant</span>
+                        <span class="summary-value" id="summaryTenant">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Amount</span>
+                        <span class="summary-value" id="summaryAmount">KSh 0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Method</span>
+                        <span class="summary-value" id="summaryMethod">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Date</span>
+                        <span class="summary-value" id="summaryDate">-</span>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    {{ form.description.label(class_="form-label") }}
-                    {{ form.description(class_="form-control") }}
-                </div>
-                <button type="submit" class="btn btn-primary w-100">{{ _('Record Payment') }}</button>
-            </form>
+            </div>
         </div>
     </div>
-</div>
-{% endblock %}
+
+    <!-- Dark mode toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button id="theme-toggle" class="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <i class="fas fa-moon dark:hidden text-gray-600"></i>
+            <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tenantSelect = document.getElementById('tenantSelect');
+            const tenantInfo = document.getElementById('tenantInfo');
+            const quickAmounts = document.getElementById('quickAmounts');
+            const amountInput = document.querySelector('.amount-input');
+            const paymentSummary = document.getElementById('paymentSummary');
+            const form = document.getElementById('paymentForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Sample tenant data (this would come from the backend)
+            const tenantData = {
+                '1': { name: 'John Doe', property: 'Apartment 101', rent: 50000 },
+                '2': { name: 'Jane Smith', property: 'Apartment 102', rent: 60000 }
+            };
+
+            // Handle tenant selection
+            if (tenantSelect) {
+                tenantSelect.addEventListener('change', function() {
+                    const tenantId = this.value;
+                    if (tenantId && tenantData[tenantId]) {
+                        const tenant = tenantData[tenantId];
+                        document.getElementById('selectedTenantName').textContent = tenant.name;
+                        document.getElementById('selectedTenantProperty').textContent = tenant.property;
+                        document.getElementById('selectedTenantRent').textContent = `Monthly Rent: KSh ${tenant.rent.toLocaleString()}`;
+                        tenantInfo.style.display = 'block';
+                        quickAmounts.style.display = 'block';
+                        setupQuickAmounts(tenant.rent);
+                    } else {
+                        tenantInfo.style.display = 'none';
+                        quickAmounts.style.display = 'none';
+                    }
+                    updateSummary();
+                });
+            }
+
+            function setupQuickAmounts(rentAmount) {
+                const amountButtons = document.querySelectorAll('.amount-btn');
+                amountButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const amountType = this.dataset.amount;
+                        let amount = 0;
+                        switch(amountType) {
+                            case 'full':
+                                amount = rentAmount;
+                                break;
+                            case 'half':
+                                amount = rentAmount / 2;
+                                break;
+                            case 'partial':
+                                amount = rentAmount * 0.3;
+                                break;
+                        }
+                        amountInput.value = amount.toFixed(2);
+                        updateSummary();
+                        amountButtons.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                });
+            }
+
+            function updateSummary() {
+                const tenantSelect = document.getElementById('tenantSelect');
+                const amountInput = document.querySelector('.amount-input');
+                const methodSelect = document.querySelector('select[name="payment_method"]');
+                const dateInput = document.querySelector('input[name="payment_date"]');
+                if (tenantSelect.value || amountInput.value || methodSelect.value || dateInput.value) {
+                    document.getElementById('summaryTenant').textContent = 
+                        tenantSelect.options[tenantSelect.selectedIndex].text || '-';
+                    document.getElementById('summaryAmount').textContent = 
+                        amountInput.value ? `KSh ${parseFloat(amountInput.value).toLocaleString()}` : 'KSh 0';
+                    document.getElementById('summaryMethod').textContent = 
+                        methodSelect.options[methodSelect.selectedIndex].text || '-';
+                    document.getElementById('summaryDate').textContent = 
+                        dateInput.value ? new Date(dateInput.value).toLocaleDateString() : '-';
+                    paymentSummary.style.display = 'block';
+                }
+            }
+
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => {
+                input.addEventListener('change', updateSummary);
+                input.addEventListener('input', updateSummary);
+            });
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                setTimeout(() => {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }, 2000);
+            });
+
+            const dateInput = document.querySelector('input[name="payment_date"]');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+                updateSummary();
+            }
+
+            // Dark mode toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+            themeToggle.addEventListener('click', () => {
+                html.classList.toggle('dark');
+                localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+            });
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
+            }
+
+            // Entrance animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            document.querySelectorAll('.hover-lift').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+
+            // Parallax effect
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const parallaxElements = document.querySelectorAll('.gradient-orb');
+                parallaxElements.forEach((element, index) => {
+                    const speed = (index + 1) * 0.5;
+                    element.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.1}deg)`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

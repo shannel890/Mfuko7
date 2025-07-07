@@ -1,63 +1,533 @@
-{% extends 'base.html' %}
-{% block title %}{{ _('Add/Edit Tenant') }} - REPT{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm p-4">
-            <h2 class="mb-4 text-center">{{ _('Tenant Details') }}</h2>
-            <form method="POST" novalidate>
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    {{ form.first_name.label(class_="form-label") }}
-                    {{ form.first_name(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.last_name.label(class_="form-label") }}
-                    {{ form.last_name(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.email.label(class_="form-label") }}
-                    {{ form.email(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.phone_number.label(class_="form-label") }}
-                    {{ form.phone_number(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.national_id.label(class_="form-label") }}
-                    {{ form.national_id(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.property_id.label(class_="form-label") }}
-                    {{ form.property_id(class_="form-select") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.rent_amount.label(class_="form-label") }}
-                    {{ form.rent_amount(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.due_day_of_month.label(class_="form-label") }}
-                    {{ form.due_day_of_month(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.grace_period_days.label(class_="form-label") }}
-                    {{ form.grace_period_days(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.lease_start_date.label(class_="form-label") }}
-                    {{ form.lease_start_date(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.lease_end_date.label(class_="form-label") }}
-                    {{ form.lease_end_date(class_="form-control") }}
-                </div>
-                <div class="mb-3">
-                    {{ form.status.label(class_="form-label") }}
-                    {{ form.status(class_="form-select") }}
-                </div>
-                <button type="submit" class="btn btn-primary w-100">{{ _('Save Tenant') }}</button>
-            </form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenant Details | REPT</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary: 142 76% 36%;
+      --primary-foreground: 0 0% 98%;
+      --primary-dark: 142 76% 30%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 100%;
+      --muted: 210 40% 96.1%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+      --warning: 32 95% 44%;
+      --success: 134 61% 41%;
+      --background: 0 0% 100%;
+      --foreground: 222.2 47.4% 11.2%;
+      --border: 214.3 31.8% 91.4%;
+      --card: 0 0% 100%;
+      --radius: 0.5rem;
+      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition-smooth: all 0.3s ease;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: hsl(var(--muted) / 0.3);
+      color: hsl(var(--foreground));
+      line-height: 1.6;
+    }
+
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header-section {
+      position: relative;
+      background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-dark)) 100%);
+      color: hsl(var(--primary-foreground));
+      padding: 2rem;
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header-text h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-text p {
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .header-decoration-1,
+    .header-decoration-2 {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .header-decoration-1 {
+      width: 100px;
+      height: 100px;
+      top: -50px;
+      right: -50px;
+    }
+
+    .header-decoration-2 {
+      width: 150px;
+      height: 150px;
+      bottom: -75px;
+      left: -75px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: -0.5rem;
+    }
+
+    .col-12 {
+      width: 100%;
+      padding: 0.5rem;
+    }
+
+    .col-lg-8 {
+      width: 100%;
+    }
+
+    .col-xl-6 {
+      width: 100%;
+    }
+
+    .justify-content-center {
+      justify-content: center;
+    }
+
+    .card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-content {
+      padding: 2rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .w-100 {
+      width: 100%;
+    }
+
+    .me-2 {
+      margin-right: 0.5rem;
+    }
+
+    .space-y-6 > * + * {
+      margin-top: 2rem;
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: hsl(var(--primary));
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid hsl(var(--primary) / 0.1);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .form-input,
+    .form-select {
+      padding: 0.75rem 1rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-size: 1rem;
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: hsl(var(--primary));
+      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+    }
+
+    .input-with-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      color: hsl(var(--muted-foreground));
+      font-weight: 500;
+      z-index: 1;
+    }
+
+    .form-input.with-icon {
+      padding-left: 3rem;
+    }
+
+    .form-error {
+      color: hsl(var(--destructive));
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .form-actions {
+      padding-top: 1rem;
+      border-top: 1px solid hsl(var(--border));
+    }
+
+    .btn-primary-custom {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .btn-primary-custom:hover {
+      background: hsl(var(--primary-dark));
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-primary-custom:active {
+      transform: translateY(0);
+    }
+
+    /* Responsive Design */
+    @media (min-width: 992px) {
+      .col-lg-8 {
+        width: 66.666667%;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .col-xl-6 {
+        width: 50%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 1rem;
+      }
+
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .card-content {
+        padding: 1.5rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
+              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+            </a>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
+            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
+            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
+            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
+
+            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+              <i data-lucide="menu" class="lucide-icon"></i>
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
+        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
+        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
+        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
+        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+      </div>
+    </nav>
+  <div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="header-section mb-4">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>Tenant Details</h1>
+          <p>Add or edit tenant information and lease details</p>
+        </div>
+        <div class="header-decoration-1"></div>
+        <div class="header-decoration-2"></div>
+      </div>
     </div>
-</div>
-{% endblock %}
+
+    <!-- Form Section -->
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card">
+          <div class="card-content">
+            <form method="POST" novalidate class="space-y-6">
+              {{ form.hidden_tag() }}
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+              <!-- Personal Information Section -->
+              <div class="form-section">
+                <h3 class="section-title">Personal Information</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="form-input" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="form-input" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-input">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="phone_number">Phone Number</label>
+                    <input type="tel" id="phone_number" name="phone_number" class="form-input" required>
+                  </div>
+                  
+                  <div class="form-group full-width">
+                    <label class="form-label" for="national_id">National ID</label>
+                    <input type="text" id="national_id" name="national_id" class="form-input">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Property & Rent Information Section -->
+              <div class="form-section">
+                <h3 class="section-title">Property & Rent Information</h3>
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label class="form-label" for="property_id">Property</label>
+                    <select id="property_id" name="property_id" class="form-select" required>
+                      <option value="">Select a property...</option>
+                      <option value="1">Property A - 123 Main St</option>
+                      <option value="2">Property B - 456 Oak Ave</option>
+                      <option value="3">Property C - 789 Pine St</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="rent_amount">Rent Amount</label>
+                    <div class="input-with-icon">
+                      <span class="input-icon">KSh</span>
+                      <input type="number" id="rent_amount" name="rent_amount" class="form-input with-icon" step="0.01" required>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="due_day_of_month">Due Day of Month</label>
+                    <input type="number" id="due_day_of_month" name="due_day_of_month" class="form-input" min="1" max="31" value="1" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="grace_period_days">Grace Period (Days)</label>
+                    <input type="number" id="grace_period_days" name="grace_period_days" class="form-input" min="0" value="0">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lease Information Section -->
+              <div class="form-section">
+                <h3 class="section-title">Lease Information</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="lease_start_date">Lease Start Date</label>
+                    <input type="date" id="lease_start_date" name="lease_start_date" class="form-input" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="lease_end_date">Lease End Date</label>
+                    <input type="date" id="lease_end_date" name="lease_end_date" class="form-input">
+                  </div>
+                  
+                  <div class="form-group full-width">
+                    <label class="form-label" for="status">Status</label>
+                    <select id="status" name="status" class="form-select" required>
+                      <option value="">Select status...</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="pending">Pending</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="form-actions">
+                <button type="submit" class="btn-primary-custom w-100">
+                  <i class="fas fa-save me-2"></i>
+                  Save Tenant
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Form validation
+      const form = document.querySelector('form');
+      const requiredFields = form.querySelectorAll('[required]');
+      
+      form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Remove existing error messages
+        document.querySelectorAll('.form-error').forEach(error => error.remove());
+        
+        // Validate required fields
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+            isValid = false;
+            showError(field, 'This field is required');
+          }
+        });
+        
+        // Validate email
+        const emailField = document.getElementById('email');
+        if (emailField.value && !isValidEmail(emailField.value)) {
+          isValid = false;
+          showError(emailField, 'Please enter a valid email address');
+        }
+        
+        // Validate rent amount
+        const rentField = document.getElementById('rent_amount');
+        if (rentField.value && parseFloat(rentField.value) <= 0) {
+          isValid = false;
+          showError(rentField, 'Rent amount must be greater than 0');
+        }
+        
+        // Validate date range
+        const startDate = document.getElementById('lease_start_date');
+        const endDate = document.getElementById('lease_end_date');
+        
+        if (startDate.value && endDate.value && new Date(endDate.value) <= new Date(startDate.value)) {
+          isValid = false;
+          showError(endDate, 'End date must be after start date');
+        }
+        
+        if (!isValid) {
+          e.preventDefault();
+        }
+      });
+      
+      function showError(field, message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'form-error';
+        errorDiv.textContent = message;
+        field.parentNode.appendChild(errorDiv);
+        field.classList.add('error');
+      }
+      
+      function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      }
+      
+      // Auto-calculate lease end date (1 year from start date)
+      const startDateField = document.getElementById('lease_start_date');
+      const endDateField = document.getElementById('lease_end_date');
+      
+      startDateField.addEventListener('change', function() {
+        if (this.value && !endDateField.value) {
+          const startDate = new Date(this.value);
+          const endDate = new Date(startDate);
+          endDate.setFullYear(startDate.getFullYear() + 1);
+          endDateField.value = endDate.toISOString().split('T')[0];
+        }
+      });
+      
+      // Set default lease start date to today
+      const today = new Date().toISOString().split('T')[0];
+      startDateField.value = today;
+      
+      // Trigger change event to set end date
+      startDateField.dispatchEvent(new Event('change'));
+    });
+  </script>
+</body>
+</html>

@@ -6,19 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="PropertyPayTrack - Simplify Your Real Estate Finances with Smart Payment Tracking">
     <meta name="author" content="PropertyPayTrack">
-    <meta name="keywords" content="property management, rental payments, real estate, landlord, tenant, payment tracking">
+    <meta name="keywords" content="property management, rental payments, real estate, landlord, tenant, payment tracking, Kenya">
     <meta name="robots" content="index, follow">
 
+    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="PropertyPayTrack - Smart Property Management">
     <meta property="og:description" content="Streamline your real estate finances with intuitive tools for payment tracking and property management.">
     <meta property="og:image" content="/static/img/og-image.jpg">
     <meta property="og:url" content="https://www.propertypaytrack.com">
     <meta property="og:type" content="website">
+    
+    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="PropertyPayTrack - Smart Property Management">
     <meta name="twitter:description" content="Streamline your real estate finances with intuitive tools for payment tracking and property management.">
     <meta name="twitter:image" content="/static/img/og-image.jpg">
 
+    <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
@@ -26,20 +30,76 @@
 
     <title>{% block title %}PropertyPayTrack - Smart Property Management{% endblock %}</title>
 
+    <!-- Preload Critical Resources -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" as="style">
 
+    <!-- External Stylesheets -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
     <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
 
     <style>
-        /* Base styles */
+        /* Kenya-inspired Design System */
+        :root {
+            /* Primary Colors - Deep Kenya Green */
+            --primary: 142 76% 36%;
+            --primary-foreground: 0 0% 98%;
+            --primary-light: 142 45% 55%;
+            --primary-dark: 142 85% 25%;
+
+            /* Secondary Colors - Warm Kenyan Orange */
+            --secondary: 25 95% 53%;
+            --secondary-foreground: 0 0% 98%;
+            --secondary-light: 25 85% 65%;
+
+            /* Accent Colors - Savanna Gold */
+            --accent: 43 74% 49%;
+            --accent-foreground: 0 0% 9%;
+            --accent-light: 43 64% 65%;
+
+            /* Semantic Colors */
+            --success: 134 61% 41%;
+            --success-foreground: 0 0% 98%;
+            --warning: 32 95% 44%;
+            --warning-foreground: 0 0% 98%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+
+            /* Neutral Colors */
+            --background: 0 0% 100%;
+            --foreground: 0 0% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 0 0% 3.9%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 142 76% 36%;
+
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+            --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+            --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+            
+            /* Shadows */
+            --shadow-card: 0 4px 6px -1px hsl(var(--primary) / 0.1), 0 2px 4px -1px hsl(var(--primary) / 0.06);
+            --shadow-lg: 0 10px 15px -3px hsl(var(--primary) / 0.1), 0 4px 6px -2px hsl(var(--primary) / 0.05);
+            --shadow-hover: 0 20px 25px -5px hsl(var(--primary) / 0.1), 0 10px 10px -5px hsl(var(--primary) / 0.04);
+            
+            /* Transitions */
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+            /* Radius */
+            --radius: 0.75rem;
+        }
+
+        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -47,20 +107,18 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif; /* Changed to Inter for better consistency with modern UIs */
-            background: linear-gradient(135deg, #f8f7f8 0%, #860175 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
             min-height: 100vh;
-            color: #010811;
+            color: hsl(var(--foreground));
+            line-height: 1.6;
         }
 
         /* Loading Spinner */
         .loading-spinner {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
+            inset: 0;
+            background: rgba(255, 255, 255, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -69,11 +127,11 @@
         }
 
         .spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
+            border: 6px solid hsl(var(--muted));
+            border-top: 6px solid hsl(var(--primary));
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 48px;
+            height: 48px;
             animation: spin 1s linear infinite;
         }
 
@@ -82,7 +140,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Skip to Content */
+        /* Accessibility */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -92,552 +150,388 @@
             overflow: hidden;
             clip: rect(0, 0, 0, 0);
             white-space: nowrap;
-            border-width: 0;
+            border: 0;
         }
-        .focus\:not-sr-only:focus {
-            position: static;
+
+        .sr-only:focus {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
             width: auto;
             height: auto;
-            overflow: visible;
+            padding: 0.5rem 1rem;
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border-radius: var(--radius);
             clip: auto;
-            white-space: normal;
-        }
-        .focus\:absolute:focus {
-            position: absolute;
-        }
-        .focus\:top-4:focus {
-            top: 1rem; /* 16px */
-        }
-        .focus\:left-4:focus {
-            left: 1rem; /* 16px */
-        }
-        .bg-primary { 
-            background-color: #667eea; /* A shade of indigo, matching your header */
+            z-index: 1000;
         }
 
         /* Scroll to Top Button */
         .scroll-top {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #667eea;
-            color: white;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
             border: none;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 1.25rem;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            opacity: 0; /* Hidden by default */
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-smooth);
+            opacity: 0;
             transform: translateY(20px);
             z-index: 1000;
+            cursor: pointer;
         }
+
         .scroll-top.show {
             opacity: 1;
             transform: translateY(0);
         }
+
         .scroll-top:hover {
-            background-color: #764ba2;
+            background: hsl(var(--secondary));
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Navigation Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid hsl(var(--border));
+            box-shadow: var(--shadow-card);
         }
 
         .navbar-brand-custom {
-            font-family: 'Playfair Display', serif; /* Optional: If you want a distinct font for the brand */
-            font-size: 1.5rem; /* Equivalent to text-xl */
-            font-weight: 700; /* Equivalent to font-semibold */
-            color: #1f2937; /* Default text-gray-800 */
-        }
-        .nav-link-custom {
-            color: #4b5563; /* text-gray-700 */
-            transition: color 0.3s ease;
-        }
-        .nav-link-custom:hover {
-            color: #4f46e5; /* text-indigo-600 */
-        }
-        .logout-btn-custom {
-            background-color: #4f46e5; /* bg-indigo-600 */
-            color: white;
-            padding: 0.5rem 1rem; /* px-4 py-2 */
-            border-radius: 0.5rem; /* rounded-lg */
-            transition: background-color 0.3s ease;
-        }
-        .logout-btn-custom:hover {
-            background-color: #4338ca; /* hover:bg-indigo-700 */
-        }
-
-        /* General dashboard styles */
-        .dashboard-container {
-            padding: 1.5rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .space-y-8 > * + * {
-            margin-top: 2rem;
-        }
-
-        /* Header Section */
-        .header-section {
-            position: relative;
-            overflow: hidden;
-            border-radius: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
-            color: white;
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-text h1 {
-            font-size: 2.5rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
             font-weight: 700;
-            margin-bottom: 0.75rem;
+            color: hsl(var(--foreground));
+            text-decoration: none;
+            transition: var(--transition-smooth);
         }
 
-        .header-text p {
-            font-size: 1.125rem;
-            opacity: 0.9;
+        .navbar-brand-custom:hover {
+            color: hsl(var(--primary));
         }
 
-        .header-button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .nav-link-custom {
+            font-weight: 500;
+            color: hsl(var(--muted-foreground));
+            text-decoration: none;
+            transition: var(--transition-smooth);
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .header-button:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .nav-link-custom:hover {
+            color: hsl(var(--primary));
+            background: hsl(var(--primary) / 0.1);
         }
 
-        .header-decoration-1 {
-            position: absolute;
-            top: -1rem;
-            right: -4rem;
-            width: 8rem;
-            height: 8rem;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .header-decoration-2 {
-            position: absolute;
-            bottom: -2rem;
-            left: -2rem;
-            width: 6rem;
-            height: 6rem;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            gap: 1.5rem;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-
-        .stat-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
-        }
-
-        .stat-card-header {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.5rem 1.5rem 0.75rem;
-        }
-
-        .stat-card-title {
-            font-size: 0.875rem;
+        .logout-btn-custom {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
             font-weight: 500;
-            color: #6b7280;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            border: none;
         }
 
-        .stat-icon {
+        .logout-btn-custom:hover {
+            background: hsl(var(--secondary));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            background: none;
+            border: none;
+            color: hsl(var(--foreground));
+            font-size: 1.5rem;
+            cursor: pointer;
             padding: 0.5rem;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            transition: var(--transition-smooth);
         }
 
-        .stat-card-content {
-            position: relative;
-            padding: 0 1.5rem 1.5rem;
+        .mobile-menu-toggle:hover {
+            background: hsl(var(--muted));
         }
 
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid hsl(var(--border));
+            box-shadow: var(--shadow-lg);
+            padding: 1rem;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .stat-change {
+        .mobile-menu.show {
+            display: flex;
+        }
+
+        .mobile-nav-link {
+            color: hsl(var(--foreground));
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            transition: var(--transition-smooth);
+        }
+
+        .mobile-nav-link:hover {
+            background: hsl(var(--primary) / 0.1);
+            color: hsl(var(--primary));
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Flash Messages */
+        .flash-message {
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: var(--radius);
             display: flex;
             align-items: center;
-            gap: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: 500;
+            gap: 0.75rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid;
+            animation: slideInDown 0.3s ease-out;
         }
 
-        .text-success { color: #10b981; }
-        .text-destructive { color: #ef4444; }
-        .text-primary { color: #667eea; }
-        .text-secondary { color: #764ba2; }
-
-        /* Main Content Grid */
-        .main-grid {
-            display: grid;
-            gap: 2rem;
-            grid-template-columns: 1fr;
-        }
-
-        @media (min-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 2fr 1fr;
+        @keyframes slideInDown {
+            0% {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
             }
         }
 
-        /* Card Styles */
-        .card {
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
+        .flash-message.alert-success {
+            background: hsl(var(--success) / 0.1);
+            color: hsl(var(--success));
+            border-color: hsl(var(--success) / 0.3);
         }
 
-        .card-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(132, 100, 158, 0.05);
+        .flash-message.alert-danger {
+            background: hsl(var(--destructive) / 0.1);
+            color: hsl(var(--destructive));
+            border-color: hsl(var(--destructive) / 0.3);
         }
 
-        .card-header-flex {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .flash-message.alert-warning {
+            background: hsl(var(--warning) / 0.1);
+            color: hsl(var(--warning));
+            border-color: hsl(var(--warning) / 0.3);
         }
 
-        .card-title {
+        .flash-message.alert-info {
+            background: hsl(var(--primary) / 0.1);
+            color: hsl(var(--primary));
+            border-color: hsl(var(--primary) / 0.3);
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
             font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+            cursor: pointer;
+            margin-left: auto;
+            opacity: 0.7;
+            transition: var(--transition-smooth);
+            padding: 0.25rem;
+            border-radius: 0.25rem;
         }
 
-        .card-description {
-            color: #6b7280;
-            font-size: 0.875rem;
+        .btn-close:hover {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.1);
         }
 
-        .card-content {
-            padding: 1.5rem;
+        /* Cards */
+        .card-custom {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-card);
+            transition: var(--transition-smooth);
         }
 
-        .view-all-btn {
-            background: white;
-            border: 1px solid #e5e7eb;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            display: flex;
+        .card-custom:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            transition: var(--transition-smooth);
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .view-all-btn:hover {
-            background: #f9fafb;
-        }
-
-        /* Payment Item */
-        .payment-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            border: 1px solid #e5e7eb;
-            background: rgba(255, 255, 255, 0.6);
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .payment-item:hover {
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .payment-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .payment-icon {
-            padding: 0.5rem;
-            border-radius: 50%;
-        }
-
-        .payment-icon.paid {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .payment-icon.overdue {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-
-        .payment-details h4 {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .payment-details p {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 0.125rem;
-        }
-
-        .payment-right {
-            text-align: right;
-        }
-
-        .payment-amount {
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .badge.paid {
-            background: #10b981;
-            color: white;
-        }
-
-        .badge.overdue {
-            background: #ef4444;
-            color: white;
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .action-btn:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .action-btn:hover .action-icon {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .action-icon {
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            background: rgba(102, 126, 234, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .action-text {
-            flex: 1;
-        }
-
-        .action-arrow {
-            opacity: 0.6;
+        .btn-primary-custom:hover {
+            background: hsl(var(--primary-dark));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .dashboard-container {
+            .main-container {
                 padding: 1rem;
             }
 
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-
-            .header-text h1 {
-                font-size: 2rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .main-grid {
-                grid-template-columns: 1fr;
+            .navbar-brand-custom {
+                font-size: 1.5rem;
             }
         }
 
-        /* Icons */
-        .lucide-icon {
-            width: 1.25rem;
-            height: 1.25rem;
+        /* Animation utilities */
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
         }
 
-        .lucide-icon-sm {
-            width: 1rem;
-            height: 1rem;
-        }
-
-        .hidden-mobile {
-            display: none;
-        }
-
-        @media (min-width: 768px) {
-            .hidden-mobile {
-                display: flex;
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
+        /* Focus styles for accessibility */
+        *:focus-visible {
+            outline: 2px solid hsl(var(--primary));
+            outline-offset: 2px;
+        }
     </style>
     {% block styles %}{% endblock %}
 </head>
 <body data-aos-easing="ease-out-cubic" data-aos-duration="800" data-aos-delay="0">
 
-    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('main.index') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
-              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container-fluid">
+            <a href="{{ url_for('main.index') }}" class="navbar-brand-custom">
+                <span style="color: hsl(var(--success));">Property</span><span style="color: hsl(var(--warning));">Pay</span><span style="color: hsl(var(--primary));">Track</span>
             </a>
-          </div>
 
-          <div class="hidden md:flex items-center space-x-6">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
-            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
-            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
-            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
-            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
-            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
-          </div>
+            <div class="d-none d-lg-flex navbar-nav me-auto ms-4">
+                <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link-custom">{{ _('Dashboard') }}</a>
+                <a href="{{ url_for('main.properties_list') }}" class="nav-link-custom">{{ _('Properties') }}</a>
+                <a href="{{ url_for('main.tenants_list') }}" class="nav-link-custom">{{ _('Tenants') }}</a>
+                <a href="{{ url_for('main.payments_history') }}" class="nav-link-custom">{{ _('Payments') }}</a>
+                <a href="{{ url_for('main.assign_property') }}" class="nav-link-custom">{{ _('Assign Property') }}</a>
+                <a href="{{ url_for('auth.profile') }}" class="nav-link-custom">{{ _('Profile') }}</a>
+            </div>
 
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn-custom d-none d-lg-inline-flex">{{ _('Logout') }}</a>
+                <button class="mobile-menu-toggle d-lg-none" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
 
-            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
-              <i data-lucide="menu" class="lucide-icon"></i>
-            </button>
-          </div>
+            <!-- Mobile Menu -->
+            <div class="mobile-menu" id="mobileMenu">
+                <a href="{{ url_for('main.landlord_dashboard') }}" class="mobile-nav-link">{{ _('Dashboard') }}</a>
+                <a href="{{ url_for('main.properties_list') }}" class="mobile-nav-link">{{ _('Properties') }}</a>
+                <a href="{{ url_for('main.tenants_list') }}" class="mobile-nav-link">{{ _('Tenants') }}</a>
+                <a href="{{ url_for('main.payments_history') }}" class="mobile-nav-link">{{ _('Payments') }}</a>
+                <a href="{{ url_for('main.assign_property') }}" class="mobile-nav-link">{{ _('Assign Property') }}</a>
+                <a href="{{ url_for('auth.profile') }}" class="mobile-nav-link">{{ _('Profile') }}</a>
+                <a href="{{ url_for('auth.logout') }}" class="mobile-nav-link">{{ _('Logout') }}</a>
+            </div>
         </div>
-      </div>
-
-      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
-        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
-        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
-        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
-        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
-        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
-      </div>
     </nav>
 
+    <!-- Loading Spinner -->
     <div class="loading-spinner" id="loadingSpinner">
         <div class="spinner"></div>
     </div>
 
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-white px-4 py-2 rounded">
-        Skip to main content
-    </a>
+    <!-- Skip to Content -->
+    <a href="#main-content" class="sr-only">{{ _('Skip to main content') }}</a>
 
-    <div class="d-flex flex-column min-100">
-        {% block navbar %}{% endblock %}
-
-        <div class="container mt-3">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash-message alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert" data-aos="fade-down">
-                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'info-circle' if category == 'info' else 'times-circle' }} me-2"></i>
-                            {{ message | safe }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        <main class="flex-grow-1" id="main-content">
-            {% block content %}{% endblock %}
-        </main>
-
-        {% block footer %}{% endblock %}
+    <!-- Flash Messages Container -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message alert-{{ 'danger' if category == 'error' else category }} alert-dismissible" role="alert" data-aos="fade-down">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'info-circle' if category == 'info' else 'times-circle' }}"></i>
+                        {{ message | safe }}
+                        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" aria-label="{{ _('Close') }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </div>
 
-    <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top">
+    <!-- Main Content -->
+    <main class="main-container animate-fade-in" id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTopBtn" aria-label="{{ _('Scroll to top') }}">
         <i class="fas fa-arrow-up"></i>
     </button>
 
+    <!-- Footer -->
+    {% block footer %}{% endblock %}
+
+    <!-- External Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
     <script>
-        AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true, offset: 100 });
+        // Initialize AOS animations
+        AOS.init({ 
+            duration: 800, 
+            easing: 'ease-out-cubic', 
+            once: true, 
+            offset: 100 
+        });
 
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize Lucide icons
@@ -646,18 +540,15 @@
             }
 
             // Mobile menu toggle
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenuToggle && mobileMenu) {
-                mobileMenuToggle.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
+            window.toggleMobileMenu = function() {
+                const mobileMenu = document.getElementById('mobileMenu');
+                mobileMenu.classList.toggle('show');
+            };
 
             // Scroll to top button functionality
             const scrollTopBtn = document.getElementById('scrollTopBtn');
             if (scrollTopBtn) {
-                window.addEventListener('scroll', () => {
+                window.addEventListener('scroll', function() {
                     if (window.scrollY > 300) {
                         scrollTopBtn.classList.add('show');
                     } else {
@@ -665,7 +556,7 @@
                     }
                 });
 
-                scrollTopBtn.addEventListener('click', () => {
+                scrollTopBtn.addEventListener('click', function() {
                     window.scrollTo({
                         top: 0,
                         behavior: 'smooth'
@@ -676,14 +567,32 @@
             // Hide loading spinner after page loads
             const loadingSpinner = document.getElementById('loadingSpinner');
             if (loadingSpinner) {
-                window.addEventListener('load', () => {
+                window.addEventListener('load', function() {
                     loadingSpinner.style.opacity = '0';
-                    setTimeout(() => {
+                    setTimeout(function() {
                         loadingSpinner.style.display = 'none';
-                    }, 500); // Allow time for fade out
+                    }, 500);
                 });
             }
+
+            // Auto-dismiss flash messages
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    if (message.parentElement) {
+                        message.style.opacity = '0';
+                        message.style.transform = 'translateY(-20px)';
+                        setTimeout(function() {
+                            if (message.parentElement) {
+                                message.remove();
+                            }
+                        }, 300);
+                    }
+                }, 5000); // Auto-dismiss after 5 seconds
+            });
         });
     </script>
+
+    {% block scripts %}{% endblock %}
 </body>
 </html>

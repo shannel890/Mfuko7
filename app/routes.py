@@ -267,6 +267,7 @@ def tenant_dashboard():
     try:
         tenant = Tenant.query.filter_by(user_id=current_user.id).first()
 
+        # If no tenant profile exists, create one
         if not tenant:
             tenant = Tenant(
                 user_id=current_user.id,
@@ -280,7 +281,7 @@ def tenant_dashboard():
             db.session.commit()
             flash(_l('Tenant profile created automatically. Please contact landlord to assign a unit.'), 'info')
 
-        # Calculate due date
+        # Calculate rent due date for current month
         today = datetime.utcnow().date()
         current_month_start = today.replace(day=1)
         due_day = tenant.due_day_of_month or 1
@@ -288,27 +289,34 @@ def tenant_dashboard():
         try:
             due_date = current_month_start.replace(day=due_day)
         except ValueError:
-            # For months with fewer days (e.g. due_day = 31 in February)
+            # Handle months with fewer days (e.g., Feb 30)
             next_month = (current_month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
             due_date = next_month - timedelta(days=1)
 
-        # Get list of available properties
-        units = Unit.query.filter(Unit.status == 'vacant').all()
+        # Fetch all VACANT units
+        vacant_units = Unit.query.filter_by(status='vacant').all()
+
+        # Organize available properties with count of vacant units
         available_properties = {}
-        for unit in units:
-            prop = unit.property
-            if prop.id not in available_properties:
-                available_properties[prop.id] = {
-                    'name': prop.name,
-                    'address': prop.address,
-                    'property_type': prop.property_type,
+        for unit in vacant_units:
+            property_obj = unit.property
+            if not property_obj:
+                continue  # In case of orphaned units
+
+            prop_id = property_obj.id
+            if prop_id not in available_properties:
+                available_properties[prop_id] = {
+                    'id': prop_id,
+                    'name': property_obj.name,
+                    'address': property_obj.address,
+                    'property_type': property_obj.property_type,
                     'units_available': 0
                 }
-            available_properties[prop.id]['units_available'] += 1
+            available_properties[prop_id]['units_available'] += 1
 
-        available_properties = list(available_properties.values())
+        # Convert dict to list for Jinja iteration
+        available_properties_list = list(available_properties.values())
 
-        # Pass rent-related details to template
         return render_template(
             'tenant_dashboard.html',
             tenant=tenant,
@@ -316,18 +324,15 @@ def tenant_dashboard():
             rent_amount=tenant.rent_amount,
             lease_start_date=tenant.lease_start_date,
             lease_end_date=tenant.lease_end_date,
-            available_properties=available_properties
+            available_properties=available_properties_list
         )
 
     except Exception as e:
-        current_app.logger.error(f"Dashboard error: {str(e)}")
-        flash(_l('An error occurred while loading the dashboard.'), 'danger')
+        current_app.logger.error(f"Tenant Dashboard Error: {str(e)}")
+        flash(_l('An error occurred while loading the tenant dashboard.'), 'danger')
         return redirect(url_for('main.index'))
 
-    except Exception as e:
-        logging.error(f"Dashboard error: {str(e)}")
-        flash(_l('An error occurred while loading the dashboard. Please try again.'), 'danger')
-        return redirect(url_for('main.index'))
+
 
 @main.route('/properties')
 @login_required
@@ -719,3 +724,13 @@ def delete_tenant(tenant_id):
     db.session.commit()
     flash('Tenant deleted successfully', 'success')
     return redirect(url_for('main.tenants_list'))
+
+@main.route('/payment/delete/<int:payment_id>',methods=['GET','POST'])
+@login_required
+@roles_required('landlord')
+def delete_payment(payment_id):
+    payment = Payment.query.get_or_404(payment_id)
+    db.session.delete(payment)
+    db.session.commit()
+    flash('payment deleted successfully','success')
+    return redirect(url_for('main.payments_history'))
