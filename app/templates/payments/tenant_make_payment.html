@@ -9,6 +9,7 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
   />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
     /* Enhanced CSS Styles */
     .bg-glass {
@@ -19,11 +20,20 @@
         border-radius: 20px;
     }
 
+    .bg-glass-dark {
+        background: rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+    }
+
     .form-control, .form-select {
         background-color: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 12px;
         transition: all 0.3s ease;
+        position: relative;
     }
 
     .form-control:focus, .form-select:focus {
@@ -33,11 +43,25 @@
         transform: translateY(-1px);
     }
 
+    .form-control:valid {
+        border-color: #34c759;
+    }
+
+    .form-control:invalid {
+        border-color: #dc3545;
+    }
+
     .input-group-text {
         background-color: rgba(52, 199, 89, 0.1);
         border-color: rgba(0, 0, 0, 0.1);
         color: #34c759;
         font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .input-group:focus-within .input-group-text {
+        background-color: rgba(52, 199, 89, 0.2);
+        border-color: #34c759;
     }
 
     .btn-primary {
@@ -81,21 +105,46 @@
     .btn-outline-secondary {
         border-radius: 8px;
         transition: all 0.3s ease;
+        border: 2px solid #6c757d;
     }
 
     .btn-outline-secondary:hover {
         transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-payment-method {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .btn-payment-method:hover {
+        border-color: #34c759;
+        background: rgba(52, 199, 89, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .btn-payment-method.active {
+        border-color: #34c759;
+        background: rgba(52, 199, 89, 0.15);
+        box-shadow: 0 4px 15px rgba(52, 199, 89, 0.2);
     }
 
     .alert {
         border: none;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: slideInDown 0.3s ease;
     }
 
     .card {
         border-radius: 16px;
         transition: transform 0.3s ease;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     }
 
     .card:hover {
@@ -115,6 +164,39 @@
         color: #34c759 !important;
     }
 
+    .progress-bar {
+        background: linear-gradient(135deg, #34c759, #2aa648);
+        border-radius: 10px;
+    }
+
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+
+    .step {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+        margin: 0 5px;
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        transition: all 0.3s ease;
+    }
+
+    .step.active {
+        background: rgba(52, 199, 89, 0.1);
+        color: #34c759;
+        font-weight: 600;
+    }
+
+    .step.completed {
+        background: rgba(52, 199, 89, 0.2);
+        color: #2aa648;
+    }
+
     /* Animations */
     @keyframes fadeInUp {
         from {
@@ -127,8 +209,35 @@
         }
     }
 
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
     .transaction-id-field {
         animation: fadeInUp 0.3s ease;
+    }
+
+    .pulse-animation {
+        animation: pulse 2s infinite;
     }
 
     /* Responsive improvements */
@@ -144,6 +253,15 @@
         .btn-lg {
             padding: 0.75rem 1.5rem;
         }
+
+        .step-indicator {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .step {
+            margin: 0;
+        }
     }
 
     /* Loading state */
@@ -151,43 +269,154 @@
         cursor: not-allowed;
     }
 
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #34c759;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #2aa648;
+    }
+
     /* Tooltip custom styling */
     .tooltip-inner {
         background-color: #34c759;
         border-radius: 8px;
+        font-size: 0.875rem;
     }
 
     .tooltip.bs-tooltip-top .tooltip-arrow::before {
         border-top-color: #34c759;
     }
+
+    /* Amount input suggestions */
+    .amount-suggestions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .amount-suggestion {
+        background: rgba(52, 199, 89, 0.1);
+        border: 1px solid rgba(52, 199, 89, 0.3);
+        color: #34c759;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+
+    .amount-suggestion:hover {
+        background: rgba(52, 199, 89, 0.2);
+        transform: translateY(-1px);
+    }
+
+    /* Form validation feedback */
+    .is-valid {
+        border-color: #34c759 !important;
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    .valid-feedback {
+        color: #34c759;
+        font-size: 0.875rem;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+    }
+
+    /* Enhanced payment method icons */
+    .payment-method-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        color: #34c759;
+    }
+
+    .payment-method-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300">
   <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16 items-center">
-        <a href="{{ url_for('main.landlord_dashboard') }}" class="text-xl font-bold text-indigo-600">
-          <span class="text-green-500">Property</span><span class="text-yellow-500">Pay</span><span class="text-pink-500">Track</span>
-        </a>
-        <div class="hidden md:flex space-x-6">
-          <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-pink-600">Dashboard</a>
-          <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-pink-600">Properties</a>
-          <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-pink-600">Tenants</a>
-          <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-pink-600">Payments</a>
-          <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-pink-600">Assign</a>
-          <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-pink-600">Profile</a>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
+              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+            </a>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
+            
+            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
+            
+            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
+
+            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+              <i data-lucide="menu" class="lucide-icon"></i>
+            </button>
+          </div>
         </div>
-        <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-pink-600">Logout</a>
       </div>
-    </div>
-  </nav>
+
+      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
+        
+        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+        
+        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
+        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+      </div>
+    </nav>
 
   <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-7 col-md-9">
+        <div class="col-lg-8 col-md-10">
+            <!-- Progress Indicator -->
+            <div class="step-indicator">
+                <div class="step active" data-step="1">
+                    <i class="fas fa-info-circle mb-2"></i>
+                    <div>Payment Info</div>
+                </div>
+                <div class="step" data-step="2">
+                    <i class="fas fa-credit-card mb-2"></i>
+                    <div>Payment Method</div>
+                </div>
+                <div class="step" data-step="3">
+                    <i class="fas fa-check-circle mb-2"></i>
+                    <div>Confirmation</div>
+                </div>
+            </div>
 
             <!-- Rent Information Card -->
-            {% if tenant.rent_amount and due_date %}
             <div class="card bg-light border-0 shadow-sm mb-4" data-aos="fade-up">
                 <div class="card-body">
                     <h5 class="card-title text-primary mb-3">
@@ -195,26 +424,31 @@
                     </h5>
                     <div class="row">
                         <div class="col-md-6">
-                            <p class="mb-2"><strong>Monthly Rent:</strong> KES {{ "%.2f"|format(tenant.rent_amount) }}</p>
-                            <p class="mb-2"><strong>Rent Due Date:</strong> {{ due_date.strftime('%d %B, %Y') }}</p>
+                            <p class="mb-2"><strong>Monthly Rent:</strong> KES 25,000.00</p>
+                            <p class="mb-2"><strong>Rent Due Date:</strong> 15 January, 2025</p>
                         </div>
                         <div class="col-md-6">
-                            {% if lease_start_date %}
-                            <p class="mb-2"><strong>Lease Start:</strong> {{ lease_start_date.strftime('%d %b %Y') }}</p>
-                            {% endif %}
-                            {% if lease_end_date %}
-                            <p class="mb-2"><strong>Lease End:</strong> {{ lease_end_date.strftime('%d %b %Y') }}</p>
-                            {% endif %}
+                            <p class="mb-2"><strong>Lease Start:</strong> 01 Jan 2025</p>
+                            <p class="mb-2"><strong>Lease End:</strong> 31 Dec 2025</p>
                         </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted mt-1 d-block">60% of lease period completed</small>
                     </div>
                 </div>
             </div>
-            {% else %}
-            <div class="alert alert-warning text-center fw-semibold" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Rent details not configured yet. Please contact your landlord.
+
+            <!-- Payment Status Alert -->
+            <div class="alert alert-success text-center mb-4" role="alert" id="amountDueAlert">
+                <h5 class="mb-0 pulse-animation">
+                    <i class="fas fa-money-bill-wave me-2"></i>
+                    Amount Due: <strong>KSh 25,000.00</strong>
+                </h5>
+                <small class="mt-2 d-block">Due in 7 days</small>
             </div>
-            {% endif %}
 
             <!-- Payment Form -->
             <div class="card border-0 shadow-lg bg-glass" data-aos="fade-up" data-aos-delay="100">
@@ -223,122 +457,107 @@
                         <i class="fas fa-credit-card me-2"></i>Make Monthly Payment
                     </h2>
 
-                    <!-- Amount Due Display -->
-                    {% if amount_due is not none %}
-                        <div class="alert alert-success text-center mb-4" role="alert">
-                            <h5 class="mb-0">
-                                <i class="fas fa-money-bill-wave me-2"></i>
-                                Amount Due: <strong>KSh {{ "%.2f"|format(amount_due) }}</strong>
-                            </h5>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-danger text-center mb-4" role="alert">
-                            <h5 class="mb-0">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                Amount Due: <strong>Unavailable</strong>
-                            </h5>
-                        </div>
-                    {% endif %}
-
                     <form method="POST" novalidate id="paymentForm">
-                        {{ form.hidden_tag() }}
-
+                        <!-- CSRF Token -->
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        
                         <!-- Amount Field -->
                         <div class="mb-4">
-                            {{ form.amount.label(class="form-label fw-semibold") }}
+                            <label class="form-label fw-semibold">Amount</label>
                             <div class="input-group">
                                 <span class="input-group-text">KSh</span>
-                                {{ form.amount(class="form-control form-control-lg", placeholder="Enter amount", 
-                                   **{"data-bs-toggle": "tooltip", "data-bs-placement": "top", 
-                                      "title": "Enter the amount you want to pay"}) }}
+                                <input type="number" class="form-control form-control-lg" id="amount" name="amount" 
+                                       placeholder="Enter amount" min="1" max="100000" step="0.01" required>
                             </div>
-                            {% if form.amount.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.amount.errors %}
-                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                            <div class="amount-suggestions">
+                                <span class="amount-suggestion" data-amount="25000">Full Amount</span>
+                                <span class="amount-suggestion" data-amount="12500">Half Amount</span>
+                                <span class="amount-suggestion" data-amount="5000">5,000</span>
+                                <span class="amount-suggestion" data-amount="10000">10,000</span>
+                            </div>
+                            <div class="invalid-feedback">
+                                Please enter a valid amount between 1 and 100,000.
+                            </div>
                         </div>
 
-                        <!-- Payment Method -->
+                        <!-- Payment Method Selection -->
                         <div class="mb-4">
-                            {{ form.payment_method.label(class="form-label fw-semibold") }}
-                            {{ form.payment_method(class="form-select form-select-lg", 
-                               **{"data-bs-toggle": "tooltip", "data-bs-placement": "top", 
-                                  "title": "Select your preferred payment method"}) }}
-                            {% if form.payment_method.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.payment_method.errors %}
-                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                    {% endfor %}
+                            <label class="form-label fw-semibold">Payment Method</label>
+                            <div class="payment-method-grid">
+                                <div class="btn-payment-method" data-method="mpesa">
+                                    <div class="payment-method-icon">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="fw-semibold">M-Pesa</div>
+                                    <small class="text-muted">Mobile Money</small>
                                 </div>
-                            {% endif %}
+                                <div class="btn-payment-method" data-method="bank">
+                                    <div class="payment-method-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="fw-semibold">Bank Transfer</div>
+                                    <small class="text-muted">Direct Transfer</small>
+                                </div>
+                                <div class="btn-payment-method" data-method="cash">
+                                    <div class="payment-method-icon">
+                                        <i class="fas fa-money-bill"></i>
+                                    </div>
+                                    <div class="fw-semibold">Cash</div>
+                                    <small class="text-muted">Physical Cash</small>
+                                </div>
+                                <div class="btn-payment-method" data-method="check">
+                                    <div class="payment-method-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="fw-semibold">Check</div>
+                                    <small class="text-muted">Bank Check</small>
+                                </div>
+                            </div>
+                            <input type="hidden" id="payment_method" name="payment_method" required>
+                            <div class="invalid-feedback">
+                                Please select a payment method.
+                            </div>
                         </div>
 
                         <!-- Offline Payment Toggle -->
                         <div class="form-check mb-4">
-                            {{ form.is_offline(class="form-check-input", id="is_offline") }}
-                            {{ form.is_offline.label(class="form-check-label fw-semibold", for="is_offline") }}
+                            <input class="form-check-input" type="checkbox" id="is_offline" name="is_offline">
+                            <label class="form-check-label fw-semibold" for="is_offline">
+                                This is an offline payment
+                            </label>
                             <small class="form-text text-muted d-block">
                                 Check this if you've already made the payment and want to record it
                             </small>
-                            {% if form.is_offline.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.is_offline.errors %}
-                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
 
                         <!-- Transaction ID Field (conditionally shown) -->
-                        <div class="mb-4 transaction-id-field" style="display: none;">
-                            {{ form.transaction_id.label(class="form-label fw-semibold") }}
+                        <div class="mb-4 transaction-id-field" id="transactionIdField" style="display: none;">
+                            <label class="form-label fw-semibold">Transaction ID</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
-                                {{ form.transaction_id(class="form-control form-control-lg", 
-                                   placeholder="Enter M-Pesa confirmation code") }}
+                                <input type="text" class="form-control form-control-lg" id="transaction_id" name="transaction_id"
+                                       placeholder="Enter M-Pesa confirmation code">
                             </div>
-                            {% if form.transaction_id.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.transaction_id.errors %}
-                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                            <div class="invalid-feedback">
+                                Please enter a valid transaction ID.
+                            </div>
                         </div>
 
                         <!-- Payment Date -->
                         <div class="mb-4">
-                            {{ form.payment_date.label(class="form-label fw-semibold") }}
-                            {{ form.payment_date(class="form-control form-control-lg", type="date", 
-                               **{"data-bs-toggle": "tooltip", "data-bs-placement": "top", 
-                                  "title": "Select the date when payment was made"}) }}
-                            {% if form.payment_date.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.payment_date.errors %}
-                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                            <label class="form-label fw-semibold">Payment Date</label>
+                            <input type="date" class="form-control form-control-lg" id="payment_date" name="payment_date" required>
+                            <div class="invalid-feedback">
+                                Please select a valid payment date.
+                            </div>
                         </div>
 
                         <!-- Description -->
                         <div class="mb-4">
-                            {{ form.description.label(class="form-label fw-semibold") }}
-                            {{ form.description(class="form-control form-control-lg", 
-                               placeholder="Enter description (optional)", rows="3",
-                               **{"data-bs-toggle": "tooltip", "data-bs-placement": "top", 
-                                  "title": "Add any additional notes about this payment"}) }}
+                            <label class="form-label fw-semibold">Description</label>
+                            <textarea class="form-control form-control-lg" id="description" name="description"
+                                      placeholder="Enter description (optional)" rows="3"></textarea>
                             <small class="form-text text-muted">Optional: Add any notes about this payment</small>
-                            {% if form.description.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in form.description.errors %}
-                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
 
                         <!-- Expandable Additional Details -->
@@ -351,50 +570,46 @@
                         </div>
 
                         <div class="collapse mb-4" id="additionalDetails">
-                            <div class="card card-body bg-light">
+                            <div class="card card-body bg-glass-dark">
                                 <!-- PayBill Number -->
                                 <div class="mb-3">
-                                    {{ form.paybill_number.label(class="form-label fw-semibold") }}
-                                    {{ form.paybill_number(class="form-control", 
-                                       placeholder="Enter PayBill Number (if any)") }}
-                                    {% if form.paybill_number.errors %}
-                                        <div class="text-danger mt-1">
-                                            {% for error in form.paybill_number.errors %}
-                                                <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    <label class="form-label fw-semibold">PayBill Number</label>
+                                    <input type="text" class="form-control" id="paybill_number" name="paybill_number"
+                                           placeholder="Enter PayBill Number (if any)">
                                 </div>
 
                                 <!-- Fees -->
                                 <div class="mb-3">
-                                    {{ form.fees.label(class="form-label fw-semibold") }}
+                                    <label class="form-label fw-semibold">Transaction Fees</label>
                                     <div class="input-group">
                                         <span class="input-group-text">KSh</span>
-                                        {{ form.fees(class="form-control", 
-                                           placeholder="Transaction fees (if applicable)") }}
+                                        <input type="number" class="form-control" id="fees" name="fees"
+                                               placeholder="Transaction fees (if applicable)" min="0" step="0.01">
                                     </div>
-                                    {% if form.fees.errors %}
-                                        <div class="text-danger mt-1">
-                                            {% for error in form.fees.errors %}
-                                                <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
                                 </div>
 
                                 <!-- Offline Reference -->
                                 <div class="mb-0">
-                                    {{ form.offline_reference.label(class="form-label fw-semibold") }}
-                                    {{ form.offline_reference(class="form-control", 
-                                       placeholder="Enter offline reference (if applicable)") }}
-                                    {% if form.offline_reference.errors %}
-                                        <div class="text-danger mt-1">
-                                            {% for error in form.offline_reference.errors %}
-                                                <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    <label class="form-label fw-semibold">Offline Reference</label>
+                                    <input type="text" class="form-control" id="offline_reference" name="offline_reference"
+                                           placeholder="Enter offline reference (if applicable)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Summary -->
+                        <div class="card bg-light mb-4" id="formSummary" style="display: none;">
+                            <div class="card-body">
+                                <h6 class="card-title">Payment Summary</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <small class="text-muted">Amount:</small>
+                                        <div class="fw-semibold" id="summaryAmount">-</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-muted">Method:</small>
+                                        <div class="fw-semibold" id="summaryMethod">-</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -412,123 +627,202 @@
                         <div class="text-center mt-3">
                             <small class="text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Having trouble? <a href="{{url_for('main.contact')}}" class="text-primary">Contact Support</a>
+                                Having trouble? <a href="#" class="text-primary">Contact Support</a>
                             </small>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- Recent Payments -->
+            <div class="card mt-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title text-primary">
+                        <i class="fas fa-history me-2"></i>Recent Payments
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dec 15, 2024</td>
+                                    <td>KSh 25,000.00</td>
+                                    <td>M-Pesa</td>
+                                    <td><span class="badge bg-success">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Nov 15, 2024</td>
+                                    <td>KSh 25,000.00</td>
+                                    <td>Bank Transfer</td>
+                                    <td><span class="badge bg-success">Paid</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-  <script>
-    // Enhanced JavaScript functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        // Elements
-        const isOfflineCheckbox = document.querySelector('#is_offline');
-        const txnField = document.querySelector('.transaction-id-field');
-        const form = document.querySelector('#paymentForm');
-        const submitBtn = document.querySelector('#submitBtn');
-        const spinner = submitBtn.querySelector('.spinner-border');
-        const btnText = submitBtn.querySelector('.btn-text');
-        const additionalDetailsBtn = document.querySelector('[data-bs-target="#additionalDetails"]');
-        const additionalDetailsIcon = additionalDetailsBtn.querySelector('i');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const isOfflineCheckbox = document.querySelector('#is_offline');
+    const txnField = document.querySelector('#transactionIdField');
+    const form = document.querySelector('#paymentForm');
+    const submitBtn = document.querySelector('#submitBtn');
+    const spinner = submitBtn?.querySelector('.spinner-border');
+    const btnText = submitBtn?.querySelector('.btn-text');
+    const additionalDetailsBtn = document.querySelector('[data-bs-target="#additionalDetails"]');
+    const additionalDetailsIcon = additionalDetailsBtn?.querySelector('i');
+    const amountInput = document.querySelector('#amount');
+    const paymentMethodButtons = document.querySelectorAll('.btn-payment-method');
+    const paymentMethodInput = document.querySelector('#payment_method');
+    const amountSuggestions = document.querySelectorAll('.amount-suggestion');
+    const formSummary = document.querySelector('#formSummary');
+    const summaryAmount = document.querySelector('#summaryAmount');
+    const summaryMethod = document.querySelector('#summaryMethod');
+    const steps = document.querySelectorAll('.step');
 
-        // Initialize tooltips
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Default payment date
+    const paymentDateField = document.querySelector('#payment_date');
+    if (paymentDateField) {
+        paymentDateField.value = new Date().toISOString().split('T')[0];
+    }
+
+    // Toggle transaction field
+    function toggleTxnField() {
+        if (!txnField) return;
+
+        const txnInput = document.querySelector('#transaction_id');
+        if (isOfflineCheckbox.checked) {
+            txnField.style.display = 'block';
+            txnField.style.animation = 'fadeInUp 0.3s ease';
+            if (txnInput) txnInput.required = true;
+        } else {
+            txnField.style.display = 'none';
+            if (txnInput) txnInput.required = false;
+        }
+    }
+
+    // Toggle Additional Details Icon
+    function toggleAdditionalDetailsIcon() {
+        if (!additionalDetailsBtn || !additionalDetailsIcon) return;
+        const isExpanded = additionalDetailsBtn.getAttribute('aria-expanded') === 'true';
+        additionalDetailsIcon.className = isExpanded ? 'fas fa-minus me-2' : 'fas fa-plus me-2';
+    }
+
+    // Update form summary
+    function updateFormSummary() {
+        const amount = amountInput.value;
+        const method = paymentMethodInput.value;
+        if (amount && method) {
+            summaryAmount.textContent = `KSh ${parseFloat(amount).toLocaleString()}`;
+            summaryMethod.textContent = method.charAt(0).toUpperCase() + method.slice(1);
+            formSummary.style.display = 'block';
+        } else {
+            formSummary.style.display = 'none';
+        }
+    }
+
+    // Update step indicators
+    function updateSteps() {
+        const amount = amountInput.value;
+        const method = paymentMethodInput.value;
+
+        steps.forEach(step => step.classList.remove('active', 'completed'));
+        steps[0].classList.add('active');
+
+        if (amount) {
+            steps[0].classList.add('completed');
+            steps[1].classList.add('active');
+        }
+        if (amount && method) {
+            steps[1].classList.add('completed');
+            steps[2].classList.add('active');
+        }
+    }
+
+    // Validate input field
+    function validateField(field) {
+        const value = field.value.trim();
+        if (!value) {
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+        } else {
+            field.classList.add('is-valid');
+            field.classList.remove('is-invalid');
+        }
+    }
+
+    // Bind amount suggestions
+    amountSuggestions.forEach(suggestion => {
+        suggestion.addEventListener('click', function() {
+            const amount = this.dataset.amount;
+            amountInput.value = amount;
+            validateField(amountInput);
+            updateFormSummary();
+            updateSteps();
         });
+    });
 
-        // Toggle transaction ID field
-        function toggleTxnField() {
-            if (txnField) {
-                if (isOfflineCheckbox.checked) {
-                    txnField.style.display = 'block';
-                    txnField.style.animation = 'fadeInUp 0.3s ease';
-                } else {
-                    txnField.style.display = 'none';
-                }
-            }
-        }
+    // Bind payment method selection
+    paymentMethodButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            paymentMethodButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            paymentMethodInput.value = this.dataset.method;
+            validateField(paymentMethodInput);
+            updateFormSummary();
+            updateSteps();
+        });
+    });
 
-        // Toggle additional details button icon
-        function toggleAdditionalDetailsIcon() {
-            const isExpanded = additionalDetailsBtn.getAttribute('aria-expanded') === 'true';
-            additionalDetailsIcon.className = isExpanded ? 'fas fa-minus me-2' : 'fas fa-plus me-2';
-        }
+    // Show/hide transaction field on checkbox toggle
+    if (isOfflineCheckbox) {
+        isOfflineCheckbox.addEventListener('change', toggleTxnField);
+        toggleTxnField(); // trigger on load
+    }
 
-        // Form validation
-        function validateForm() {
-            const amount = document.querySelector('#amount').value;
-            const paymentMethod = document.querySelector('#payment_method').value;
-            
-            if (!amount || parseFloat(amount) <= 0) {
-                showAlert('Please enter a valid amount', 'danger');
-                return false;
-            }
-            
-            if (!paymentMethod) {
-                showAlert('Please select a payment method', 'danger');
-                return false;
-            }
-            
-            if (isOfflineCheckbox.checked) {
-                const transactionId = document.querySelector('#transaction_id').value;
-                if (!transactionId) {
-                    showAlert('Please enter the transaction ID for offline payments', 'danger');
-                    return false;
-                }
-            }
-            
-            return true;
-        }
+    // Toggle icon for additional details button
+    if (additionalDetailsBtn) {
+        additionalDetailsBtn.addEventListener('click', toggleAdditionalDetailsIcon);
+    }
 
-        // Show alert
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.innerHTML = `
-                <i class="fas fa-exclamation-triangle me-2"></i>${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            const container = document.querySelector('.container');
-            container.insertBefore(alertDiv, container.firstChild);
-            
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 5000);
-        }
+    // Final form validation and loading state
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            let isValid = form.checkValidity();
 
-        // Form submission handler
-        form.addEventListener('submit', function(e) {
-            if (!validateForm()) {
-                e.preventDefault();
+            if (!isValid) {
+                form.classList.add('was-validated');
                 return;
             }
-            
-            // Show loading state
+
             submitBtn.disabled = true;
             spinner.classList.remove('d-none');
-            btnText.textContent = 'Processing...';
-        });
+            btnText.textContent = 'Submitting...';
 
-        // Event listeners
-        isOfflineCheckbox?.addEventListener('change', toggleTxnField);
-        additionalDetailsBtn?.addEventListener('click', toggleAdditionalDetailsIcon);
-        
-        // Initialize
-        toggleTxnField();
-        
-        // Set default payment date to today
-        const paymentDateField = document.querySelector('#payment_date');
-        if (paymentDateField && !paymentDateField.value) {
-            paymentDateField.value = new Date().toISOString().split('T')[0];
-        }
-    });
+            setTimeout(() => {
+                form.submit();
+            }, 1000);
+        });
+    }
+});
 </script>
-</body>
-</html>

@@ -73,6 +73,8 @@ def create_app():
         'scope': 'openid email profile',
     }
 )
+    print("MPESA_CONSUMER_KEY:", app.config.get('MPESA_CONSUMER_KEY'))
+    print("MPESA_SHORTCODE:", app.config.get('MPESA_SHORTCODE'))
 
 
     @login_manager.user_loader

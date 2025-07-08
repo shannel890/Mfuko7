@@ -16,8 +16,8 @@ class Config:
     MPESA_PAYBILL = config('MPESA_PAYBILL', default='174379') # Daraja test till number as default
     MPESA_INITIATOR_PASSWORD = config('MPESA_INITIATOR_PASSWORD', default='Safaricom999!') # Daraja test initiator password as default
     MPESA_SAF_CALLBACK_URL = config('MPESA_SAF_CALLBACK_URL', default=None) # Crucial for M-Pesa callbacks
-    MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT')
-    MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE')
+    MPESA_ENVIRONMENT = config('MPESA_ENVIRONMENT')
+    MPESA_SHORTCODE = config('MPESA_SHORTCODE')
     SCHEDULER_API_ENABLED = True
     MAIL_SERVER = config('MAIL_SERVER', 'smtp.mailtrap.io') # Or your actual SMTP server
     MAIL_PORT = config('MAIL_PORT', 2525, cast=int)
@@ -26,5 +26,5 @@ class Config:
     MAIL_USERNAME = config('MAIL_USERNAME')
     MAIL_PASSWORD = config('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = config('MAIL_DEFAULT_SENDER')
-    GOOGLE_CLIENT_ID = config("40390178093-mkcjv5rq2es3lugj4km7nidm0psvavat.apps.googleusercontent.com") 
-    GOOGLE_CLIENT_SECRET = config("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")
+    GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
