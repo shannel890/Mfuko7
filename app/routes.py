@@ -15,7 +15,7 @@ import csv
 import uuid
 from sqlalchemy import extract
 from io import StringIO
-from app.mpesa.mpesa_api import mpesa_api 
+from app.mpesa.mpesa_api import MpesaAPI 
 main = Blueprint('main', __name__)
 
 
@@ -625,15 +625,25 @@ def tenant_make_payment():
             description=form.description.data
         )
 
-        # If M-Pesa online payment
+        # If online M-Pesa payment
         if form.payment_method.data == 'mpesa' and not form.is_offline.data:
+            mpesa = current_app.mpesa_api  # ✅ Get the configured M-Pesa API instance
+
+            # Ensure token is valid or refresh
+            if not mpesa.is_token_valid():
+                if not mpesa.refresh_token():
+                    flash(_l("Failed to authenticate with M-Pesa. Try again later."), "danger")
+                    return redirect(url_for("main.tenant_make_payment"))
+
             phone_number = current_user.phone_number
+            if not phone_number:
+                flash("Phone number not found in your profile. Please update it.", "danger")
+                return redirect(url_for('auth.edit_profile'))
+
+            current_app.logger.info(f"Phone number before formatting: {phone_number}")
             account_reference = f"Tenant-{tenant.id}"
 
-            if not mpesa_api.access_token or mpesa_api.token_expiry < datetime.utcnow():
-                mpesa_api.refresh_token()
-
-            checkout_id = mpesa_api.initiate_stk_push(
+            checkout_id = mpesa.initiate_stk_push(
                 phone_number=phone_number,
                 amount=form.amount.data,
                 account_reference=account_reference,
@@ -658,7 +668,12 @@ def tenant_make_payment():
         flash("Your payment has been submitted.", "success")
         return redirect(url_for('main.tenant_dashboard'))
 
-    return render_template('payments/tenant_make_payment.html', form=form, amount_due=amount_due,tenant=tenant)
+    return render_template(
+        'payments/tenant_make_payment.html',
+        form=form,
+        amount_due=amount_due,
+        tenant=tenant
+    )
 # Mock data function (replace with database queries)
 def get_report_data(property_id, start_date, end_date):
     # Ensure numeric values with defaults
@@ -734,3 +749,6 @@ def delete_payment(payment_id):
     db.session.commit()
     flash('payment deleted successfully','success')
     return redirect(url_for('main.payments_history'))
+@main.route('/something')
+def use_mpesa():
+    return current_app.mpesa_api.ensure_valid_token()

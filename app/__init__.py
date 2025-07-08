@@ -10,6 +10,11 @@ from app.extensions import mail
 from werkzeug.security import generate_password_hash
 import logging
 from app.job import notify_due_payments
+from app.mpesa.mpesa_api import MpesaAPI
+from decouple import config 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 
@@ -38,6 +43,12 @@ def create_app():
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('shannelkirui739@gmail.com')
+    app.config['MPESA_CONSUMER_KEY'] = config('MPESA_CONSUMER_KEY')
+    app.config['MPESA_CONSUMER_SECRET'] = config('MPESA_CONSUMER_SECRET')
+    app.config['MPESA_SHORTCODE'] = config('MPESA_SHORTCODE')
+    app.config['MPESA_PASSKEY'] = config('MPESA_PASSKEY')
+    app.config['MPESA_CALLBACK_URL'] = config('MPESA_CALLBACK_URL', default='https://example.com/callback')
+    app.config['MPESA_ENVIRONMENT'] = config('MPESA_ENVIRONMENT', 'sandbox')
     
     
     db.init_app(app)
@@ -49,9 +60,8 @@ def create_app():
     oauth.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    login_manager.login_view = 'auth.login' 
+    login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
-
 
     scheduler.add_job(
         id='notify_due_payments',
@@ -60,38 +70,43 @@ def create_app():
         hour=8,
         replace_existing=True
     )
-    oauth.register(
-    name='google',
-    client_id=os.getenv('GOOGLE_CLIENT_ID'),
-    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
-    access_token_url='https://oauth2.googleapis.com/token',
-    access_token_params=None,
-    authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
-    authorize_params=None,
-    api_base_url='https://www.googleapis.com/oauth2/v2/',
-    client_kwargs={
-        'scope': 'openid email profile',
-    }
-)
-    print("MPESA_CONSUMER_KEY:", app.config.get('MPESA_CONSUMER_KEY'))
-    print("MPESA_SHORTCODE:", app.config.get('MPESA_SHORTCODE'))
 
+    oauth.register(
+        name='google',
+        client_id=os.getenv('GOOGLE_CLIENT_ID'),
+        client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+        access_token_url='https://oauth2.googleapis.com/token',
+        access_token_params=None,
+        authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
+        authorize_params=None,
+        api_base_url='https://www.googleapis.com/oauth2/v2/',
+        client_kwargs={
+            'scope': 'openid email profile',
+        }
+    )
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-    
+
     app.register_blueprint(main)
     app.register_blueprint(auth)
-    
-    
+
     with app.app_context():
+        # ✅ Create MpesaAPI instance inside app context
+        app.mpesa_api = MpesaAPI()
+
+        print("MPESA_CONSUMER_KEY:", app.config.get('MPESA_CONSUMER_KEY'))
+        print("MPESA_SHORTCODE:", app.config.get('MPESA_SHORTCODE'))
+
         db.create_all()
+
         landlord_role = Role.query.filter_by(name='landlord').first()
         if not landlord_role:
             landlord_role = Role(name='landlord')
             db.session.add(landlord_role)
             db.session.commit()
+
         landlord_user = User.query.filter_by(email='shannel@gmail.com').first()
         if not landlord_user:
             landlord_user = User(
@@ -100,13 +115,10 @@ def create_app():
                 first_name='shannel',
                 last_name='kirui',
                 fs_uniquifier=str(uuid.uuid4()),
-                active=True,  
+                active=True,
                 roles=[landlord_role]
             )
-
-            landlord_user.roles.append(landlord_role)
             db.session.add(landlord_user)
-        db.session.commit() 
-        
+        db.session.commit()
 
     return app
