@@ -12,6 +12,11 @@ from app.extensions import mail
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import traceback
+import uuid
+
+def generate_uniquifier():
+    return str(uuid.uuid4())
+
 
 
 auth = Blueprint('auth',__name__,url_prefix='/auth')
@@ -89,20 +94,32 @@ def register():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+
+        # Check if user is an OAuth-only user
+        if user and user.is_oauth_user:
+            flash("Please log in using Google.", "warning")
+            return redirect(url_for("auth.login"))
+
+        # Check password
         if user and check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             flash(_l('Logged in successfully!'), 'success')
-            # Check roles through user's roles relationship
+
+            # Redirect by role
             if any(role.name == 'landlord' for role in user.roles):
                 return redirect(url_for('main.landlord_dashboard'))
             elif any(role.name == 'tenant' for role in user.roles):
                 return redirect(url_for('main.tenant_dashboard'))
             else:
                 return redirect(url_for('main.index'))
+
         flash(_l('Invalid email or password.'), 'danger')
+
     return render_template('security/login.html', form=form)
+
 
 @auth.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
@@ -249,28 +266,48 @@ def init_oauth(app):
         api_base_url='https://www.googleapis.com/oauth2/v2/',
         client_kwargs={'scope': 'openid email profile'},
     )
+
+
 @auth.route('/google-login')
 def google_login():
     redirect_uri = url_for('auth.google_callback', _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
+
 
 @auth.route('/google/callback')
 def google_callback():
     token = oauth.google.authorize_access_token()
     user_info = oauth.google.get('https://openidconnect.googleapis.com/v1/userinfo').json()
 
-
-    email = user_info['email']
-    name = user_info.get('name', 'No Name')
     
+    email = user_info.get("email")
+    first_name = user_info.get("given_name")
+    last_name = user_info.get("family_name")
+
+    if not email:
+        flash("Google login failed: email not returned.", "danger")
+        return redirect(url_for("auth.login"))
+
     user = User.query.filter_by(email=email).first()
+
     if not user:
-        # auto-register
-        user = User(email=email, first_name=name.split()[0], last_name=name.split()[-1])
+        user = User(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            is_oauth_user=True,
+            active=True,
+            fs_uniquifier=generate_uniquifier()
+        )
         db.session.add(user)
         db.session.commit()
 
-    # store user in session
+    login_user(user)
+    tenant_role = Role.query.filter_by(name='tenant').first()
+    if tenant_role:
+        user.roles.append(tenant_role)
+        db.session.commit()
+    # Store in session
     session['user_id'] = user.id
     flash("Logged in with Google", "success")
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.tenant_dashboard'))
