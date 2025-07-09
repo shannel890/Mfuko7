@@ -49,7 +49,9 @@ def create_app():
     app.config['MPESA_PASSKEY'] = config('MPESA_PASSKEY')
     app.config['MPESA_CALLBACK_URL'] = config('MPESA_CALLBACK_URL', default='https://example.com/callback')
     app.config['MPESA_ENVIRONMENT'] = config('MPESA_ENVIRONMENT', 'sandbox')
-    
+    app.config['GOOGLE_CLIENT_ID'] = os.getenv('GOOGLE_CLIENT_ID')
+    app.config['GOOGLE_CLIENT_SECRET'] = os.getenv('GOOGLE_CLIENT_SECRET')
+
     
     db.init_app(app)
     babel.init_app(app)
@@ -72,18 +74,15 @@ def create_app():
     )
 
     oauth.register(
-        name='google',
-        client_id=os.getenv('GOOGLE_CLIENT_ID'),
-        client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
-        access_token_url='https://oauth2.googleapis.com/token',
-        access_token_params=None,
-        authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
-        authorize_params=None,
-        api_base_url='https://www.googleapis.com/oauth2/v2/',
-        client_kwargs={
-            'scope': 'openid email profile',
-        }
-    )
+    name='google',
+    client_id=app.config['GOOGLE_CLIENT_ID'],
+    client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
+
 
     @login_manager.user_loader
     def load_user(user_id):

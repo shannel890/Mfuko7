@@ -254,10 +254,11 @@ def google_login():
     redirect_uri = url_for('auth.google_callback', _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
 
-@auth.route('/auth/google/callback')
+@auth.route('/google/callback')
 def google_callback():
     token = oauth.google.authorize_access_token()
-    user_info = oauth.google.get('userinfo').json()
+    user_info = oauth.google.get('https://openidconnect.googleapis.com/v1/userinfo').json()
+
 
     email = user_info['email']
     name = user_info.get('name', 'No Name')
