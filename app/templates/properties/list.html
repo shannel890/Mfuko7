@@ -166,12 +166,11 @@
             <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
           </div>
 
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
-
-            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
-              <i data-lucide="menu" class="lucide-icon"></i>
-            </button>
+          <div class="navbar-actions">
+            <a href="{{url_for('auth.logout')}}" class="logout-btn-custom">Logout</a>
+              <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                  <i class="fas fa-bars"></i>
+              </button>
           </div>
         </div>
       </div>

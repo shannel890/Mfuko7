@@ -3,468 +3,999 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ _('Profile') }} - {{ user.full_name or user.username }}</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>{{ user.full_name or user.username }} - Profile</title>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary: #34c759;
-            --secondary: #2aa648;
-            --accent: #ffd700;
-            --text: #1d1d1d;
+            --primary: #6366f1; /* Indigo 500 */
+            --primary-dark: #4f46e5; /* Indigo 600 */
+            --secondary: #10b981; /* Emerald 500 */
+            --accent: #f59e0b; /* Amber 500 */
+            --success: #22c55e; /* Green 500 */
+            --warning: #f59e0b; /* Amber 500 (re-used) */
+            --danger: #ef4444; /* Red 500 */
+            --info: #3b82f6; /* Blue 500 */
+            --text: #1f2937; /* Gray 900 */
+            --text-light: #6b7280; /* Gray 500 */
+            --text-muted: #9ca3af; /* Gray 400 */
             --white: #ffffff;
-            --bg: #f4f8fb;
-            --glass: rgba(255, 255, 255, 0.15);
-            /* Define some common colors for consistency with other pages */
-            --indigo-600: #4f46e5;
-            --indigo-700: #4338ca;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
+            --bg-primary: #f8fafc; /* Cool Gray 50 */
+            --bg-secondary: #f1f5f9; /* Cool Gray 100 */
+            --glass: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --border-radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --nav-height: 70px;
+        }
+
+        /* Basic Reset & Typography */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(to right, #a0c4ff, #bdb2ff);
-            background-size: cover;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #dddee2 0%, #381061 50%, #ebd5d1 100%); /* Light, subtle gradient */
             background-attachment: fixed;
             color: var(--text);
-            margin: 0;
             line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Navigation Specific Styles (using Tailwind equivalent values) */
+        /* Animated Background Particles */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        .particle:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { top: 20%; left: 80%; animation-delay: 2s; }
+        .particle:nth-child(3) { top: 60%; left: 30%; animation-delay: 4s; }
+        .particle:nth-child(4) { top: 80%; left: 70%; animation-delay: 6s; }
+        .particle:nth-child(5) { top: 40%; left: 60%; animation-delay: 8s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(-60px) rotate(240deg); }
+        }
+
+        /* Enhanced Navigation */
         nav {
-            background-color: rgba(255, 255, 255, 0.8); /* bg-white/80 */
-            -webkit-backdrop-filter: blur(14px); /* backdrop-blur-md for older browsers */
-            backdrop-filter: blur(14px); /* changed to 14px to match profile card blur */
-            border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
-            z-index: 50;
-        }
-
-        nav .max-w-7xl {
-            max-width: 80rem; /* max-w-7xl */
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 1rem; /* px-4 */
-            padding-right: 1rem; /* px-4 */
-        }
-        @media (min-width: 640px) { /* sm:px-6 */
-            nav .max-w-7xl {
-                padding-left: 1.5rem;
-                padding-right: 1.5rem;
-            }
-        }
-        @media (min-width: 1024px) { /* lg:px-8 */
-            nav .max-w-7xl {
-                padding-left: 2rem;
-                padding-right: 2rem;
-            }
-        }
-
-        nav .flex {
+            z-index: 1000;
+            transition: var(--transition);
+            height: var(--nav-height); /* Set fixed height */
             display: flex;
-        }
-        nav .justify-between {
-            justify-content: space-between;
-        }
-        nav .h-16 {
-            height: 4rem; /* h-16 */
-        }
-
-        nav .items-center {
             align-items: center;
         }
-        nav .space-x-4 > *:not(:first-child) {
-            margin-left: 1rem; /* space-x-4 */
-        }
-        nav .space-x-6 > *:not(:first-child) {
-            margin-left: 1.5rem; /* space-x-6 */
+
+        nav:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
 
-        nav .text-xl {
-            font-size: 1.25rem;
-            line-height: 1.75rem;
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            width: 100%;
         }
-        nav .font-semibold {
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%; /* Occupy full nav height */
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            /* Using a more vibrant gradient for the brand text */
+            background: linear-gradient(45deg, #22c55e, #3b82f6, #f97316); /* Green, Blue, Orange */
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            transition: var(--transition);
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.02); /* Slightly less aggressive scale */
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            white-space: nowrap; /* Prevent wrapping on small screens */
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            transition: var(--transition);
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-link:hover::before {
+            width: 80%;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
             font-weight: 600;
-        }
-        nav .text-gray-800 {
-            color: var(--gray-800);
-        }
-
-        /* PropertyPayTrack Brand */
-        .navbar-brand-ppt span.text-green-500 { color: #22c55e; } /* Tailwind green-500 equivalent */
-        .navbar-brand-ppt span.text-orange-500 { color: #f97316; } /* Tailwind orange-500 equivalent */
-        .navbar-brand-ppt span.text-blue-500 { color: #3b82f6; } /* Tailwind blue-500 equivalent */
-
-        /* Nav links (desktop) */
-        nav .text-gray-700 {
-            color: var(--gray-700);
-        }
-        nav .hover\:text-indigo-600:hover {
-            color: var(--indigo-600);
-        }
-        nav .transition {
-            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            white-space: nowrap;
         }
 
-        /* Logout button (desktop) */
-        nav .text-sm {
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-        }
-        nav .text-white {
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
             color: var(--white);
         }
-        nav .bg-indigo-600 {
-            background-color: var(--indigo-600);
-        }
-        nav .hover\:bg-indigo-700:hover {
-            background-color: var(--indigo-700);
-        }
-        nav .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-        nav .py-2 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
-        nav .rounded-lg {
-            border-radius: 0.5rem;
+
+        .mobile-menu-toggle {
+            display: none; /* Hidden by default on desktop */
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: var(--transition);
         }
 
-        /* Mobile specific classes */
-        nav .hidden {
-            display: none;
-        }
-        @media (min-width: 768px) { /* md:flex */
-            nav .md\:flex {
-                display: flex;
-            }
-            nav .md\:inline-block {
-                display: inline-block;
-            }
-            nav .md\:hidden {
-                display: none;
-            }
+        .mobile-menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Mobile menu */
-        #mobileMenu {
-            padding-left: 1rem; /* px-4 */
-            padding-right: 1rem; /* px-4 */
-            padding-bottom: 1rem; /* pb-4 */
-            border-top: 1px solid #e5e7eb; /* border-gray-200 */
-        }
-        #mobileMenu a {
-            display: block;
-            padding-top: 0.5rem; /* py-2 */
-            padding-bottom: 0.5rem; /* py-2 */
-        }
-
-        /* Lucide Icons */
-        .lucide-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            stroke-width: 2px; /* Default stroke for Lucide icons */
-            vertical-align: middle; /* Align with text */
-        }
-
+        /* Profile Section */
         .profile-wrapper {
-            padding: 60px 20px;
-            min-height: 100vh;
+            padding: 4rem 2rem;
+            min-height: calc(100vh - var(--nav-height)); /* Account for nav height */
+            display: flex;
+            align-items: center;
             position: relative;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .profile-card {
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            background-color: var(--glass);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 18px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
             overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: slideUp 0.8s ease-out;
+            color: var(--white); /* Ensure text within card is white for better contrast with glass effect */
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            animation: shimmer 3s infinite linear; /* Added linear for smoother shimmer */
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .profile-header {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: var(--white);
-            padding: 20px 25px;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 4s infinite cubic-bezier(0.4, 0, 0.2, 1); /* Added cubic-bezier for smoother pulse */
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            z-index: 2;
+            font-size: 3rem;
+            color: var(--white);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.5); /* Added a subtle white border */
+        }
+
+        .profile-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            text-align: center; /* Center the header text */
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 2;
         }
 
         .profile-body {
-            padding: 30px;
+            padding: 2.5rem 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1.5rem;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .info-row {
             display: flex;
-            flex-wrap: wrap;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            align-items: center; /* Align items vertically */
+            align-items: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
 
-        .info-row:last-child {
-            border-bottom: none;
+        .info-row::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            transition: var(--transition);
+        }
+
+        .info-row:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-row:hover::before {
+            width: 100%;
+            opacity: 0.1;
+        }
+
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            color: var(--white);
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .info-content {
+            flex: 1;
+            color: var(--white); /* Ensure info content text is white */
         }
 
         .info-label {
-            flex: 0 0 35%;
-            font-weight: bold;
-            color: var(--text);
+            font-weight: 600;
+            color: var(--white);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .info-value {
-            flex: 1;
-            opacity: 0.9;
-            color: #333;
-            word-break: break-word; /* Prevent long words from breaking layout */
+            color: var(--white);
+            font-size: 1.1rem;
+            font-weight: 500;
+            word-break: break-word;
         }
 
-        .badge.bg-info {
-            background-color: #17a2b8 !important; /* Keep Bootstrap's info color */
-            border-radius: 20px;
-            padding: 6px 12px;
+        .role-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        .badge-custom {
+            background: linear-gradient(45deg, var(--info), var(--primary));
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
             font-size: 0.85rem;
-            display: inline-flex; /* Use flex to align icon and text in badge */
+            font-weight: 600;
+            display: inline-flex;
             align-items: center;
-            gap: 5px; /* Space between icon and text */
+            gap: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .badge-custom:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
         }
 
         .profile-footer {
             display: flex;
-            justify-content: space-between;
-            padding: 20px 25px;
-            background-color: rgba(255, 255, 255, 0.05);
-            gap: 15px; /* Add gap for consistent spacing on small screens */
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 2.5rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .btn-custom {
-            padding: 12px 20px;
+            padding: 1rem 2.5rem;
             font-weight: 600;
             font-size: 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            text-decoration: none; /* Ensure buttons look like buttons */
-            display: inline-flex; /* For icon alignment */
+            border-radius: 30px;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
-            justify-content: center; /* Center content in button */
-            gap: 5px; /* Space between icon and text */
+            justify-content: center;
+            gap: 0.8rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            min-width: 180px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .btn-custom.btn-primary {
-            background-color: var(--primary);
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: var(--transition);
+            transform: translate(-50%, -50%);
+            z-index: 1; /* Ensure ripple is above text but below button bg */
+        }
+
+        .btn-custom span {
+            position: relative;
+            z-index: 2; /* Ensure text is above ripple */
+        }
+
+        .btn-custom:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
             color: var(--white);
-            border: none;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
         }
 
-        .btn-custom.btn-primary:hover {
-            background-color: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 199, 89, 0.3);
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+            color: var(--white);
         }
 
-        .btn-custom.btn-warning {
-            background-color: var(--accent);
-            color: #222;
-            border: none;
+        .btn-warning-custom {
+            background: linear-gradient(45deg, var(--accent), var(--warning)); /* Consistent variable use */
+            color: var(--white);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
         }
 
-        .btn-custom.btn-warning:hover {
-            background-color: #ffe066;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        .btn-warning-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(245, 158, 11, 0.4);
+            color: var(--white);
         }
 
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
-            .profile-header {
-                font-size: 1.75rem; /* Adjust font size for smaller screens */
+            .nav-links {
+                position: fixed;
+                top: var(--nav-height); /* Position below the nav bar */
+                left: 0;
+                width: 100%;
+                height: calc(100vh - var(--nav-height));
+                background: rgba(255, 255, 255, 0.9); /* Lighter background for mobile menu */
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transform: translateX(100%);
+                transition: transform 0.5s ease-out;
+                z-index: 999; /* Below sticky nav, above content */
             }
+
+            .nav-links.active {
+                transform: translateX(0);
+            }
+
+            .nav-link {
+                color: var(--text); /* Darker text for better contrast on light background */
+                padding: 1rem 2rem;
+                width: 100%;
+                text-align: center;
+                font-size: 1.2rem;
+                margin: 0.5rem 0;
+            }
+
+            .nav-link:hover {
+                background: rgba(0, 0, 0, 0.05); /* Subtle hover for mobile links */
+            }
+
+            .logout-btn {
+                margin-top: 1.5rem;
+                width: 80%; /* Wider button for mobile */
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .profile-wrapper {
+                padding: 2rem 1rem;
+            }
+
+            .profile-title {
+                font-size: 2rem;
+            }
+
+            .profile-header {
+                padding: 2rem 1rem;
+            }
+
+            .profile-body {
+                padding: 1.5rem 1rem;
+            }
+
             .profile-footer {
                 flex-direction: column;
-                align-items: stretch; /* Stretch buttons to full width */
+                gap: 1rem;
+                padding: 1.5rem 1rem;
             }
 
-            .info-label, .info-value {
+            .btn-custom {
                 width: 100%;
-                text-align: left;
             }
-            .info-label {
-                margin-bottom: 5px; /* Space between label and value on small screens */
+
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+                padding: 1rem;
+            }
+
+            .info-icon {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+
+            .info-content {
+                width: 100%;
+            }
+        }
+
+        /* Loading animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background-size: 200% 100%; /* Make shimmer wider */
+            animation: shimmerEffect 1.5s infinite linear;
+        }
+
+        @keyframes shimmerEffect {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles */
+        .nav-link:focus,
+        .logout-btn:focus,
+        .btn-custom:focus,
+        .mobile-menu-toggle:focus,
+        button:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+            border-radius: 4px; /* Apply consistent border-radius for focus */
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .profile-card, .info-row {
+                animation: none !important; /* Disable specific entry animations */
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
+        }
+
+        /* Ripple effect animation for JavaScript */
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
             }
         }
     </style>
 </head>
-<body data-aos-easing="ease" data-aos-duration="1200">
-    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800 navbar-brand-ppt">
-                        <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
-                    </a>
+<body>
+    <div class="bg-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <nav>
+        <div class="nav-container">
+            <div class="nav-content">
+                <a href="{{ url_for('main.index') }}" class="navbar-brand">
+                    <span style="color: #22c55e;">Property</span><span style="color: #f97316;">Pay</span><span style="color: #3b82f6;">Track</span>
+                </a>
+
+                <div class="nav-links" id="navLinks">
+                    <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ url_for('main.payments_history') }}" class="nav-link">Payments</a>
+                    <a href="{{ url_for('auth.profile') }}" class="nav-link">Profile</a>
+                    <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
                 </div>
 
-                <div class="hidden md:flex items-center space-x-6">
-                    {% if current_user.has_role('landlord') %}
-                        <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
-                        <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
-                        <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
-                        <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
-                        <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign Property</a>
-                    {% elif current_user.has_role('tenant') %}
-                        <a href="{{ url_for('main.tenant_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
-                        <a href="{{ url_for('main.tenant_make_payment') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
-                        <a href="#" class="text-gray-700 hover:text-indigo-600 transition">Notices</a>
-                        <a href="#" class="text-gray-700 hover:text-indigo-600 transition">Support</a>
-                    {% endif %}
-                    <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                    <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-sm text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition">
-                        Logout
-                    </a>
-                    <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
-                        <i data-lucide="menu" class="lucide-icon"></i>
-                    </button>
-                </div>
+                <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
-        </div>
-
-        <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-            {% if current_user.has_role('landlord') %}
-                <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
-                <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
-                <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
-                <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-                <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign Property</a>
-            {% elif current_user.has_role('tenant') %}
-                <a href="{{ url_for('main.tenant_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
-                <a href="{{ url_for('main.tenant_make_payment') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-                <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">Notices</a>
-                <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">Support</a>
-            {% endif %}
-            <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
-            <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
         </div>
     </nav>
 
-    <div class="profile-wrapper">
+    <main class="profile-wrapper">
         <div class="container">
-            <div class="row justify-content-center" data-aos="fade-up">
-                <div class="col-lg-8">
-                    <div class="profile-card">
-                        <div class="profile-header">
-                            {{ _('User Profile') }}
-                        </div>
-                        <div class="profile-body">
-                            <div class="info-row">
-                                <div class="info-label">{{ _('Username') }}:</div>
-                                <div class="info-value">{{ user.username }}</div>
+            <div class="profile-card">
+                <header class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h1 class="profile-title">{{ user.full_name or user.username }}</h1>
+                    <p class="profile-subtitle">Manage your account information and preferences</p>
+                </header>
+
+                <div class="profile-body">
+                    <div class="info-grid">
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-user"></i>
                             </div>
-                            <div class="info-row">
-                                <div class="info-label">{{ _('First Name') }}:</div>
-                                <div class="info-value">{{ user.first_name or _('Not provided') }}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">{{ _('Last Name') }}:</div> {# Added Last Name #}
-                                <div class="info-value">{{ user.last_name or _('Not provided') }}</div> {# Added Last Name #}
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">{{ _('Email') }}:</div>
-                                <div class="info-value">{{ user.email }}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">{{ _('Phone Number') }}:</div>
-                                <div class="info-value">{{ user.phone_number or _('Not provided') }}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">{{ _('County') }}:</div>
-                                <div class="info-value">{{ user.county.name if user.county else _('Not specified') }}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">{{ _('Roles') }}:</div>
-                                <div class="info-value">
-                                    {% if user.roles %}
-                                        {% for role in user.roles %}
-                                            <span class="badge bg-info me-1"><i class="fas fa-user-tag me-1"></i>{{ role.name }}</span>
-                                        {% endfor %}
-                                    {% else %}
-                                        {{ _('No roles') }}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">{{ _('Language') }}:</div>
-                                <div class="info-value">
-                                    {% if user.language == 'en' %}
-                                        {{ _('English') }}
-                                    {% elif user.language == 'sw' %}
-                                        {{ _('Swahili') }}
-                                    {% else %}
-                                        {{ _('Not set') }}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">{{ _('Last Login') }}:</div>
-                                <div class="info-value">
-                                    {{ user.current_login_at.strftime('%Y-%m-%d %H:%M:%S') if user.current_login_at else _('Never') }}
-                                </div>
+                            <div class="info-content">
+                                <div class="info-label">Username</div>
+                                <div class="info-value">{{ user.username or 'N/A' }}</div>
                             </div>
                         </div>
-                        <div class="profile-footer">
-                            <a href="{{ url_for('auth.forgot_password') }}" class="btn btn-warning btn-custom">
-                                <i class="fas fa-key"></i> {{ _('Change Password') }}
-                            </a>
-                            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-primary btn-custom">
-                                <i class="fas fa-edit"></i> {{ _('Edit Profile') }}
-                            </a>
+
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">First Name</div>
+                                <div class="info-value">{{ user.first_name or 'N/A' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Last Name</div>
+                                <div class="info-value">{{ user.last_name or 'N/A' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ user.email or 'N/A' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Phone Number</div>
+                                <div class="info-value">{{ user.phone_number or 'N/A' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">County</div>
+                                <div class="info-value">{{ user.county or 'N/A' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-user-tag"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Roles</div>
+                                <div class="info-value">
+                                    <div class="role-badges">
+                                        {% if user.is_admin %}
+                                            <span class="badge-custom">
+                                                <i class="fas fa-shield-alt"></i>
+                                                Administrator
+                                            </span>
+                                        {% endif %}
+                                        {% if user.is_landlord %}
+                                            <span class="badge-custom">
+                                                <i class="fas fa-home"></i>
+                                                Landlord
+                                            </span>
+                                        {% endif %}
+                                        {% if user.is_tenant %}
+                                            <span class="badge-custom">
+                                                <i class="fas fa-person"></i>
+                                                Tenant
+                                            </span>
+                                        {% endif %}
+                                        {% if not user.is_admin and not user.is_landlord and not user.is_tenant %}
+                                            <span class="badge-custom">
+                                                <i class="fas fa-question-circle"></i>
+                                                No Roles Assigned
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Language</div>
+                                <div class="info-value">{{ user.language or 'English' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Last Login</div>
+                                <div class="info-value">{{ user.last_login or 'N/A' }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <footer class="profile-footer">
+                    <a href="{{ url_for('auth.forgot_password') }}" class="btn-custom btn-warning-custom">
+                        <i class="fas fa-key"></i>
+                        <span>Change Password</span>
+                    </a>
+                    <a href="{{ url_for('auth.edit_profile') }}" class="btn-custom btn-primary-custom">
+                        <i class="fas fa-edit"></i>
+                        <span>Edit Profile</span>
+                    </a>
+                </footer>
             </div>
         </div>
-    </div>
+    </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ duration: 1200 });
-
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Lucide icons for the navigation bar
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-
-            // Mobile menu toggle logic
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenuToggle && mobileMenu) {
-                mobileMenuToggle.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
+            const navLinks = document.getElementById('navLinks');
+            const nav = document.querySelector('nav');
+
+            // Toggle mobile menu visibility
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                    this.querySelector('i').classList.toggle('fa-bars');
+                    this.querySelector('i').classList.toggle('fa-times'); // Change icon to 'X'
+                    // Close menu if clicking outside when open
+                    if (navLinks.classList.contains('active')) {
+                        document.addEventListener('click', closeMenuOutside);
+                    } else {
+                        document.removeEventListener('click', closeMenuOutside);
+                    }
+                });
+
+                // Close mobile menu when a link is clicked
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.classList.remove('active');
+                        mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+                        mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+                        document.removeEventListener('click', closeMenuOutside);
+                    });
                 });
             }
-        });
-    </script>
 
+            function closeMenuOutside(event) {
+                if (!navLinks.contains(event.target) && !mobileMenuToggle.contains(event.target) && navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                    mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+                    mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+                    document.removeEventListener('click', closeMenuOutside);
+                }
+            }
+
+
+            // Add loading states for buttons
+            const buttons = document.querySelectorAll('.btn-custom, .logout-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Prevent default only if it's not a real link that should navigate
+                    // For demonstration, we'll keep it prevented for all, but in production,
+                    // you'd typically remove the preventDefault for actual navigations.
+                    // e.preventDefault(); 
+                    
+                    this.classList.add('loading-shimmer');
+                    // In a real app, remove shimmer on successful navigation or API response
+                    // setTimeout(() => {
+                    //     this.classList.remove('loading-shimmer');
+                    // }, 1000); 
+                });
+            });
+
+            // Add ripple effect to buttons
+            function createRipple(event) {
+                const button = event.currentTarget;
+                const circle = document.createElement('span');
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const radius = diameter / 2;
+
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
+                circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
+                circle.classList.add('ripple-effect');
+                
+                button.appendChild(circle);
+
+                circle.addEventListener('animationend', () => {
+                    circle.remove();
+                });
+            }
+
+            // Apply ripple effect to interactive elements
+            document.querySelectorAll('.btn-custom, .logout-btn, .info-row').forEach(element => {
+                element.addEventListener('click', createRipple);
+            });
+
+            // Enhanced keyboard navigation (Escape key to close mobile menu)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                    mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+                    mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+                    document.removeEventListener('click', closeMenuOutside);
+                }
+            });
+
+            // Smooth scrolling (if using anchor links on the same page)
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Intersection Observer for staggered animations of info rows
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target); // Unobserve once animated
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.info-row').forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(30px)';
+                row.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(row);
+            });
+        });
+
+        // Add ripple animation styles dynamically for encapsulation
+        const style = document.createElement('style');
+        style.textContent = `
+            .ripple-effect {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple 600ms linear;
+                pointer-events: none;
+                z-index: 0; /* Ensure it's below button content */
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>

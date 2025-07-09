@@ -611,6 +611,11 @@ def tenant_make_payment():
     amount_due = invoice.amount_due if invoice else tenant.rent_amount
 
     if form.validate_on_submit():
+        if form.transaction_id.data and not form.is_offline.data:
+            existing = Payment.query.filter_by(transaction_id=form.transaction_id.data).first()
+            if existing:
+                flash("Transaction ID already used. Please check and try again.", "danger")
+                return redirect(request.url)
         payment = Payment(
             amount=form.amount.data,
             tenant_id=tenant.id,
@@ -624,6 +629,8 @@ def tenant_make_payment():
             offline_reference=form.offline_reference.data,
             description=form.description.data
         )
+        
+
 
         # If online M-Pesa payment
         if form.payment_method.data == 'mpesa' and not form.is_offline.data:

@@ -482,10 +482,12 @@
                         <p>Manage your properties, tenants, and payments efficiently with modern tools</p>
                     </div>
                     <div class="hidden-mobile">
-                        <button class="header-button" aria-label="View Analytics">
-                            <i data-lucide="activity" class="lucide-icon"></i>
-                            View Analytics
-                        </button>
+                        <a href="{{url_for('main.export_report')}}">
+                            <button class="header-button" aria-label="View Analytics">
+                                <i data-lucide="activity" class="lucide-icon"></i>
+                                View Analytics
+                            </button>
+                        </a>
                     </div>
                 </div>
                 <div class="header-decoration-1"></div>

@@ -566,12 +566,14 @@
             <a href="{{ url_for('main.tenant_edit', id=tenant.id) }}" class="inline-flex items-center px-3 py-1 bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 rounded text-xs font-medium transition">
               <i class="fas fa-edit mr-1"></i> {{ _('Edit') }}
             </a>
-            <form action="{{ url_for('main.delete_tenant', tenant_id=tenant.id) }}" method="POST" class="inline">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              
-                <i class="fas fa-trash mr-1"></i> {{ _('Delete') }}
-              </button>
-            </form>
+          <form action="{{ url_for('main.delete_tenant', tenant_id=tenant.id) }}" method="POST" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <button type="submit" class="btn-custom btn-danger-custom">
+              <i class="fas fa-trash mr-1"></i> {{ _('Delete') }}
+            </button>
+          </form>
+
           </td>
         </tr>
         {% else %}
