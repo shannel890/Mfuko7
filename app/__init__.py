@@ -97,7 +97,7 @@ def create_app():
 
         print("MPESA_CONSUMER_KEY:", app.config.get('MPESA_CONSUMER_KEY'))
         print("MPESA_SHORTCODE:", app.config.get('MPESA_SHORTCODE'))
-
+        
         db.create_all()
 
         landlord_role = Role.query.filter_by(name='landlord').first()

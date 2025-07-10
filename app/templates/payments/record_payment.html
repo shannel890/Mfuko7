@@ -3,18 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Record a new rental payment with PropertyPayTrack.">
+    <meta name="author" content="PropertyPayTrack">
+    <meta name="keywords" content="property management, payment tracking, real estate, landlord">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:title" content="PropertyPayTrack - Record Payment">
+    <meta property="og:description" content="Record a new rental payment with PropertyPayTrack.">
+    <meta property="og:image" content="/static/img/og-image.jpg">
+    <meta property="og:url" content="https://www.propertypaytrack.com/record-payment">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PropertyPayTrack - Record Payment">
+    <meta name="twitter:description" content="Record a new rental payment with PropertyPayTrack.">
+    <meta name="twitter:image" content="/static/img/og-image.jpg">
+
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
+
     <title>Record Payment - PropertyPayTrack</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #1a1a1a;
+            --accent-color: #2aa648;
+            --accent-secondary: #00d4aa;
+            --background-color: #f0f4fa;
+            --surface-color: #ffffff;
+            --card-background: rgba(255, 255, 255, 0.8);
+            --text-color: #333333;
+            --light-text-color: #ffffff;
+            --muted-text: #666666;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-accent: linear-gradient(135deg, #2aa648 0%, #238f3a 100%);
+            --gradient-background: linear-gradient(135deg, #f0f4fa 0%, #d9e6f2 100%);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --radius: 0.5rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: 'Inter', sans-serif;
         }
 
+        body {
+            background: var(--gradient-background);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            animation: gradientShift 15s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background: linear-gradient(135deg, #f0f4fa 0%, #d9e6f2 100%); }
+            50% { background: linear-gradient(135deg, #d9e6f2 0%, #f0f4fa 100%); }
+            100% { background: linear-gradient(135deg, #f0f4fa 0%, #d9e6f2 100%); }
+        }
+
+        /* Navigation */
+        .modern-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--card-background);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .modern-nav.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: var(--shadow-light);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+
+        .brand-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand-logo span:nth-child(1) { color: #10b981; }
+        .brand-logo span:nth-child(2) { color: #f59e0b; }
+        .brand-logo span:nth-child(3) { color: #3b82f6; }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--muted-text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--text-color);
+        }
+
+        .nav-link.active {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-accent);
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: var(--gradient-accent);
+            color: var(--light-text-color);
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(42, 166, 72, 0.3);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 24px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 2px;
+            background: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            background: var(--card-background);
+            backdrop-filter: blur(10px);
+            position: absolute;
+            top: 64px;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .nav-link,
+        .mobile-menu .logout-btn {
+            margin: 0.5rem 0;
+            padding: 0.5rem 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .logout-btn {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .mobile-menu .logout-btn {
+                display: flex;
+                justify-content: center;
+            }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            position: fixed;
+            inset: 0;
+            background: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            border: 6px solid rgba(255, 255, 255, 0.1);
+            border-top: 6px solid var(--accent-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .sr-only:focus {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            width: auto;
+            height: auto;
+            padding: 0.5rem 1rem;
+            background: var(--accent-color);
+            color: var(--light-text-color);
+            border-radius: 0.5rem;
+            clip: auto;
+            z-index: 1000;
+        }
+
+        /* Header Section */
+        .header-section {
+            position: relative;
+            background: var(--surface-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-medium);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
         .gradient-orb {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient-primary);
             animation: float 6s ease-in-out infinite;
         }
 
@@ -33,91 +321,11 @@
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .dark .glassmorphism {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .hover-lift {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .hover-lift:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .dark .hover-lift:hover {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-        }
-
-        .shimmer {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .shimmer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
         .text-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-        }
-
-        .btn-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-gradient::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .btn-gradient:hover::before {
-            opacity: 1;
-        }
-
-        .btn-gradient > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-shadow {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        .dark .card-shadow {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
         }
 
         /* Form Styles */
@@ -127,6 +335,7 @@
             grid-template-columns: 1fr;
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 1rem;
         }
 
         @media (min-width: 1024px) {
@@ -136,12 +345,17 @@
         }
 
         .form-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--card-background);
             border-radius: 1rem;
             padding: 2rem;
-            box-shadow: var(--shadow-card);
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .form-card:hover {
+            box-shadow: var(--shadow-heavy);
         }
 
         .form-header {
@@ -150,34 +364,31 @@
             gap: 1rem;
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
-            border-bottom: 1px solid hsl(var(--border));
+            border-bottom: 1px solid var(--border-color);
         }
 
         .form-icon {
             width: 3rem;
             height: 3rem;
             border-radius: 50%;
-            background: hsl(var(--primary) / 0.1);
+            background: rgba(42, 166, 72, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: hsl(var(--primary));
+            color: var(--accent-color);
             font-size: 1.25rem;
         }
 
-        .form-title-section {
-            flex: 1;
-        }
-
         .form-title {
+            font-family: 'Playfair Display', serif;
             font-size: 1.5rem;
             font-weight: 700;
+            color: var(--text-color);
             margin-bottom: 0.25rem;
-            color: hsl(var(--foreground));
         }
 
         .form-description {
-            color: hsl(var(--muted-foreground));
+            color: var(--muted-text);
             font-size: 0.875rem;
         }
 
@@ -202,13 +413,13 @@
             align-items: center;
             gap: 0.5rem;
             font-weight: 600;
-            color: hsl(var(--foreground));
+            color: var(--text-color);
             margin-bottom: 0.5rem;
             font-size: 0.875rem;
         }
 
         .form-label i {
-            color: hsl(var(--primary));
+            color: var(--accent-color);
             width: 1rem;
         }
 
@@ -217,10 +428,10 @@
         .form-textarea {
             width: 100%;
             padding: 0.75rem 1rem;
-            border: 1px solid hsl(var(--border));
+            border: 1px solid var(--border-color);
             border-radius: var(--radius);
             background: rgba(255, 255, 255, 0.8);
-            transition: var(--transition-smooth);
+            transition: var(--transition);
             font-size: 0.875rem;
         }
 
@@ -228,9 +439,14 @@
         .form-select:focus,
         .form-textarea:focus {
             outline: none;
-            border-color: hsl(var(--primary));
-            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(42, 166, 72, 0.1);
             background: rgba(255, 255, 255, 0.95);
+        }
+
+        .form-input:invalid,
+        .form-select:invalid {
+            border-color: #ef4444;
         }
 
         .modern-select {
@@ -251,7 +467,7 @@
         .currency {
             position: absolute;
             left: 1rem;
-            color: hsl(var(--muted-foreground));
+            color: var(--muted-text);
             font-weight: 600;
             z-index: 1;
         }
@@ -271,8 +487,8 @@
             align-items: center;
             gap: 1rem;
             padding: 1rem;
-            background: hsl(var(--primary) / 0.05);
-            border: 1px solid hsl(var(--primary) / 0.2);
+            background: rgba(42, 166, 72, 0.05);
+            border: 1px solid rgba(42, 166, 72, 0.2);
             border-radius: var(--radius);
         }
 
@@ -280,37 +496,37 @@
             width: 2.5rem;
             height: 2.5rem;
             border-radius: 50%;
-            background: hsl(var(--primary) / 0.1);
+            background: rgba(42, 166, 72, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: hsl(var(--primary));
+            color: var(--accent-color);
         }
 
         .tenant-name {
             font-weight: 600;
-            color: hsl(var(--foreground));
+            color: var(--text-color);
             margin-bottom: 0.25rem;
         }
 
         .tenant-property,
         .tenant-rent {
             font-size: 0.875rem;
-            color: hsl(var(--muted-foreground));
+            color: var(--muted-text);
             margin-bottom: 0.125rem;
         }
 
         .quick-amounts {
             margin-top: 1rem;
             padding: 1rem;
-            background: hsl(var(--accent) / 0.05);
-            border: 1px solid hsl(var(--accent) / 0.2);
+            background: rgba(42, 166, 72, 0.05);
+            border: 1px solid rgba(42, 166, 72, 0.2);
             border-radius: var(--radius);
         }
 
         .quick-amounts-header {
             font-weight: 600;
-            color: hsl(var(--foreground));
+            color: var(--text-color);
             margin-bottom: 0.75rem;
             font-size: 0.875rem;
         }
@@ -323,19 +539,20 @@
 
         .amount-btn {
             padding: 0.5rem 1rem;
-            border: 1px solid hsl(var(--accent));
+            border: 1px solid var(--accent-color);
             background: transparent;
-            color: hsl(var(--accent));
+            color: var(--accent-color);
             border-radius: 1rem;
             font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
         }
 
-        .amount-btn:hover {
-            background: hsl(var(--accent));
-            color: hsl(var(--accent-foreground));
+        .amount-btn:hover,
+        .amount-btn.active {
+            background: var(--accent-color);
+            color: var(--light-text-color);
         }
 
         .form-actions {
@@ -344,30 +561,30 @@
             justify-content: flex-end;
             margin-top: 2rem;
             padding-top: 1.5rem;
-            border-top: 1px solid hsl(var(--border));
+            border-top: 1px solid var(--border-color);
         }
 
         .btn-secondary {
             padding: 0.75rem 1.5rem;
-            border: 1px solid hsl(var(--border));
+            border: 1px solid var(--border-color);
             background: transparent;
-            color: hsl(var(--muted-foreground));
+            color: var(--muted-text);
             border-radius: var(--radius);
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
         }
 
         .btn-secondary:hover {
-            background: hsl(var(--muted));
-            color: hsl(var(--foreground));
+            background: var(--muted-text);
+            color: var(--light-text-color);
         }
 
         .form-error {
-            color: hsl(var(--destructive));
+            color: #ef4444;
             font-size: 0.75rem;
             margin-top: 0.25rem;
             display: flex;
@@ -381,21 +598,26 @@
         }
 
         .form-hint {
-            color: hsl(var(--muted-foreground));
+            color: var(--muted-text);
             font-size: 0.75rem;
             margin-top: 0.25rem;
             font-style: italic;
         }
 
         .summary-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--card-background);
             border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: var(--shadow-card);
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
             height: fit-content;
             top: 2rem;
+            transition: var(--transition);
+        }
+
+        .summary-card:hover {
+            box-shadow: var(--shadow-heavy);
         }
 
         .summary-header {
@@ -404,18 +626,14 @@
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid hsl(var(--border));
+            border-bottom: 1px solid var(--border-color);
         }
 
         .summary-header h3 {
+            font-family: 'Playfair Display', serif;
             font-size: 1.125rem;
             font-weight: 600;
-            color: hsl(var(--foreground));
-        }
-
-        .summary-header i {
-            color: hsl(var(--primary));
-            font-size: 1.25rem;
+            color: var(--text-color);
         }
 
         .summary-content {
@@ -431,31 +649,34 @@
         }
 
         .summary-label {
-            color: hsl(var(--muted-foreground));
+            color: var(--muted-text);
             font-size: 0.875rem;
         }
 
         .summary-value {
             font-weight: 600;
-            color: hsl(var(--foreground));
+            color: var(--text-color);
         }
 
         .btn-primary-custom {
             padding: 0.75rem 1.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--gradient-accent);
+            color: var(--light-text-color);
             border-radius: var(--radius);
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: var(--transition);
+            border: none;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-primary-custom:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
             transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(42, 166, 72, 0.4);
         }
 
         .btn-primary-custom.loading {
@@ -473,15 +694,77 @@
             margin-left: -0.5rem;
             margin-top: -0.5rem;
             border: 2px solid transparent;
-            border-top-color: currentColor;
+            border-top-color: var(--light-text-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            padding: 60px 0;
+            background: var(--surface-color);
+            color: var(--muted-text);
+            text-align: center;
+            border-top: 1px solid var(--border-color);
         }
 
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: var(--muted-text);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--text-color);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            color: var(--muted-text);
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Checkbox */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .form-card {
                 padding: 1.5rem;
@@ -508,95 +791,120 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
-    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
-              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="modern-nav" id="navbar">
+        <div class="nav-container">
+            <a href="landlord_dashboard.html" class="brand-logo" aria-label="PropertyPayTrack Home">
+                <span>Property</span><span>Pay</span><span>Track</span>
             </a>
-          </div>
-
-          <div class="hidden md:flex items-center space-x-6">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
-            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
-            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
-            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
-            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
-            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
-          </div>
-
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
-
-            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
-              <i data-lucide="menu" class="lucide-icon"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
-        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
-        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
-        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
-        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
-        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
-      </div>
-    </nav>
-    <div class="dashboard-container px-4 sm:px-6 lg:px-8 pt-8">
-        <!-- Header Section -->
-        <div class="relative bg-white dark:bg-gray-800 rounded-2xl card-shadow hover-lift p-8 mb-8 overflow-hidden group">
-            <div class="absolute -top-4 -left-4 w-24 h-24 gradient-orb rounded-full opacity-20 blur-xl"></div>
-            <div class="absolute -bottom-6 -right-6 w-32 h-32 gradient-orb-2 rounded-full opacity-15 blur-2xl"></div>
-            <div class="absolute top-1/2 left-1/4 w-16 h-16 gradient-orb-3 rounded-full opacity-10 blur-lg"></div>
-            <div class="absolute inset-0 opacity-5 dark:opacity-10">
-                <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.15) 1px, transparent 0); background-size: 20px 20px;"></div>
+            <div class="nav-links">
+                <a href="{{url_for('main.landlord_dashboard')}}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
+                <a href="{{url_for('main.properties_list')}}" class="nav-link" aria-label="Go to Properties">Properties</a>
+                <a href="{{url_for('main.tenants_list')}}" class="nav-link" aria-label="Go to Tenants">Tenants</a>
+                <a href="{{url_for('main.payments_history')}}" class="nav-link active" aria-label="Go to Payments">Payments</a>
+                <a href="{{url_for('main.assign_property')}}" class="nav-link" aria-label="Go to Assign Property">Assign</a>
+                <a href="{{url_for('auth.profile')}}" class="nav-link" aria-label="Go to Profile">Profile</a>
+                <a href="{{url_for('auth.logout')}}" class="logout-btn" aria-label="Logout">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
             </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="{{url_for('main.landlord_dashboard')}}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
+            <a href="{{url_for('main.properties_list')}}" class="nav-link" aria-label="Go to Properties">Properties</a>
+            <a href="{{url_for('main.tenants_list')}}" class="nav-link" aria-label="Go to Tenants">Tenants</a>
+            <a href="{{url_for('main.payments_history')}}" class="nav-link active" aria-label="Go to Payments">Payments</a>
+            <a href="{{url_for('main.assign_property')}}" class="nav-link" aria-label="Go to Assign Property">Assign</a>
+            <a href="{{url_for('auth.profile')}}" class="nav-link" aria-label="Go to Profile">Profile</a>
+            <a href="{{url_for('auth.logout')}}" class="logout-btn" aria-label="Logout">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
+        </div>
+    </nav>
+
+    <!-- Skip Link -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+
+    <!-- Main Content -->
+    <div class="dashboard-container px-4 sm:px-6 lg:px-8 pt-8" id="main-content">
+        <!-- Header Section -->
+        <div class="header-section hover-lift" data-aos="fade-down" data-aos-duration="800" style="
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+        ">
+            <div class="absolute -top-4 -left-4 w-24 h-24 rounded-full opacity-20 blur-xl" style="
+                background: linear-gradient(135deg, #a8c0ff, #3f2b96);
+            "></div>
+            <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full opacity-15 blur-2xl" style="
+                background: linear-gradient(135deg, #fceabb, #f8b500);
+            "></div>
+            <div class="absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-10 blur-lg" style="
+                background: linear-gradient(135deg, #e0e0e0, #a0a0a0);
+            "></div>
             <div class="relative z-10 flex flex-col sm:flex-row sm:justify-between sm:items-center">
                 <div class="mb-6 sm:mb-0">
                     <div class="flex items-center mb-2">
-                        <div class="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-4"></div>
-                        <h1 class="text-4xl font-bold text-gray-900 dark:text-white leading-tight text-gradient">
-                            Record Payment
-                        </h1>
+                        <div class="w-2 h-8 rounded-full mr-4" style="
+                            background: linear-gradient(to bottom, #4A90E2, #7B68EE);
+                        "></div>
+                        <h1 class="text-4xl font-bold" style="
+                            background: linear-gradient(to right, #1B365D, #C9A96E);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            font-family: 'Playfair Display', serif;
+                        ">Record Payment</h1>
                     </div>
-                    <p class="text-gray-600 dark:text-gray-300 text-base font-medium ml-6">
-                        Add a new rental payment to the system
-                    </p>
-                    <div class="flex items-center mt-3 ml-6 text-sm text-gray-500 dark:text-gray-400">
+                    <p class="text-base font-medium ml-6" style="
+                        color: #5A6270;
+                        font-family: 'Inter', sans-serif;
+                    ">Add a new rental payment to the system</p>
+                    <div class="flex items-center mt-3 ml-6 text-sm" style="
+                        color: #8A8D8F;
+                        font-family: 'Inter', sans-serif;
+                    ">
                         <i class="fas fa-home mr-2"></i>
                         <span>Dashboard</span>
                         <i class="fas fa-chevron-right mx-2 text-xs"></i>
                         <span>Payments</span>
                         <i class="fas fa-chevron-right mx-2 text-xs"></i>
-                        <span class="text-blue-600 dark:text-blue-400 font-medium">Record Payment</span>
+                        <span style="
+                            color: #4A90E2;
+                            font-weight: 600;
+                        ">Record Payment</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <div class="hidden sm:flex items-center space-x-2">
-                        <button class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 group">
-                            <i class="fas fa-search text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"></i>
-                        </button>
-                        <button class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 group">
-                            <i class="fas fa-filter text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"></i>
-                        </button>
-                    </div>
-                    <a href="{{url_for('main.payments_history')}}" class="inline-flex items-center px-6 py-3 btn-gradient text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 shimmer">
+                    <a href="payments_history.html" class="inline-flex items-center px-6 py-3 text-sm font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105" aria-label="Back to Payment History" style="
+                        background: linear-gradient(to right, #1B365D, #2D4A72);
+                        color: #ffffff;
+                        box-shadow: 0 5px 15px rgba(27, 54, 93, 0.3);
+                        font-family: 'Inter', sans-serif;
+                    ">
                         <i class="fas fa-arrow-left mr-2"></i>
                         <span>Back to History</span>
                     </a>
                 </div>
             </div>
-            <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-20"></div>
         </div>
 
         <!-- Payment Form -->
         <div class="form-container">
-            <div class="form-card hover-lift">
+            <div class="form-card hover-lift" data-aos="fade-up" data-aos-duration="800">
                 <div class="form-header">
                     <div class="form-icon">
                         <i class="fas fa-receipt"></i>
@@ -608,15 +916,15 @@
                 </div>
                 <form method="POST" novalidate class="payment-form" id="paymentForm">
                     <div class="form-grid">
+                        <!-- Tenant -->
                         <div class="form-group full-width">
-                            <label for="tenant_id" class="form-label">
-                                <i class="fas fa-user"></i>
-                                Tenant
-                            </label>
-                            <select name="tenant_id" id="tenantSelect" class="form-select modern-select">
+                            <label class="form-label" for="tenant_id"><i class="fas fa-user"></i> Tenant</label>
+                            <select class="form-select modern-select" id="tenant_id" name="tenant_id" required aria-label="Select Tenant">
                                 <option value="">Select a tenant</option>
-                                <!-- Tenant options would be populated dynamically -->
+                                <option value="1">John Doe</option>
+                                <option value="2">Jane Smith</option>
                             </select>
+                            <div class="form-error" id="tenant_id_error" style="display: none;">Please select a tenant.</div>
                             <div class="tenant-info-display" id="tenantInfo" style="display: none;">
                                 <div class="tenant-card">
                                     <div class="tenant-avatar">
@@ -630,76 +938,92 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Amount -->
                         <div class="form-group">
-                            <label for="amount" class="form-label">
-                                <i class="fas fa-dollar-sign"></i>
-                                Amount
-                            </label>
+                            <label class="form-label" for="amount"><i class="fas fa-money-bill-wave"></i> Amount</label>
                             <div class="amount-input-wrapper">
                                 <span class="currency">KSh</span>
-                                <input type="number" name="amount" class="form-input amount-input" placeholder="0.00" step="0.01">
+                                <input type="number" class="form-input amount-input" id="amount" name="amount" step="0.01" required min="0" aria-label="Payment Amount">
                             </div>
+                            <div class="form-error" id="amount_error" style="display: none;">Please enter a valid amount.</div>
                         </div>
+
+                        <!-- Payment Method -->
                         <div class="form-group">
-                            <label for="payment_method" class="form-label">
-                                <i class="fas fa-credit-card"></i>
-                                Payment Method
-                            </label>
-                            <select name="payment_method" class="form-select modern-select">
+                            <label class="form-label" for="payment_method"><i class="fas fa-credit-card"></i> Payment Method</label>
+                            <select class="form-select modern-select" id="payment_method" name="payment_method" required aria-label="Select Payment Method">
+                                <option value="">Select a method</option>
                                 <option value="mpesa">M-Pesa</option>
                                 <option value="bank">Bank Transfer</option>
                                 <option value="cash">Cash</option>
                             </select>
+                            <div class="form-error" id="payment_method_error" style="display: none;">Please select a payment method.</div>
                         </div>
+
+                        <!-- Payment Date -->
                         <div class="form-group">
-                            <label for="payment_date" class="form-label">
-                                <i class="fas fa-calendar"></i>
-                                Payment Date
-                            </label>
-                            <input type="date" name="payment_date" class="form-input">
+                            <label class="form-label" for="payment_date"><i class="fas fa-calendar-alt"></i> Payment Date</label>
+                            <input type="date" class="form-input" id="payment_date" name="payment_date" required aria-label="Payment Date">
+                            <div class="form-error" id="payment_date_error" style="display: none;">Please select a valid date.</div>
                         </div>
+
+                        <!-- Transaction ID -->
                         <div class="form-group">
-                            <label for="transaction_id" class="form-label">
-                                <i class="fas fa-hashtag"></i>
-                                Transaction ID
-                            </label>
-                            <input type="text" name="transaction_id" class="form-input" placeholder="e.g., MP12345678">
+                            <label class="form-label" for="transaction_id"><i class="fas fa-barcode"></i> Transaction ID</label>
+                            <input type="text" class="form-input" id="transaction_id" name="transaction_id" placeholder="e.g., MP12345678" aria-label="Transaction ID">
                             <div class="form-hint">Optional: Reference number from payment provider</div>
                         </div>
+
+                        <!-- Description -->
                         <div class="form-group full-width">
-                            <label for="description" class="form-label">
-                                <i class="fas fa-comment"></i>
-                                Description
-                            </label>
-                            <textarea name="description" class="form-textarea" rows="3" placeholder="Add any additional notes about this payment..."></textarea>
+                            <label class="form-label" for="description"><i class="fas fa-comment"></i> Description</label>
+                            <textarea class="form-textarea" id="description" name="description" rows="3" placeholder="Add any additional notes about this payment..." aria-label="Payment Description"></textarea>
+                        </div>
+
+                        <!-- Offline Checkbox -->
+                        <div class="form-group full-width">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="is_offline" name="is_offline" aria-label="Offline Payment">
+                                <label for="is_offline">Offline Payment</label>
+                            </div>
+                        </div>
+
+                        <!-- Offline Reference -->
+                        <div class="form-group full-width" id="offline_reference_group" style="display: none;">
+                            <label class="form-label" for="offline_reference"><i class="fas fa-file-alt"></i> Offline Reference</label>
+                            <input type="text" class="form-input" id="offline_reference" name="offline_reference" placeholder="e.g., Manual Receipt #123" aria-label="Offline Reference">
                         </div>
                     </div>
+
+                    <!-- Quick Amounts Section -->
                     <div class="quick-amounts" id="quickAmounts" style="display: none;">
-                        <div class="quick-amounts-header">
-                            <span>Quick Amount Selection</span>
-                        </div>
+                        <div class="quick-amounts-header">Quick Amount Selection</div>
                         <div class="amount-buttons">
                             <button type="button" class="amount-btn" data-amount="full">Full Rent</button>
                             <button type="button" class="amount-btn" data-amount="half">Half Rent</button>
                             <button type="button" class="amount-btn" data-amount="partial">Partial</button>
                         </div>
                     </div>
+
+                    <!-- Submit Actions -->
                     <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="history.back()">
+                        <button type="button" class="btn-secondary" onclick="history.back()" aria-label="Cancel Payment">
                             <i class="fas fa-times"></i>
                             Cancel
                         </button>
-                        <button type="submit" class="btn-primary-custom" id="submitBtn">
-                            <i class="fas fa-save"></i>
-                            Record Payment
+                        <button type="submit" class="btn-primary-custom" id="submitBtn" aria-label="Submit Payment">
+                            <i class="fas fa-receipt mr-2"></i>
+                            Submit Payment
                         </button>
                     </div>
                 </form>
             </div>
-            <div class="summary-card hover-lift" id="paymentSummary" style="display: none;">
+
+            <!-- Payment Summary -->
+            <div class="summary-card hover-lift" id="paymentSummary" style="display: none;" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
                 <div class="summary-header">
-                    <h3>Payment Summary</h3>
-                    <i class="fas fa-receipt"></i>
+                    <h3><i class="fas fa-receipt mr-2"></i>Payment Summary</h3>
                 </div>
                 <div class="summary-content">
                     <div class="summary-item">
@@ -723,25 +1047,85 @@
         </div>
     </div>
 
-    <!-- Dark mode toggle -->
-    <div class="fixed top-4 right-4 z-50">
-        <button id="theme-toggle" class="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-            <i class="fas fa-moon dark:hidden text-gray-600"></i>
-            <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
-        </button>
-    </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+             <ul class="footer-links">
+                <li><a href="{{url_for('main.index')}}" aria-label="Go to Home section">Home</a></li>
+                <li><a href="{{url_for('main.features')}}" aria-label="Go to Features section">Features</a></li>
+                
+                <li><a href="{{url_for('main.contact')}}" aria-label="Go to Contact section">Contact</a></li>
+                <li><a href="#" aria-label="Privacy Policy">Privacy Policy</a></li>
+                <li><a href="#" aria-label="Terms of Service">Terms of Service</a></li>
+            </ul>
+            <div class="social-links">
+                <a href="#" aria-label="Follow us on Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Follow us on Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="#" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="#" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p>© 2025 PropertyPayTrack. All rights reserved.</p>
+        </div>
+    </footer>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 100
+        });
+
+        // Loading spinner
+        window.addEventListener('load', function() {
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.style.opacity = '0';
+            setTimeout(function() {
+                loadingSpinner.style.display = 'none';
+            }, 500);
+        });
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Hamburger menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking a link
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        // Form handling
         document.addEventListener('DOMContentLoaded', function() {
-            const tenantSelect = document.getElementById('tenantSelect');
+            const tenantSelect = document.getElementById('tenant_id');
             const tenantInfo = document.getElementById('tenantInfo');
             const quickAmounts = document.getElementById('quickAmounts');
-            const amountInput = document.querySelector('.amount-input');
+            const amountInput = document.getElementById('amount');
             const paymentSummary = document.getElementById('paymentSummary');
             const form = document.getElementById('paymentForm');
             const submitBtn = document.getElementById('submitBtn');
+            const offlineCheckbox = document.getElementById('is_offline');
+            const offlineReferenceGroup = document.getElementById('offline_reference_group');
 
-            // Sample tenant data (this would come from the backend)
+            // Sample tenant data
             const tenantData = {
                 '1': { name: 'John Doe', property: 'Apartment 101', rent: 50000 },
                 '2': { name: 'Jane Smith', property: 'Apartment 102', rent: 60000 }
@@ -764,8 +1148,14 @@
                         quickAmounts.style.display = 'none';
                     }
                     updateSummary();
+                    validateField(this, 'tenant_id_error');
                 });
             }
+
+            // Handle offline checkbox
+            offlineCheckbox.addEventListener('change', function() {
+                offlineReferenceGroup.style.display = this.checked ? 'block' : 'none';
+            });
 
             function setupQuickAmounts(rentAmount) {
                 const amountButtons = document.querySelectorAll('.amount-btn');
@@ -788,89 +1178,95 @@
                         updateSummary();
                         amountButtons.forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
+                        validateField(amountInput, 'amount_error');
                     });
                 });
             }
 
             function updateSummary() {
-                const tenantSelect = document.getElementById('tenantSelect');
-                const amountInput = document.querySelector('.amount-input');
-                const methodSelect = document.querySelector('select[name="payment_method"]');
-                const dateInput = document.querySelector('input[name="payment_date"]');
+                const tenantSelect = document.getElementById('tenant_id');
+                const amountInput = document.getElementById('amount');
+                const methodSelect = document.getElementById('payment_method');
+                const dateInput = document.getElementById('payment_date');
                 if (tenantSelect.value || amountInput.value || methodSelect.value || dateInput.value) {
                     document.getElementById('summaryTenant').textContent = 
-                        tenantSelect.options[tenantSelect.selectedIndex].text || '-';
+                        tenantSelect.options[tenantSelect.selectedIndex]?.text || '-';
                     document.getElementById('summaryAmount').textContent = 
                         amountInput.value ? `KSh ${parseFloat(amountInput.value).toLocaleString()}` : 'KSh 0';
                     document.getElementById('summaryMethod').textContent = 
-                        methodSelect.options[methodSelect.selectedIndex].text || '-';
+                        methodSelect.options[methodSelect.selectedIndex]?.text || '-';
                     document.getElementById('summaryDate').textContent = 
                         dateInput.value ? new Date(dateInput.value).toLocaleDateString() : '-';
                     paymentSummary.style.display = 'block';
+                } else {
+                    paymentSummary.style.display = 'none';
                 }
             }
 
-            const formInputs = form.querySelectorAll('input, select, textarea');
+            function validateField(field, errorId) {
+                const errorElement = document.getElementById(errorId);
+                if (!field.value || (field.type === 'number' && field.value <= 0)) {
+                    field.classList.add('is-invalid');
+                    errorElement.style.display = 'block';
+                    return false;
+                } else {
+                    field.classList.remove('is-invalid');
+                    errorElement.style.display = 'none';
+                    return true;
+                }
+            }
+
+            const formInputs = form.querySelectorAll('input[required], select[required]');
             formInputs.forEach(input => {
-                input.addEventListener('change', updateSummary);
-                input.addEventListener('input', updateSummary);
+                input.addEventListener('change', function() {
+                    updateSummary();
+                    validateField(this, `${this.id}_error`);
+                });
+                input.addEventListener('input', function() {
+                    updateSummary();
+                    validateField(this, `${this.id}_error`);
+                });
             });
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
-                setTimeout(() => {
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-                }, 2000);
+                let isValid = true;
+                formInputs.forEach(input => {
+                    if (!validateField(input, `${input.id}_error`)) {
+                        isValid = false;
+                    }
+                });
+                if (isValid) {
+                    submitBtn.classList.add('loading');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<div class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2"></div>Recording...`;
+                    setTimeout(() => {
+                        submitBtn.classList.remove('loading');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = `<i class="fas fa-receipt mr-2"></i>Submit Payment`;
+                        alert('Payment recorded successfully!');
+                    }, 2000);
+                }
             });
 
-            const dateInput = document.querySelector('input[name="payment_date"]');
+            const dateInput = document.getElementById('payment_date');
             if (dateInput && !dateInput.value) {
                 dateInput.value = new Date().toISOString().split('T')[0];
                 updateSummary();
             }
 
-            // Dark mode toggle
-            const themeToggle = document.getElementById('theme-toggle');
-            const html = document.documentElement;
-            themeToggle.addEventListener('click', () => {
-                html.classList.toggle('dark');
-                localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-            });
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            if (savedTheme === 'dark') {
-                html.classList.add('dark');
-            }
-
-            // Entrance animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
                     }
-                });
-            }, observerOptions);
-            document.querySelectorAll('.hover-lift').forEach(el => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(20px)';
-                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                observer.observe(el);
-            });
-
-            // Parallax effect
-            window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const parallaxElements = document.querySelectorAll('.gradient-orb');
-                parallaxElements.forEach((element, index) => {
-                    const speed = (index + 1) * 0.5;
-                    element.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.1}deg)`;
                 });
             });
         });

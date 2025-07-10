@@ -456,6 +456,10 @@ def tenants_list():
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
     tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
+    print("Landlord ID:", current_user.id)
+    print("Property IDs:", property_ids)
+    print("Filtered Tenants:", [(t.id, t.first_name) for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()])
+
     return render_template('tenants/list.html', tenants=tenants)
 
 @main.route('/tenants/add', methods=['GET', 'POST'])
