@@ -16,6 +16,7 @@ import uuid
 from sqlalchemy import extract
 from io import StringIO
 from app.mpesa.mpesa_api import MpesaAPI 
+from app.notification import handle_payment_confirmation
 main = Blueprint('main', __name__)
 
 
@@ -437,7 +438,7 @@ def assign_property(tenant_id):
                 return redirect(url_for('main.landlord_dashboard'))
             else:
                 flash(_l('Invalid tenant or unit selected.'), 'danger')
-                print("Units:", [(u.id, u.first_name, u.status) for u in units])
+                print("Units:", [(u.id, u.status) for u in units])
                 print("Form unit choices:", form.unit_id.choices)
 
 
@@ -487,6 +488,7 @@ def tenant_add():
         db.session.commit()
         flash(_l('Tenant added successfully!'), 'success')
         return redirect(url_for('main.tenants_list'))
+
     return render_template('tenants/add_edit.html', form=form, edit=False)
 
 @main.route('/tenants/edit/<int:id>', methods=['GET', 'POST'])
@@ -537,6 +539,7 @@ def record_payment():
             invoice.amount_due -= payment.amount
             invoice.status = 'paid' if invoice.amount_due <= 0 else 'partially_paid'
         db.session.commit()
+         
         flash(_l('Payment recorded successfully!'), 'success')
         return redirect(url_for('main.payments_history'))
     return render_template('payments/record_payment.html', form=form)

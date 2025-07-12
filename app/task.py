@@ -9,7 +9,7 @@ from flask_babel import lazy_gettext as _l
 from app.models import Tenant, Property, Payment, User, AuditLog
 from app.extensions import db
 from app.mpesa.mpesa_api import mpesa_api
-from .utils import send_email, send_sms
+from app.notification import send_email, send_sms
 
 # All task functions will now accept 'app' as their first argument
 def refresh_mpesa_token(app):

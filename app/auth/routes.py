@@ -207,7 +207,7 @@ def edit_profile():
             current_user.first_name = form.first_name.data
             current_user.email = form.email.data
             current_user.phone_number = form.phone_number.data
-            current_user.county = County.query.get(form.county.data)
+            current_user.county = County.query.filter_by(name=form.county.data).first()
             current_user.language = form.language.data
 
             if form.roles.data:
@@ -297,6 +297,7 @@ def google_callback():
             last_name=last_name,
             is_oauth_user=True,
             active=True,
+            role='tenant',
             fs_uniquifier=generate_uniquifier()
         )
         db.session.add(user)

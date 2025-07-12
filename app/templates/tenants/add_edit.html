@@ -378,15 +378,9 @@
                 <h3 class="section-title">Property & Rent Information</h3>
                 <div class="form-grid">
                   <div class="form-group full-width">
-                    <label class="form-label" for="property_id">Property</label>
-                    <select id="property_id" name="property_id" class="form-select" required>
-                      <option value="">Select a property...</option>
-                      <option value="1">Property A - 123 Main St</option>
-                      <option value="2">Property B - 456 Oak Ave</option>
-                      <option value="3">Property C - 789 Pine St</option>
-                    </select>
+                      {{ form.property_id.label(class="form-label") }}
+                      {{ form.property_id(class="form-select") }}
                   </div>
-                  
                   <div class="form-group">
                     <label class="form-label" for="rent_amount">Rent Amount</label>
                     <div class="input-with-icon">
