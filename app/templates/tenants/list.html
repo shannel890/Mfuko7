@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tenants | REPT</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <meta name="description" content="Tenants Management for PropertyPayTrack">
+  <title>{{ _('Tenants') }} | REPT</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" defer>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" defer>
   <style>
     :root {
       --primary: 142 76% 36%;
@@ -27,6 +28,22 @@
       --transition-smooth: all 0.3s ease;
     }
 
+    body.dark {
+      --background: 222 47% 11%;
+      --card: 222 47% 15%;
+      --muted: 210 40% 20%;
+      --muted-foreground: 215.4 16.3% 60%;
+      --border: 214.3 31.8% 30%;
+      --foreground: 0 0% 98%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
     .dashboard-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -41,6 +58,12 @@
       border-radius: var(--radius);
       margin-bottom: 2rem;
       overflow: hidden;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .header-content {
@@ -78,7 +101,6 @@
 
     .header-button:hover {
       background: rgba(255, 255, 255, 0.3);
-      color: hsl(var(--primary-foreground));
       text-decoration: none;
     }
 
@@ -108,6 +130,7 @@
       border: 1px solid hsl(var(--border));
       border-radius: var(--radius);
       box-shadow: var(--shadow-card);
+      animation: fadeIn 0.5s ease;
     }
 
     .card-content {
@@ -121,9 +144,9 @@
       flex-wrap: wrap;
     }
 
-    .search-group {
+    .search-group, .filter-group {
       flex: 1;
-      min-width: 250px;
+      min-width: 150px;
     }
 
     .search-input-wrapper {
@@ -138,7 +161,7 @@
       color: hsl(var(--muted-foreground));
     }
 
-    .search-input {
+    .search-input, .filter-select {
       width: 100%;
       padding: 0.75rem 1rem 0.75rem 2.5rem;
       border: 1px solid hsl(var(--border));
@@ -149,29 +172,12 @@
       transition: var(--transition-smooth);
     }
 
-    .search-input:focus {
+    .search-input:focus, .filter-select:focus {
       outline: none;
       border-color: hsl(var(--primary));
       box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
     }
 
-    .filter-select {
-      padding: 0.75rem 1rem;
-      border: 1px solid hsl(var(--border));
-      border-radius: var(--radius);
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
-      font-size: 1rem;
-      min-width: 150px;
-      transition: var(--transition-smooth);
-    }
-
-    .filter-select:focus {
-      outline: none;
-      border-color: hsl(var(--primary));
-    }
-
-    /* Mobile Cards */
     .mobile-cards {
       display: flex;
       flex-direction: column;
@@ -238,11 +244,6 @@
       flex-wrap: wrap;
     }
 
-    .delete-form {
-      display: inline;
-    }
-
-    /* Desktop Table */
     .table-container {
       overflow-x: auto;
     }
@@ -271,23 +272,6 @@
       background: hsl(var(--muted) / 0.5);
     }
 
-    .name-container {
-      display: flex;
-      align-items: center;
-    }
-
-    .name {
-      font-weight: 500;
-      color: hsl(var(--foreground));
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    /* Status Badges */
     .status-badge {
       padding: 0.25rem 0.75rem;
       border-radius: 1rem;
@@ -312,7 +296,6 @@
       color: hsl(var(--warning));
     }
 
-    /* Action Buttons */
     .action-btn-primary,
     .action-btn-danger {
       padding: 0.5rem 1rem;
@@ -335,8 +318,6 @@
 
     .action-btn-primary:hover {
       background: hsl(var(--primary-dark));
-      color: hsl(var(--primary-foreground));
-      text-decoration: none;
     }
 
     .action-btn-danger {
@@ -348,24 +329,6 @@
       background: hsl(var(--destructive) / 0.9);
     }
 
-    .btn-primary-custom {
-      background: hsl(var(--primary));
-      color: hsl(var(--primary-foreground));
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--radius);
-      text-decoration: none;
-      font-weight: 500;
-      display: inline-block;
-      transition: var(--transition-smooth);
-    }
-
-    .btn-primary-custom:hover {
-      background: hsl(var(--primary-dark));
-      color: hsl(var(--primary-foreground));
-      text-decoration: none;
-    }
-
-    /* Empty State */
     .empty-state,
     .empty-state-mobile {
       text-align: center;
@@ -397,13 +360,123 @@
       margin: 0;
     }
 
-    /* Responsive Design */
-    .d-md-none {
-      display: block;
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
     }
 
-    .d-none {
-      display: none;
+    .pagination-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.375rem;
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .pagination-btn:hover {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+    }
+
+    .pagination-btn.active {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      cursor: default;
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      color: hsl(var(--primary-foreground));
+      z-index: 1000;
+      animation: slideIn 0.3s ease forwards, slideOut 0.3s ease 2.7s forwards;
+    }
+
+    .notification.success {
+      background: hsl(var(--success));
+    }
+
+    .notification.error {
+      background: hsl(var(--destructive));
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: hsl(var(--background) / 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid hsl(var(--primary));
+      border-top: 4px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    nav {
+      background: hsl(var(--card) / 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid hsl(var(--border));
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark nav {
+      background: hsl(222 47% 15% / 0.8);
+    }
+
+    .nav-link {
+      color: hsl(var(--foreground));
+      transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: hsl(var(--primary));
+    }
+
+    .dark .nav-link {
+      color: hsl(0 0% 98%);
+    }
+
+    .dark .nav-link:hover {
+      color: hsl(var(--primary) / 0.9);
     }
 
     @media (min-width: 768px) {
@@ -442,210 +515,439 @@
         width: 100%;
       }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
-    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
-              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
-            </a>
-          </div>
+  <div class="loading hidden">
+    <div class="spinner"></div>
+  </div>
 
-          <div class="hidden md:flex items-center space-x-6">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
-            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
-            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
-            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
-            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
-            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
-          </div>
+  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center space-x-4">
+          <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
+            <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+          </a>
+        </div>
 
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
+        <div class="hidden md:flex items-center space-x-6">
+          <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
+          <a href="{{ url_for('main.properties_list') }}" class="nav-link" aria-label="View Properties">Properties</a>
+          <a href="{{ url_for('main.tenants_list') }}" class="nav-link" aria-label="View Tenants">Tenants</a>
+          <a href="{{ url_for('main.payments_history') }}" class="nav-link" aria-label="View Payments">Payments</a>
+          <a href="{{ url_for('main.assign_property') }}" class="nav-link" aria-label="Assign Property">Assign property</a>
+          <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="View Profile">Profile</a>
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle dark mode">
+            <i class="fas fa-moon hidden dark:block"></i>
+            <i class="fas fa-sun block dark:hidden"></i>
+          </button>
+        </div>
 
-            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
-              <i data-lucide="menu" class="lucide-icon"></i>
-            </button>
-          </div>
+        <div class="flex items-center space-x-4">
+          <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block nav-link" aria-label="Logout">Logout</a>
+          <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none" aria-label="Toggle mobile menu">
+            <i class="fas fa-bars"></i>
+          </button>
         </div>
       </div>
+    </div>
 
-      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
-        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
-        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
-        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
-        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
-        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
-      </div>
-    </nav>
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+      <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 nav-link">Dashboard</a>
+      <a href="{{ url_for('main.properties_list') }}" class="block py-2 nav-link">Properties</a>
+      <a href="{{ url_for('main.tenants_list') }}" class="block py-2 nav-link">Tenants</a>
+      <a href="{{ url_for('main.payments_history') }}" class="block py-2 nav-link">Payments</a>
+      <a href="{{ url_for('main.assign_property') }}" class="block py-2 nav-link">Assign property</a>
+      <a href="{{ url_for('auth.profile') }}" class="block py-2 nav-link">Profile</a>
+      <a href="{{ url_for('auth.logout') }}" class="block py-2 nav-link">Logout</a>
+      <button id="mobileThemeToggle" class="block py-2 nav-link" aria-label="Toggle dark mode">Toggle Theme</button>
+    </div>
+  </nav>
+
   <div class="dashboard-container">
-    <!-- Header Section -->
-    <div class="header-section mb-4">
-      <div class="header-content">
-        <div class="header-text">
-          <h1>Tenants Management</h1>
-          <p>Manage your tenants and their lease information</p>
-        </div>
-        <a href="{{url_for('main.tenant_add')}}" class="header-button">
-          <i class="fas fa-plus"></i>
-          Add Tenant
+  <div class="header-section mb-4">
+    <div class="header-content">
+      <div class="header-text">
+        <h1>{{ _('Tenants Management') }}</h1>
+        <p>{{ _('Manage your tenants and their lease information') }}</p>
+      </div>
+      <div class="flex gap-4">
+        <a href="{{ url_for('main.tenant_add') }}" class="header-button" aria-label="Add new tenant">
+          <i class="fas fa-plus"></i>{{ _('Add Tenant') }}
         </a>
-        <div class="header-decoration-1"></div>
-        <div class="header-decoration-2"></div>
+        <button id="exportBtn" class="header-button" aria-label="Export tenants to CSV">
+          <i class="fas fa-download"></i>{{ _('Export to CSV') }}
+        </button>
       </div>
+      <div class="header-decoration-1"></div>
+      <div class="header-decoration-2"></div>
     </div>
+  </div>
 
-    <!-- Search and Filter Section -->
-    <div class="card mb-4">
-      <div class="card-content">
-        <div class="search-filters">
-          <div class="search-group">
-            <div class="search-input-wrapper">
-              <i class="fas fa-search search-icon"></i>
-              <input type="text" id="tenantSearch" class="search-input" placeholder="Search tenants...">
-            </div>
+  <div class="card mb-4">
+    <div class="card-content">
+      <div class="search-filters">
+        <div class="search-group">
+          <div class="search-input-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="tenantSearch" class="search-input" placeholder="{{ _('Search tenants...') }}" aria-label="Search tenants">
           </div>
-          
-          <div class="filter-group">
-            <select id="statusFilter" class="filter-select">
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
+        </div>
+        <div class="filter-group">
+          <select id="statusFilter" class="filter-select" aria-label="Filter by status">
+            <option value="">{{ _('All Status') }}</option>
+            <option value="active">{{ _('Active') }}</option>
+            <option value="inactive">{{ _('Inactive') }}</option>
+            <option value="pending">{{ _('Pending') }}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <select id="propertyFilter" class="filter-select" aria-label="Filter by property">
+            <option value="">{{ _('All Properties') }}</option>
+            {% for property in properties %}
+              <option value="{{ property.name }}">{{ property.name }}</option>
+            {% endfor %}
+          </select>
         </div>
       </div>
     </div>
+  </div>
 
-    
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">{{ _('Tenants') }}</h2>
-  <a href="{{ url_for('main.tenant_add') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition">
-    <i class="fas fa-plus mr-2"></i> {{ _('Add Tenant') }}
-  </a>
-</div>
+  <!-- Mobile View -->
+  <div class="d-md-none">
+    <div class="mobile-cards">
+      {% for tenant in tenants %}
+      <div 
+        class="tenant-card" 
+        data-tenant-name="{{ tenant.first_name.lower() }} {{ tenant.last_name.lower() }}"
+        data-tenant-email="{{ tenant.email.lower() if tenant.email else '' }}"
+        data-tenant-phone="{{ tenant.phone_number.lower() if tenant.phone_number else '' }}"
+        data-tenant-property="{{ tenant.property.name.lower() if tenant.property else '' }}"
+        data-tenant-status="{{ tenant.status.lower() if tenant.status else '' }}"
+      >
+        <div class="tenant-card-header">
+          <div>
+            <h3 class="tenant-name">{{ tenant.first_name }} {{ tenant.last_name }}</h3>
+            <p class="tenant-property">{{ tenant.property.name if tenant.property else 'No Property Assigned' }}</p>
+          </div>
+          <span class="status-badge status-{{ tenant.status.lower() if tenant.status else 'unknown' }}">
+            {{ _(tenant.status.title()) if tenant.status else 'Unknown' }}
+          </span>
+        </div>
 
-<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-  <div class="overflow-x-auto">
-    <table class="min-w-full table-auto text-sm text-left text-gray-700 dark:text-gray-200">
-      <thead class="bg-gray-100 dark:bg-gray-700">
-        <tr>
-          <th class="px-6 py-4 font-semibold">{{ _('Name') }}</th>
-          <th class="px-6 py-4 font-semibold">{{ _('Email') }}</th>
-          <th class="px-6 py-4 font-semibold">{{ _('Phone') }}</th>
-          <th class="px-6 py-4 font-semibold">{{ _('Property') }}</th>
-          <th class="px-6 py-4 font-semibold">{{ _('Status') }}</th>
-          <th class="px-6 py-4 font-semibold">{{ _('Actions') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for tenant in tenants %}
-        <tr class="border-t hover:bg-gray-50 dark:hover:bg-gray-700">
-          <td class="px-6 py-4">{{ tenant.first_name }} {{ tenant.last_name }}</td>
-          <td class="px-6 py-4">{{ tenant.email or '-' }}</td>
-          <td class="px-6 py-4">{{ tenant.phone_number }}</td>
-          <td class="px-6 py-4">{{ tenant.property.name }}</td>
-          <td class="px-6 py-4">
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
-              {% if tenant.status == 'active' %}
-                bg-green-100 text-green-800 dark:bg-green-700 dark:text-white
-              {% else %}
-                bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-white
-              {% endif %}
-            ">
-              {{ _(tenant.status.title()) }}
-            </span>
-          </td>
-          <td class="px-6 py-4 space-x-2">
-            <a href="{{ url_for('main.tenant_edit', id=tenant.id) }}" class="inline-flex items-center px-3 py-1 bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 rounded text-xs font-medium transition">
-              <i class="fas fa-edit mr-1"></i> {{ _('Edit') }}
-            </a>
-          <form action="{{ url_for('main.delete_tenant', tenant_id=tenant.id) }}" method="POST" class="inline">
+        <div class="tenant-details">
+          <div class="detail-item"><i class="fas fa-envelope detail-icon"></i>{{ tenant.email or '-' }}</div>
+          <div class="detail-item"><i class="fas fa-phone detail-icon"></i>{{ tenant.phone_number or '-' }}</div>
+        </div>
+        <div class="tenant-actions">
+          <a href="{{ url_for('main.tenant_edit', id=tenant.id) }}" class="action-btn-primary" aria-label="Edit tenant {{ tenant.first_name }} {{ tenant.last_name }}">
+            <i class="fas fa-edit"></i>{{ _('Edit') }}
+          </a>
+          <form action="{{ url_for('main.delete_tenant', tenant_id=tenant.id) }}" method="POST" class="delete-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            
-            <button type="submit" class="btn-custom btn-danger-custom">
-              <i class="fas fa-trash mr-1"></i> {{ _('Delete') }}
+            <button type="submit" class="action-btn-danger js-delete-tenant-btn" aria-label="Delete tenant {{ tenant.first_name }} {{ tenant.last_name }}">
+              <i class="fas fa-trash"></i>{{ _('Delete') }}
             </button>
           </form>
-
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="6" class="px-6 py-6 text-center text-gray-500 dark:text-gray-400">
-            {{ _('No tenants yet. Click "Add Tenant"!') }}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state-mobile">
+        <div class="empty-content">
+          <i class="fas fa-users empty-icon"></i>
+          <h3>{{ _('No tenants found') }}</h3>
+          <p>{{ _('Add your first tenant to get started') }}</p>
+          <a href="{{ url_for('main.tenant_add') }}" class="btn-primary-custom">{{ _('Add Tenant') }}</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
   </div>
-</div>
 
+  <!-- Desktop/Table View -->
+  <div class="card d-none d-md-block">
+    <div class="table-container">
+      <table class="tenants-table">
+        <thead>
+          <tr>
+            <th>{{ _('Name') }}</th>
+            <th>{{ _('Email') }}</th>
+            <th>{{ _('Phone') }}</th>
+            <th>{{ _('Property') }}</th>
+            <th>{{ _('Status') }}</th>
+            <th>{{ _('Actions') }}</th>
+          </tr>
+        </thead>
+        <tbody id="tenantsTable">
+          {% for tenant in tenants %}
+          <tr 
+            class="tenant-row" 
+            data-tenant-name="{{ tenant.first_name.lower() }} {{ tenant.last_name.lower() }}"
+            data-tenant-email="{{ tenant.email.lower() if tenant.email else '' }}"
+            data-tenant-phone="{{ tenant.phone_number.lower() if tenant.phone_number else '' }}"
+            data-tenant-property="{{ tenant.property.name.lower() if tenant.property else '' }}"
+            data-tenant-status="{{ tenant.status.lower() if tenant.status else '' }}"
+          >
+            <td class="name-container">
+              <span class="name">{{ tenant.first_name }} {{ tenant.last_name }}</span>
+            </td>
+            <td>{{ tenant.email or '-' }}</td>
+            <td>{{ tenant.phone_number or '-' }}</td>
+            <td>{{ tenant.property.name if tenant.property else 'No Property Assigned' }}</td>
+            <td>
+              <span class="status-badge status-{{ tenant.status.lower() if tenant.status else 'unknown' }}">
+                {{ _(tenant.status.title()) if tenant.status else 'Unknown' }}
+              </span>
+            </td>
+            <td class="action-buttons">
+              <a href="{{ url_for('main.tenant_edit', id=tenant.id) }}" class="action-btn-primary" aria-label="Edit tenant {{ tenant.first_name }} {{ tenant.last_name }}">
+                <i class="fas fa-edit"></i>{{ _('Edit') }}
+              </a>
+              <form action="{{ url_for('main.delete_tenant', tenant_id=tenant.id) }}" method="POST" class="delete-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="action-btn-danger js-delete-tenant-btn" aria-label="Delete tenant {{ tenant.first_name }} {{ tenant.last_name }}">
+                  <i class="fas fa-trash"></i>{{ _('Delete') }}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="empty-state">
+              <div class="empty-content">
+                <i class="fas fa-users empty-icon"></i>
+                <h3>{{ _('No tenants found') }}</h3>
+                <p>{{ _('Add your first tenant to get started') }}</p>
+                <a href="{{ url_for('main.tenant_add') }}" class="btn-primary-custom">{{ _('Add Tenant') }}</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Initialize theme
+      const theme = localStorage.getItem('theme') || 'light';
+      if (theme === 'dark') {
+        document.body.classList.add('dark');
+      }
+
+      // Theme toggle
+      const themeToggles = [document.getElementById('themeToggle'), document.getElementById('mobileThemeToggle')];
+      themeToggles.forEach(toggle => {
+        if (toggle) {
+          toggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+            showNotification('Theme changed successfully', 'success');
+          });
+        }
+      });
+
+      // Mobile menu
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+      mobileMenuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
+        mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
+      });
+
+      // Tenant filtering and pagination
       const searchInput = document.getElementById('tenantSearch');
       const statusFilter = document.getElementById('statusFilter');
+      const propertyFilter = document.getElementById('propertyFilter');
       const tenantRows = document.querySelectorAll('.tenant-row');
       const tenantCards = document.querySelectorAll('.tenant-card');
-      
+      const pagination = document.getElementById('pagination');
+      const itemsPerPage = 5;
+      let currentPage = 1;
+
       function filterTenants() {
         const searchTerm = searchInput.value.toLowerCase();
         const statusValue = statusFilter.value.toLowerCase();
-        
-        // Filter table rows
-        tenantRows.forEach(row => {
-          const name = row.getAttribute('data-tenant-name').toLowerCase();
-          const status = row.getAttribute('data-tenant-status').toLowerCase();
-          
-          const matchesSearch = name.includes(searchTerm);
-          const matchesStatus = statusValue === '' || status === statusValue;
-          
-          if (matchesSearch && matchesStatus) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
-        
-        // Filter mobile cards
-        tenantCards.forEach(card => {
-          const name = card.getAttribute('data-tenant-name').toLowerCase();
-          const status = card.getAttribute('data-tenant-status').toLowerCase();
-          
-          const matchesSearch = name.includes(searchTerm);
-          const matchesStatus = statusValue === '' || status === statusValue;
-          
-          if (matchesSearch && matchesStatus) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      }
-      
-      // Add event listeners for search and filter
-      searchInput.addEventListener('input', filterTenants);
-      statusFilter.addEventListener('change', filterTenants);
+        const propertyValue = propertyFilter.value.toLowerCase();
 
-      // Add delete confirmation
+        const visibleRows = Array.from(tenantRows).filter(row => {
+          const name = row.getAttribute('data-tenant-name').toLowerCase();
+          const email = row.getAttribute('data-tenant-email').toLowerCase();
+          const phone = row.getAttribute('data-tenant-phone').toLowerCase();
+          const property = row.getAttribute('data-tenant-property').toLowerCase();
+          const status = row.getAttribute('data-tenant-status').toLowerCase();
+
+          const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm) || phone.includes(searchTerm);
+          const matchesStatus = statusValue === '' || status === statusValue;
+          const matchesProperty = propertyValue === '' || property === propertyValue;
+
+          return matchesSearch && matchesStatus && matchesProperty;
+        });
+
+        const visibleCards = Array.from(tenantCards).filter(card => {
+          const name = card.getAttribute('data-tenant-name').toLowerCase();
+          const email = card.getAttribute('data-tenant-email').toLowerCase();
+          const phone = card.getAttribute('data-tenant-phone').toLowerCase();
+          const property = card.getAttribute('data-tenant-property').toLowerCase();
+          const status = card.getAttribute('data-tenant-status').toLowerCase();
+
+          const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm) || phone.includes(searchTerm);
+          const matchesStatus = statusValue === '' || status === statusValue;
+          const matchesProperty = propertyValue === '' || property === propertyValue;
+
+          return matchesSearch && matchesStatus && matchesProperty;
+        });
+
+        tenantRows.forEach(row => row.style.display = 'none');
+        tenantCards.forEach(card => card.style.display = 'none');
+
+        visibleRows.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).forEach(row => {
+          row.style.display = '';
+        });
+        visibleCards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).forEach(card => {
+          card.style.display = '';
+        });
+
+        updatePagination(visibleRows.length);
+      }
+
+      function updatePagination(totalItems) {
+        const pageCount = Math.ceil(totalItems / itemsPerPage);
+        pagination.innerHTML = '';
+
+        for (let i = 1; i <= pageCount; i++) {
+          const btn = document.createElement('button');
+          btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+          btn.textContent = i;
+          btn.setAttribute('aria-label', `Go to page ${i}`);
+          btn.addEventListener('click', () => {
+            currentPage = i;
+            filterTenants();
+            pagination.querySelectorAll('.pagination-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+          });
+          pagination.appendChild(btn);
+        }
+
+        if (pageCount <= 1) {
+          pagination.style.display = 'none';
+        } else {
+          pagination.style.display = 'flex';
+        }
+      }
+
+      // Event listeners for filtering
+      searchInput.addEventListener('input', () => {
+        currentPage = 1;
+        filterTenants();
+      });
+      statusFilter.addEventListener('change', () => {
+        currentPage = 1;
+        filterTenants();
+      });
+      propertyFilter.addEventListener('change', () => {
+        currentPage = 1;
+        filterTenants();
+      });
+
+      // Delete confirmation
       const deleteButtons = document.querySelectorAll('.js-delete-tenant-btn');
       deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
           e.preventDefault();
           if (confirm('Are you sure you want to delete this tenant?')) {
-            // Here you would normally submit the form
-            console.log('Tenant deleted');
+            const loading = document.querySelector('.loading');
+            loading.classList.remove('hidden');
+            setTimeout(() => {
+              loading.classList.add('hidden');
+              showNotification('Tenant deleted successfully', 'success');
+              this.closest('form').submit();
+            }, 1000);
           }
         });
       });
+
+      // Export to CSV
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        const loading = document.querySelector('.loading');
+        loading.classList.remove('hidden');
+        setTimeout(() => {
+          loading.classList.add('hidden');
+          const csv = [
+            'Name,Email,Phone,Property,Status',
+            ...Array.from(tenantRows).map(row => {
+              const name = row.getAttribute('data-tenant-name');
+              const email = row.getAttribute('data-tenant-email') || '-';
+              const phone = row.getAttribute('data-tenant-phone');
+              const property = row.getAttribute('data-tenant-property');
+              const status = row.getAttribute('data-tenant-status');
+              return `"${name}","${email}","${phone}","${property}","${status}"`;
+            })
+          ].join('\n');
+          
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'tenants.csv';
+          a.click();
+          window.URL.revokeObjectURL(url);
+          showNotification('Tenants exported successfully', 'success');
+        }, 1000);
+      });
+
+      // Notification system
+      function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+      }
+
+      // Accessibility: Keyboard navigation
+      document.querySelectorAll('.action-btn-primary, .action-btn-danger').forEach(button => {
+        button.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            button.click();
+          }
+        });
+      });
+
+      // Close mobile menu on link click
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+          mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+          mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        });
+      });
+
+      // Escape key handling
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          mobileMenu.classList.add('hidden');
+          mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+          mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        }
+      });
+
+      // Initial setup
+      filterTenants();
     });
   </script>
 </body>

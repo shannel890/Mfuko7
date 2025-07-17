@@ -66,7 +66,7 @@ def index():
                 return redirect(url_for('main.landlord_dashboard'))
             elif current_user.has_role('tenant'):
                 return redirect(url_for('main.tenant_dashboard'))
-        return render_template('index.html')
+        return render_template('index.html', now=datetime.utcnow())
     except Exception as e:
         current_app.logger.error(f"Error loading index: {e}")
         flash(_l('An error occurred loading the page.'), 'danger')
@@ -514,14 +514,28 @@ def tenant_edit(id):
 @roles_required('landlord')
 def record_payment():
     form = RecordPaymentForm()
-    tenants = Tenant.query.all()
-    form.tenant_id.choices = [(tenant.id, tenant.first_name) for tenant in tenants]
+
+    # Get the landlord's properties
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
-    form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name} ({t.property.name})")
-                             for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()]
+
+    # Filter tenants belonging to the landlord
+    tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
+
+    # Populate the tenant choices in the dropdown
+    form.tenant_id.choices = [
+        (t.id, f"{t.first_name} {t.last_name} ({t.property.name})")
+        for t in tenants
+    ]
+
     if form.validate_on_submit():
-        invoice = Invoice.query.filter_by(tenant_id=form.tenant_id.data, status='pending').first()
+        # Get the tenant's first pending invoice (if any)
+        invoice = Invoice.query.filter_by(
+            tenant_id=form.tenant_id.data,
+            status='pending'
+        ).first()
+
+        # Create and save payment
         payment = Payment(
             amount=form.amount.data,
             tenant_id=form.tenant_id.data,
@@ -534,15 +548,21 @@ def record_payment():
             offline_reference=form.offline_reference.data,
             invoice_id=invoice.id if invoice else None
         )
+
         db.session.add(payment)
+
+        # Update invoice if available
         if invoice:
             invoice.amount_due -= payment.amount
             invoice.status = 'paid' if invoice.amount_due <= 0 else 'partially_paid'
+
         db.session.commit()
-         
+
         flash(_l('Payment recorded successfully!'), 'success')
         return redirect(url_for('main.payments_history'))
-    return render_template('payments/record_payment.html', form=form)
+
+    return render_template('payments/record_payment.html', form=form, tenants=tenants)
+
 
 @main.route('/payments/history')
 @login_required

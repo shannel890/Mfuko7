@@ -6,7 +6,7 @@ from decouple import config
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
 from twilio.rest import Client
-
+from datetime import datetime
 from app.extensions import db, babel, mail, csrf, scheduler, oauth, login_manager, migrate
 from app.models import User, Role
 from app.routes import main
@@ -115,6 +115,9 @@ def create_app():
     app.register_blueprint(main)
     app.register_blueprint(auth)
 
+    @app.context_processor
+    def inject_globals():
+        return {'datetime': datetime}
     # --- App context logic
     with app.app_context():
         app.mpesa_api = MpesaAPI()

@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="User profile page for PropertyPayTrack">
     <title>{{ user.full_name or user.username }} - Profile</title>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" defer>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" defer>
 
     <style>
         :root {
-            --primary: #6366f1; /* Indigo 500 */
-            --primary-dark: #4f46e5; /* Indigo 600 */
-            --secondary: #10b981; /* Emerald 500 */
-            --accent: #f59e0b; /* Amber 500 */
-            --success: #22c55e; /* Green 500 */
-            --warning: #f59e0b; /* Amber 500 (re-used) */
-            --danger: #ef4444; /* Red 500 */
-            --info: #3b82f6; /* Blue 500 */
-            --text: #1f2937; /* Gray 900 */
-            --text-light: #6b7280; /* Gray 500 */
-            --text-muted: #9ca3af; /* Gray 400 */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --text-muted: #9ca3af;
             --white: #ffffff;
-            --bg-primary: #f8fafc; /* Cool Gray 50 */
-            --bg-secondary: #f1f5f9; /* Cool Gray 100 */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
             --glass: rgba(255, 255, 255, 0.25);
             --glass-border: rgba(255, 255, 255, 0.3);
             --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -33,7 +34,17 @@
             --nav-height: 70px;
         }
 
-        /* Basic Reset & Typography */
+        /* Dark mode variables */
+        body.dark {
+            --text: #f3f4f6;
+            --text-light: #9ca3af;
+            --text-muted: #6b7280;
+            --bg-primary: #1f2937;
+            --bg-secondary: #374151;
+            --glass: rgba(31, 41, 55, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -42,7 +53,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #dddee2 0%, #381061 50%, #ebd5d1 100%); /* Light, subtle gradient */
+            background: linear-gradient(135deg, #dddee2 0%, #381061 50%, #ebd5d1 100%);
             background-attachment: fixed;
             color: var(--text);
             line-height: 1.6;
@@ -51,6 +62,11 @@
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #1f2937 0%, #4b5563 50%, #374151 100%);
         }
 
         /* Animated Background Particles */
@@ -87,22 +103,16 @@
 
         /* Enhanced Navigation */
         nav {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--glass);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
             position: sticky;
             top: 0;
             z-index: 1000;
-            transition: var(--transition);
-            height: var(--nav-height); /* Set fixed height */
+            height: var(--nav-height);
             display: flex;
             align-items: center;
-        }
-
-        nav:hover {
-            background: rgba(255, 255, 255, 0.15);
         }
 
         .nav-container {
@@ -116,25 +126,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 100%; /* Occupy full nav height */
+            height: 100%;
         }
 
         .navbar-brand {
             font-family: 'Playfair Display', serif;
             font-weight: 700;
             font-size: 1.5rem;
-            /* Using a more vibrant gradient for the brand text */
-            background: linear-gradient(45deg, #22c55e, #3b82f6, #f97316); /* Green, Blue, Orange */
+            background: linear-gradient(45deg, #22c55e, #3b82f6, #f97316);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-decoration: none;
             transition: var(--transition);
-            letter-spacing: -0.5px;
-        }
-
-        .navbar-brand:hover {
-            transform: scale(1.02); /* Slightly less aggressive scale */
         }
 
         .nav-links {
@@ -144,14 +148,13 @@
         }
 
         .nav-link {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text);
             font-weight: 500;
             text-decoration: none;
             transition: var(--transition);
             position: relative;
             padding: 0.5rem 1rem;
             border-radius: 12px;
-            white-space: nowrap; /* Prevent wrapping on small screens */
         }
 
         .nav-link::before {
@@ -167,9 +170,17 @@
         }
 
         .nav-link:hover {
-            color: var(--white);
+            color: var(--primary);
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
+        }
+
+        .dark .nav-link {
+            color: #d1d5db;
+        }
+
+        .dark .nav-link:hover {
+            color: #818cf8;
         }
 
         .nav-link:hover::before {
@@ -179,44 +190,34 @@
         .logout-btn {
             background: linear-gradient(45deg, var(--primary), var(--primary-dark));
             color: var(--white);
-            border: none;
             padding: 0.7rem 1.5rem;
             border-radius: 25px;
             font-weight: 600;
             text-decoration: none;
             transition: var(--transition);
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-            white-space: nowrap;
         }
 
         .logout-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-            color: var(--white);
         }
 
         .mobile-menu-toggle {
-            display: none; /* Hidden by default on desktop */
+            display: none;
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text);
             font-size: 1.5rem;
             cursor: pointer;
             padding: 0.5rem;
             border-radius: 8px;
-            transition: var(--transition);
-        }
-
-        .mobile-menu-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
         }
 
         /* Profile Section */
         .profile-wrapper {
             padding: 4rem 2rem;
-            min-height: calc(100vh - var(--nav-height)); /* Account for nav height */
-            display: flex;
-            align-items: center;
+            min-height: calc(100vh - var(--nav-height));
             position: relative;
             z-index: 10;
         }
@@ -228,51 +229,25 @@
         }
 
         .profile-card {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             background: var(--glass);
             border: 1px solid var(--glass-border);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             overflow: hidden;
             transition: var(--transition);
-            position: relative;
             max-width: 800px;
             margin: 0 auto;
             animation: slideUp 0.8s ease-out;
-            color: var(--white); /* Ensure text within card is white for better contrast with glass effect */
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .profile-card:hover {
             transform: translateY(-8px);
             box-shadow: var(--shadow-hover);
-        }
-
-        .profile-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-            animation: shimmer 3s infinite linear; /* Added linear for smoother shimmer */
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
         }
 
         .profile-header {
@@ -284,37 +259,33 @@
             overflow: hidden;
         }
 
-        .profile-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: pulse 4s infinite cubic-bezier(0.4, 0, 0.2, 1); /* Added cubic-bezier for smoother pulse */
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
-
         .profile-avatar {
             width: 120px;
             height: 120px;
-            background: linear-gradient(45deg, var(--secondary), var(--accent));
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin: 0 auto 1.5rem;
             position: relative;
             z-index: 2;
+            border: 3px solid var(--white);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-avatar .avatar-placeholder {
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 3rem;
             color: var(--white);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            border: 3px solid rgba(255, 255, 255, 0.5); /* Added a subtle white border */
+            width: 100%;
+            height: 100%;
         }
 
         .profile-title {
@@ -322,16 +293,12 @@
             font-size: 2.5rem;
             font-weight: 700;
             margin: 0;
-            position: relative;
-            z-index: 2;
         }
 
         .profile-subtitle {
             font-size: 1.1rem;
             opacity: 0.9;
             margin-top: 0.5rem;
-            position: relative;
-            z-index: 2;
         }
 
         .profile-body {
@@ -341,18 +308,6 @@
         .info-grid {
             display: grid;
             gap: 1.5rem;
-            animation: fadeInUp 0.8s ease-out 0.3s both;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .info-row {
@@ -363,30 +318,11 @@
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .info-row::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            transition: var(--transition);
         }
 
         .info-row:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateX(8px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .info-row:hover::before {
-            width: 100%;
-            opacity: 0.1;
         }
 
         .info-icon {
@@ -401,29 +337,19 @@
             color: var(--white);
             font-size: 1.3rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
         .info-content {
             flex: 1;
-            color: var(--white); /* Ensure info content text is white */
+            color: var(--white);
         }
 
         .info-label {
             font-weight: 600;
-            color: var(--white);
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
             opacity: 0.9;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .info-value {
-            color: var(--white);
-            font-size: 1.1rem;
-            font-weight: 500;
-            word-break: break-word;
         }
 
         .role-badges {
@@ -440,17 +366,6 @@
             border-radius: 25px;
             font-size: 0.85rem;
             font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
-        }
-
-        .badge-custom:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
         }
 
         .profile-footer {
@@ -471,165 +386,159 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 0.8rem;
             transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            min-width: 180px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-custom::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transition: var(--transition);
-            transform: translate(-50%, -50%);
-            z-index: 1; /* Ensure ripple is above text but below button bg */
-        }
-
-        .btn-custom span {
-            position: relative;
-            z-index: 2; /* Ensure text is above ripple */
-        }
-
-        .btn-custom:hover::before {
-            width: 300px;
-            height: 300px;
         }
 
         .btn-primary-custom {
             background: linear-gradient(45deg, var(--primary), var(--primary-dark));
             color: var(--white);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
-        }
-
-        .btn-primary-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
-            color: var(--white);
         }
 
         .btn-warning-custom {
-            background: linear-gradient(45deg, var(--accent), var(--warning)); /* Consistent variable use */
+            background: linear-gradient(45deg, var(--accent), var(--warning));
             color: var(--white);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
         }
 
-        .btn-warning-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(245, 158, 11, 0.4);
+        /* Settings Panel */
+        .settings-panel {
+            display: none;
+            position: fixed;
+            top: var(--nav-height);
+            right: 0;
+            width: 300px;
+            background: var(--glass);
+            border-left: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 2rem;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .settings-panel.active {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .settings-panel h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
             color: var(--white);
+        }
+
+        .settings-item {
+            margin-bottom: 1rem;
+        }
+
+        .settings-item label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--white);
+        }
+
+        .settings-item select,
+        .settings-item input {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: var(--white);
+            z-index: 2000;
+            animation: slideIn 0.3s ease forwards, slideOut 0.3s ease 2.7s forwards;
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Loading State */
+        .loading {
+            position: fixed;
+            inset: 0;
+            background: var(--glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--primary);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .nav-links {
                 position: fixed;
-                top: var(--nav-height); /* Position below the nav bar */
+                top: var(--nav-height);
                 left: 0;
                 width: 100%;
                 height: calc(100vh - var(--nav-height));
-                background: rgba(255, 255, 255, 0.9); /* Lighter background for mobile menu */
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
+                background: var(--glass);
                 flex-direction: column;
                 justify-content: center;
-                align-items: center;
                 transform: translateX(100%);
                 transition: transform 0.5s ease-out;
-                z-index: 999; /* Below sticky nav, above content */
             }
 
             .nav-links.active {
                 transform: translateX(0);
             }
 
-            .nav-link {
-                color: var(--text); /* Darker text for better contrast on light background */
-                padding: 1rem 2rem;
-                width: 100%;
-                text-align: center;
-                font-size: 1.2rem;
-                margin: 0.5rem 0;
-            }
-
-            .nav-link:hover {
-                background: rgba(0, 0, 0, 0.05); /* Subtle hover for mobile links */
-            }
-
-            .logout-btn {
-                margin-top: 1.5rem;
-                width: 80%; /* Wider button for mobile */
-            }
-
             .mobile-menu-toggle {
                 display: block;
             }
 
-            .profile-wrapper {
-                padding: 2rem 1rem;
-            }
-
-            .profile-title {
-                font-size: 2rem;
-            }
-
-            .profile-header {
-                padding: 2rem 1rem;
-            }
-
-            .profile-body {
-                padding: 1.5rem 1rem;
-            }
-
-            .profile-footer {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1.5rem 1rem;
-            }
-
-            .btn-custom {
-                width: 100%;
-            }
-
-            .info-row {
-                flex-direction: column;
-                align-items: flex-start;
-                text-align: left;
-                padding: 1rem;
-            }
-
-            .info-icon {
-                margin-right: 0;
-                margin-bottom: 1rem;
-            }
-
-            .info-content {
+            .settings-panel {
                 width: 100%;
             }
         }
 
-        /* Loading animation */
-        .loading-shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            background-size: 200% 100%; /* Make shimmer wider */
-            animation: shimmerEffect 1.5s infinite linear;
-        }
-
-        @keyframes shimmerEffect {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        /* Accessibility improvements */
+        /* Accessibility */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -638,45 +547,31 @@
             margin: -1px;
             overflow: hidden;
             clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
             border: 0;
         }
 
-        /* Focus styles */
         .nav-link:focus,
         .logout-btn:focus,
         .btn-custom:focus,
-        .mobile-menu-toggle:focus,
-        button:focus {
+        .mobile-menu-toggle:focus {
             outline: 2px solid var(--primary);
             outline-offset: 2px;
-            border-radius: 4px; /* Apply consistent border-radius for focus */
         }
 
-        /* Reduced motion support */
+        /* Reduced Motion */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
-            }
-            .profile-card, .info-row {
-                animation: none !important; /* Disable specific entry animations */
-                opacity: 1 !important;
-                transform: translateY(0) !important;
-            }
-        }
-
-        /* Ripple effect animation for JavaScript */
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
             }
         }
     </style>
 </head>
 <body>
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+
     <div class="bg-particles">
         <div class="particle"></div>
         <div class="particle"></div>
@@ -693,10 +588,11 @@
                 </a>
 
                 <div class="nav-links" id="navLinks">
-                    <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link">Dashboard</a>
-                    <a href="{{ url_for('main.payments_history') }}" class="nav-link">Payments</a>
-                    <a href="{{ url_for('auth.profile') }}" class="nav-link">Profile</a>
-                    <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
+                    <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
+                    <a href="{{ url_for('main.payments_history') }}" class="nav-link" aria-label="View Payments">Payments</a>
+                    <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="View Profile">Profile</a>
+                    <button id="settingsToggle" class="nav-link" aria-label="Open Settings"><i class="fas fa-cog"></i> Settings</button>
+                    <a href="{{ url_for('auth.logout') }}" class="logout-btn" aria-label="Logout">Logout</a>
                 </div>
 
                 <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle mobile menu">
@@ -706,20 +602,40 @@
         </div>
     </nav>
 
+    <div class="settings-panel" id="settingsPanel">
+        <h3>User Settings</h3>
+        <div class="settings-item">
+            <label for="theme">Theme</label>
+            <select id="theme" aria-label="Select theme">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+        </div>
+        <div class="settings-item">
+            <label for="language">Language</label>
+            <select id="language" aria-label="Select language">
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+            </select>
+        </div>
+    </div>
+
     <main class="profile-wrapper">
         <div class="container">
-            <div class="profile-card">
+            <div class="profile-card" role="region" aria-labelledby="profile-title">
                 <header class="profile-header">
-                    <div class="profile-avatar">
-                        <i class="fas fa-user"></i>
+                    <div class="profile-avatar" id="avatarContainer">
+                        <div class="avatar-placeholder"><i class="fas fa-user"></i></div>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" aria-label="Upload profile picture">
                     </div>
-                    <h1 class="profile-title">{{ user.full_name or user.username }}</h1>
+                    <h1 class="profile-title" id="profile-title">{{ user.full_name or user.username }}</h1>
                     <p class="profile-subtitle">Manage your account information and preferences</p>
                 </header>
 
                 <div class="profile-body">
                     <div class="info-grid">
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 1">
                             <div class="info-icon">
                                 <i class="fas fa-user"></i>
                             </div>
@@ -729,7 +645,7 @@
                             </div>
                         </div>
 
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 2">
                             <div class="info-icon">
                                 <i class="fas fa-id-card"></i>
                             </div>
@@ -739,7 +655,7 @@
                             </div>
                         </div>
 
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 3">
                             <div class="info-icon">
                                 <i class="fas fa-id-card"></i>
                             </div>
@@ -749,7 +665,7 @@
                             </div>
                         </div>
 
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 4">
                             <div class="info-icon">
                                 <i class="fas fa-envelope"></i>
                             </div>
@@ -759,7 +675,7 @@
                             </div>
                         </div>
 
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 5">
                             <div class="info-icon">
                                 <i class="fas fa-phone"></i>
                             </div>
@@ -769,7 +685,7 @@
                             </div>
                         </div>
 
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 6">
                             <div class="info-icon">
                                 <i class="fas fa-map-marker-alt"></i>
                             </div>
@@ -779,7 +695,7 @@
                             </div>
                         </div>
 
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 7">
                             <div class="info-icon">
                                 <i class="fas fa-user-tag"></i>
                             </div>
@@ -788,35 +704,23 @@
                                 <div class="info-value">
                                     <div class="role-badges">
                                         {% if user.is_admin %}
-                                            <span class="badge-custom">
-                                                <i class="fas fa-shield-alt"></i>
-                                                Administrator
-                                            </span>
+                                            <span class="badge-custom"><i class="fas fa-shield-alt"></i> Administrator</span>
                                         {% endif %}
                                         {% if user.is_landlord %}
-                                            <span class="badge-custom">
-                                                <i class="fas fa-home"></i>
-                                                Landlord
-                                            </span>
+                                            <span class="badge-custom"><i class="fas fa-home"></i> Landlord</span>
                                         {% endif %}
                                         {% if user.is_tenant %}
-                                            <span class="badge-custom">
-                                                <i class="fas fa-person"></i>
-                                                Tenant
-                                            </span>
+                                            <span class="badge-custom"><i class="fas fa-person"></i> Tenant</span>
                                         {% endif %}
                                         {% if not user.is_admin and not user.is_landlord and not user.is_tenant %}
-                                            <span class="badge-custom">
-                                                <i class="fas fa-question-circle"></i>
-                                                No Roles Assigned
-                                            </span>
+                                            <span class="badge-custom"><i class="fas fa-question-circle"></i> No Roles Assigned</span>
                                         {% endif %}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 8">
                             <div class="info-icon">
                                 <i class="fas fa-globe"></i>
                             </div>
@@ -826,7 +730,7 @@
                             </div>
                         </div>
 
-                        <div class="info-row">
+                        <div class="info-row" style="--i: 9">
                             <div class="info-icon">
                                 <i class="fas fa-clock"></i>
                             </div>
@@ -839,11 +743,11 @@
                 </div>
 
                 <footer class="profile-footer">
-                    <a href="{{ url_for('auth.forgot_password') }}" class="btn-custom btn-warning-custom">
+                    <a href="{{ url_for('auth.forgot_password') }}" class="btn-custom btn-warning-custom" aria-label="Change Password">
                         <i class="fas fa-key"></i>
                         <span>Change Password</span>
                     </a>
-                    <a href="{{ url_for('auth.edit_profile') }}" class="btn-custom btn-primary-custom">
+                    <a href="{{ url_for('auth.edit_profile') }}" class="btn-custom btn-primary-custom" aria-label="Edit Profile">
                         <i class="fas fa-edit"></i>
                         <span>Edit Profile</span>
                     </a>
@@ -854,148 +758,151 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                document.querySelector('#theme').value = 'dark';
+            }
+
+            // Loading state
+            const loading = document.querySelector('.loading');
+            setTimeout(() => {
+                loading.classList.add('hidden');
+            }, 1000);
+
+            // Mobile menu
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const navLinks = document.getElementById('navLinks');
-            const nav = document.querySelector('nav');
-
-            // Toggle mobile menu visibility
-            if (mobileMenuToggle) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    navLinks.classList.toggle('active');
-                    this.querySelector('i').classList.toggle('fa-bars');
-                    this.querySelector('i').classList.toggle('fa-times'); // Change icon to 'X'
-                    // Close menu if clicking outside when open
-                    if (navLinks.classList.contains('active')) {
-                        document.addEventListener('click', closeMenuOutside);
-                    } else {
-                        document.removeEventListener('click', closeMenuOutside);
-                    }
-                });
-
-                // Close mobile menu when a link is clicked
-                navLinks.querySelectorAll('a').forEach(link => {
-                    link.addEventListener('click', () => {
-                        navLinks.classList.remove('active');
-                        mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-                        mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-                        document.removeEventListener('click', closeMenuOutside);
-                    });
-                });
-            }
-
-            function closeMenuOutside(event) {
-                if (!navLinks.contains(event.target) && !mobileMenuToggle.contains(event.target) && navLinks.classList.contains('active')) {
-                    navLinks.classList.remove('active');
-                    mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-                    mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-                    document.removeEventListener('click', closeMenuOutside);
-                }
-            }
-
-
-            // Add loading states for buttons
-            const buttons = document.querySelectorAll('.btn-custom, .logout-btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Prevent default only if it's not a real link that should navigate
-                    // For demonstration, we'll keep it prevented for all, but in production,
-                    // you'd typically remove the preventDefault for actual navigations.
-                    // e.preventDefault(); 
-                    
-                    this.classList.add('loading-shimmer');
-                    // In a real app, remove shimmer on successful navigation or API response
-                    // setTimeout(() => {
-                    //     this.classList.remove('loading-shimmer');
-                    // }, 1000); 
-                });
+            mobileMenuToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+                mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
+                mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
             });
 
-            // Add ripple effect to buttons
+            // Settings panel
+            const settingsToggle = document.getElementById('settingsToggle');
+            const settingsPanel = document.getElementById('settingsPanel');
+            settingsToggle.addEventListener('click', () => {
+                settingsPanel.classList.toggle('active');
+            });
+
+            // Theme toggle
+            document.getElementById('theme').addEventListener('change', (e) => {
+                const isDark = e.target.value === 'dark';
+                document.body.classList.toggle('dark', isDark);
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                showNotification('Theme changed successfully', 'success');
+            });
+
+            // Language selection
+            document.getElementById('language').addEventListener('change', (e) => {
+                showNotification(`Language changed to ${e.target.value}`, 'success');
+            });
+
+            // Profile picture upload
+            const avatarContainer = document.getElementById('avatarContainer');
+            const avatarInput = document.getElementById('avatarInput');
+            avatarContainer.addEventListener('click', () => avatarInput.click());
+            avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                        showNotification('Image size must be less than 2MB', 'error');
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        avatarContainer.innerHTML = '';
+                        avatarContainer.appendChild(img);
+                        showNotification('Profile picture updated', 'success');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Notification system
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            }
+
+            // Ripple effect
             function createRipple(event) {
-                const button = event.currentTarget;
+                const element = event.currentTarget;
                 const circle = document.createElement('span');
-                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const diameter = Math.max(element.clientWidth, element.clientHeight);
                 const radius = diameter / 2;
 
                 circle.style.width = circle.style.height = `${diameter}px`;
-                circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
-                circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
+                circle.style.left = `${event.clientX - element.getBoundingClientRect().left - radius}px`;
+                circle.style.top = `${event.clientY - element.getBoundingClientRect().top - radius}px`;
                 circle.classList.add('ripple-effect');
-                
-                button.appendChild(circle);
+                element.appendChild(circle);
 
-                circle.addEventListener('animationend', () => {
-                    circle.remove();
-                });
+                circle.addEventListener('animationend', () => circle.remove());
             }
 
-            // Apply ripple effect to interactive elements
             document.querySelectorAll('.btn-custom, .logout-btn, .info-row').forEach(element => {
                 element.addEventListener('click', createRipple);
             });
 
-            // Enhanced keyboard navigation (Escape key to close mobile menu)
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+            // Close mobile menu on link click
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
                     navLinks.classList.remove('active');
                     mobileMenuToggle.querySelector('i').classList.remove('fa-times');
                     mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-                    document.removeEventListener('click', closeMenuOutside);
-                }
-            });
-
-            // Smooth scrolling (if using anchor links on the same page)
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
                 });
             });
 
-            // Intersection Observer for staggered animations of info rows
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+            // Accessibility: Escape key handling
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    navLinks.classList.remove('active');
+                    settingsPanel.classList.remove('active');
+                    mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+                    mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+                }
+            });
 
+            // Intersection Observer for animations
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                        observer.unobserve(entry.target); // Unobserve once animated
+                        entry.target.style.transform = 'translateX(0)';
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, observerOptions);
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
             document.querySelectorAll('.info-row').forEach((row, index) => {
                 row.style.opacity = '0';
-                row.style.transform = 'translateY(30px)';
+                row.style.transform = 'translateX(30px)';
                 row.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
                 observer.observe(row);
             });
-        });
 
-        // Add ripple animation styles dynamically for encapsulation
-        const style = document.createElement('style');
-        style.textContent = `
-            .ripple-effect {
-                position: absolute;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.3);
-                transform: scale(0);
-                animation: ripple 600ms linear;
-                pointer-events: none;
-                z-index: 0; /* Ensure it's below button content */
-            }
-        `;
-        document.head.appendChild(style);
+            // Dynamic ripple styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .ripple-effect {
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.3);
+                    transform: scale(0);
+                    animation: ripple 600ms linear;
+                    pointer-events: none;
+                }
+            `;
+            document.head.appendChild(style);
+        });
     </script>
 </body>
 </html>

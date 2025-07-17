@@ -6,7 +6,8 @@
     <title>REPT Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlalDLuL+oOQf9n1S0z8S10NqD0/1V/0sBwW9r0/B9s0bB0e8zW/W0zT3L8W7S0F0w5r0pG5z5y0/Y9tA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" defer></script>
     <style>
         /* Base styles */
         * {
@@ -20,31 +21,77 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             color: #1f2937;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: #f3f4f6;
+        }
+
+        /* Dark mode specific styles */
+        .dark .bg-white\/80 {
+            background: rgba(31, 41, 55, 0.8);
+        }
+
+        .dark .card {
+            background: rgba(31, 41, 55, 0.8);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark .stat-card {
+            background: rgba(31, 41, 55, 0.8);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark .payment-item {
+            background: rgba(55, 65, 81, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark .text-gray-700 {
+            color: #d1d5db;
+        }
+
+        .dark .nav-link-custom {
+            color: #d1d5db;
+        }
+
+        .dark .nav-link-custom:hover {
+            color: #818cf8;
         }
 
         /* Navigation Specific Styles */
         .navbar-brand-custom {
-            font-family: 'Playfair Display', serif; /* Optional: If you want a distinct font for the brand */
-            font-size: 1.5rem; /* Equivalent to text-xl */
-            font-weight: 700; /* Equivalent to font-semibold */
-            color: #1f2937; /* Default text-gray-800 */
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
         }
+
+        .dark .navbar-brand-custom {
+            color: #f3f4f6;
+        }
+
         .nav-link-custom {
-            color: #4b5563; /* text-gray-700 */
+            color: #4b5563;
             transition: color 0.3s ease;
         }
+
         .nav-link-custom:hover {
-            color: #4f46e5; /* text-indigo-600 */
+            color: #4f46e5;
         }
+
         .logout-btn-custom {
-            background-color: #4f46e5; /* bg-indigo-600 */
+            background-color: #4f46e5;
             color: white;
-            padding: 0.5rem 1rem; /* px-4 py-2 */
-            border-radius: 0.5rem; /* rounded-lg */
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
             transition: background-color 0.3s ease;
         }
+
         .logout-btn-custom:hover {
-            background-color: #4338ca; /* hover:bg-indigo-700 */
+            background-color: #4338ca;
         }
 
         /* General dashboard styles */
@@ -52,6 +99,12 @@
             padding: 1.5rem;
             max-width: 1400px;
             margin: 0 auto;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
 
         .space-y-8 > * + * {
@@ -66,6 +119,13 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 2rem;
             color: white;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideIn 0.5s ease 0.2s forwards;
+        }
+
+        @keyframes slideIn {
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .header-content {
@@ -140,6 +200,10 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
             cursor: pointer;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideIn 0.5s ease forwards;
+            animation-delay: calc(var(--i) * 0.1s);
         }
 
         .stat-card:hover {
@@ -154,6 +218,10 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
         }
 
+        .dark .stat-card::before {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(31, 41, 55, 0.4) 100%);
+        }
+
         .stat-card-header {
             position: relative;
             display: flex;
@@ -166,6 +234,10 @@
             font-size: 0.875rem;
             font-weight: 500;
             color: #6b7280;
+        }
+
+        .dark .stat-card-title {
+            color: #9ca3af;
         }
 
         .stat-icon {
@@ -218,11 +290,18 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideIn 0.5s ease 0.4s forwards;
         }
 
         .card-header {
             padding: 1.5rem;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .card-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .card-header-flex {
@@ -242,6 +321,10 @@
             font-size: 0.875rem;
         }
 
+        .dark .card-description {
+            color: #9ca3af;
+        }
+
         .card-content {
             padding: 1.5rem;
         }
@@ -259,8 +342,17 @@
             transition: all 0.3s ease;
         }
 
+        .dark .view-all-btn {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
         .view-all-btn:hover {
             background: #f9fafb;
+        }
+
+        .dark .view-all-btn:hover {
+            background: #4b5563;
         }
 
         /* Payment Item */
@@ -274,11 +366,19 @@
             background: rgba(255, 255, 255, 0.6);
             margin-bottom: 1.5rem;
             transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideIn 0.5s ease forwards;
+            animation-delay: calc(var(--i) * 0.1s);
         }
 
         .payment-item:hover {
             background: rgba(255, 255, 255, 0.8);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .payment-item:hover {
+            background: rgba(55, 65, 81, 0.8);
         }
 
         .payment-left {
@@ -311,6 +411,10 @@
             font-size: 0.875rem;
             color: #6b7280;
             margin-bottom: 0.125rem;
+        }
+
+        .dark .payment-details p {
+            color: #9ca3af;
         }
 
         .payment-right {
@@ -359,6 +463,15 @@
             transition: all 0.3s ease;
             text-decoration: none;
             color: inherit;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideIn 0.5s ease forwards;
+            animation-delay: calc(var(--i) * 0.1s);
+        }
+
+        .dark .action-btn {
+            background: #374151;
+            border-color: #4b5563;
         }
 
         .action-btn:hover {
@@ -386,6 +499,140 @@
             opacity: 0.6;
         }
 
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            width: 200px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 2rem 0.5rem 2.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .dark .search-input {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f3f4f6;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+
+        /* Notification Bell */
+        .notification-container {
+            position: relative;
+        }
+
+        .notification-bell {
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .notification-bell:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .notification-count {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 300px;
+            background: white;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 100;
+        }
+
+        .dark .notification-dropdown {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+        }
+
+        .dark .notification-item {
+            border-bottom: 1px solid #4b5563;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Loading State */
+        .loading {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        .dark .loading {
+            background: rgba(31, 41, 55, 0.8);
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #667eea;
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .dashboard-container {
@@ -408,6 +655,16 @@
 
             .main-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .search-container {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .notification-dropdown {
+                width: 100%;
+                right: 0;
             }
         }
 
@@ -435,50 +692,77 @@
 </head>
 
 <body>
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+
     <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
-              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
-            </a>
-          </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 navbar-brand-custom">
+                        <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
+                    </a>
+                </div>
 
-          <div class="hidden md:flex items-center space-x-6">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
-            <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Properties</a>
-            <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-indigo-600 transition">Tenants</a>
-            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
-            <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-indigo-600 transition">Assign property</a>
-            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
-          </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <div class="search-container">
+                        <i data-lucide="search" class="lucide-icon-sm search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Search properties, tenants...">
+                    </div>
+                    <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link-custom">Dashboard</a>
+                    <a href="{{ url_for('main.properties_list') }}" class="nav-link-custom">Properties</a>
+                    <a href="{{ url_for('main.tenants_list') }}" class="nav-link-custom">Tenants</a>
+                    <a href="{{ url_for('main.payments_history') }}" class="nav-link-custom">Payments</a>
+                    <a href="{{ url_for('main.assign_property') }}" class="nav-link-custom">Assign property</a>
+                    <a href="{{ url_for('auth.profile') }}" class="nav-link-custom">Profile</a>
+                </div>
 
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
-
-            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
-              <i data-lucide="menu" class="lucide-icon"></i>
-            </button>
-          </div>
+                <div class="flex items-center space-x-4">
+                    <div class="notification-container">
+                        <div class="notification-bell">
+                            <i data-lucide="bell" class="lucide-icon"></i>
+                            <span class="notification-count">3</span>
+                        </div>
+                        <div class="notification-dropdown">
+                            <div class="notification-item">New payment from Sarah Wanjiku received</div>
+                            <div class="notification-item">Overdue payment reminder sent to Grace Achieng</div>
+                            <div class="notification-item">Property inspection scheduled for Dec 5</div>
+                        </div>
+                    </div>
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i data-lucide="moon" class="lucide-icon hidden dark:block"></i>
+                        <i data-lucide="sun" class="lucide-icon block dark:hidden"></i>
+                    </button>
+                    <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block logout-btn-custom">Logout</a>
+                    <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
+                        <i data-lucide="menu" class="lucide-icon"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
-        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
-        <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
-        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-        <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
-        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
-        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
-      </div>
+        <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+            <div class="search-container">
+                <i data-lucide="search" class="lucide-icon-sm search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search properties, tenants...">
+            </div>
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
+            <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
+            <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
+            <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
+            <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
+            <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
+            <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
+        </div>
     </nav>
+
     <div class="dashboard-container">
         <div class="space-y-8">
             <div class="header-section">
                 <div class="header-content">
                     <div class="header-text">
-                        <h1>Welcome to REPT</h1>
+                        <h1>Welcome to MFUKO</h1>
                         <p>Manage your properties, tenants, and payments efficiently with modern tools</p>
                     </div>
                     <div class="hidden-mobile">
@@ -495,7 +779,7 @@
             </div>
 
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" style="--i: 1">
                     <div class="stat-card-header">
                         <div class="stat-card-title">Total Properties</div>
                         <div class="stat-icon text-primary">
@@ -513,7 +797,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card" style="--i: 2">
                     <div class="stat-card-header">
                         <div class="stat-card-title">Active Tenants</div>
                         <div class="stat-icon text-secondary">
@@ -529,7 +813,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card" style="--i: 3">
                     <div class="stat-card-header">
                         <div class="stat-card-title">Monthly Revenue</div>
                         <div class="stat-icon text-success">
@@ -545,7 +829,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card" style="--i: 4">
                     <div class="stat-card-header">
                         <div class="stat-card-title">Overdue Payments</div>
                         <div class="stat-icon text-destructive">
@@ -581,7 +865,8 @@
                         </div>
                     </div>
                     <div class="card-content">
-                        <div class="payment-item">
+                        <canvas id="revenueChart" height="200"></canvas>
+                        <div class="payment-item" style="--i: 1">
                             <div class="payment-left">
                                 <div class="payment-icon paid">
                                     <i data-lucide="check-circle" class="lucide-icon-sm"></i>
@@ -598,7 +883,7 @@
                             </div>
                         </div>
 
-                        <div class="payment-item">
+                        <div class="payment-item" style="--i: 2">
                             <div class="payment-left">
                                 <div class="payment-icon paid">
                                     <i data-lucide="check-circle" class="lucide-icon-sm"></i>
@@ -615,7 +900,7 @@
                             </div>
                         </div>
 
-                        <div class="payment-item">
+                        <div class="payment-item" style="--i: 3">
                             <div class="payment-left">
                                 <div class="payment-icon overdue">
                                     <i data-lucide="alert-circle" class="lucide-icon-sm"></i>
@@ -643,15 +928,15 @@
                     </div>
                     <div class="card-content">
                         <div class="quick-actions">
-                          <a href="{{url_for('main.property_add')}}" class="action-btn" aria-label="Add New Property">
+                            <a href="{{url_for('main.property_add')}}" class="action-btn" aria-label="Add New Property" style="--i: 1">
                                 <div class="action-icon">
                                     <i data-lucide="home" class="lucide-icon-sm"></i>
                                 </div>
                                 <span class="action-text">Add New Property</span>
                                 <i data-lucide="plus" class="lucide-icon-sm action-arrow"></i>
-                          </a>
+                            </a>
 
-                            <a href="{{url_for('main.tenant_add')}}" class="action-btn" aria-label="Add New Tenant">
+                            <a href="{{url_for('main.tenant_add')}}" class="action-btn" aria-label="Add New Tenant" style="--i: 2">
                                 <div class="action-icon">
                                     <i data-lucide="users" class="lucide-icon-sm"></i>
                                 </div>
@@ -659,7 +944,7 @@
                                 <i data-lucide="plus" class="lucide-icon-sm action-arrow"></i>
                             </a>
 
-                            <a href="{{url_for('main.record_payment')}}" class="action-btn" aria-label="Record Payment">
+                            <a href="{{url_for('main.record_payment')}}" class="action-btn" aria-label="Record Payment" style="--i: 3">
                                 <div class="action-icon">
                                     <i data-lucide="credit-card" class="lucide-icon-sm"></i>
                                 </div>
@@ -667,7 +952,7 @@
                                 <i data-lucide="plus" class="lucide-icon-sm action-arrow"></i>
                             </a>
 
-                            <a href="{{url_for('main.export_report')}}" class="action-btn" aria-label="Generate Report">
+                            <a href="{{url_for('main.export_report')}}" class="action-btn" aria-label="Generate Report" style="--i: 4">
                                 <div class="action-icon">
                                     <i data-lucide="trending-up" class="lucide-icon-sm"></i>
                                 </div>
@@ -682,47 +967,112 @@
     </div>
 
     <script>
-        // Initialize Lucide icons
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-
         document.addEventListener('DOMContentLoaded', function () {
-            // Re-call Lucide creation just in case, though it should ideally run once
+            // Initialize Lucide icons
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
 
+            // Loading state
+            const loading = document.querySelector('.loading');
+            setTimeout(() => {
+                loading.classList.add('hidden');
+            }, 1000);
+
+            // Dark mode toggle
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') {
+                body.classList.add('dark');
+            }
+
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark');
+                localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+            });
+
+            // Mobile menu toggle
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const mobileMenu = document.getElementById('mobileMenu');
-
             if (mobileMenuToggle && mobileMenu) {
-                mobileMenuToggle.addEventListener('click', function () {
+                mobileMenuToggle.addEventListener('click', () => {
                     mobileMenu.classList.toggle('hidden');
                 });
             }
-        });
 
-        // Add some interactivity (from your original script)
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', function(event) {
-                // Prevent default link behavior if you want to use the alert for now
-                // event.preventDefault();
-                const action = this.querySelector('.action-text').textContent;
-                // alert(`${action} functionality would be implemented here`);
+            // Notification dropdown
+            const notificationBell = document.querySelector('.notification-bell');
+            const notificationDropdown = document.querySelector('.notification-dropdown');
+            notificationBell.addEventListener('click', () => {
+                notificationDropdown.classList.toggle('active');
             });
-        });
 
-        document.querySelector('.view-all-btn').addEventListener('click', function(event) {
-            // event.preventDefault(); // Prevent default link behavior if you want the alert
-            // alert('View all payments functionality would be implemented here');
-        });
+            // Close notification dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!notificationBell.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                    notificationDropdown.classList.remove('active');
+                }
+            });
 
-        document.querySelector('.header-button').addEventListener('click', function(event) {
-            // event.preventDefault(); // Prevent default button behavior if you want the alert
-            // alert('Analytics view would be implemented here');
+            // Search functionality (basic implementation)
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                // Implement search logic here
+                console.log('Searching for:', searchTerm);
+            });
+
+            // Initialize Chart.js
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue (KSh)',
+                        data: [300000, 320000, 350000, 380000, 400000, 420000],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'KSh ' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Interactivity for action buttons
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function(event) {
+                    const action = this.querySelector('.action-text').textContent;
+                    console.log(`${action} clicked`);
+                });
+            });
+
+            document.querySelector('.view-all-btn').addEventListener('click', function(event) {
+                console.log('View all payments clicked');
+            });
+
+            document.querySelector('.header-button').addEventListener('click', function(event) {
+                console.log('Analytics view clicked');
+            });
         });
     </script>
 </body>

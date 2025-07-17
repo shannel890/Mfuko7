@@ -11,11 +11,20 @@
                         <i class="fas fa-user-edit me-2"></i>{{ _('Edit Profile') }}
                     </h2>
 
-                    <form action="{{ url_for('auth.edit_profile') }}" method="post" name="edit_profile_form" novalidate>
+                    <form action="{{ url_for('auth.edit_profile') }}" method="post" name="edit_profile_form" id="editProfileForm" novalidate enctype="multipart/form-data">
                         {{ edit_profile_form.hidden_tag() }}
 
+                        <div class="profile-picture mb-4 text-center">
+                            <img id="profilePreview" src="{{ user.profile_picture or url_for('static', filename='img/default-profile.jpg') }}" alt="{{ _('Profile Picture') }}" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="profilePicture" name="profile_picture" accept="image/*" aria-label="{{ _('Upload profile picture') }}">
+                                <button class="btn btn-primary" type="button" id="clearPicture">{{ _('Clear') }}</button>
+                            </div>
+                            <small class="text-muted d-block mt-2">{{ _('Max file size: 2MB') }}</small>
+                        </div>
+
                         {% for field in [edit_profile_form.username, edit_profile_form.first_name, edit_profile_form.email, edit_profile_form.phone_number, edit_profile_form.county] %}
-                        <div class="mb-4">
+                        <div class="mb-4 position-relative" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
                             <label for="{{ field.id }}" class="form-label fw-semibold">
                                 {% if field.name == 'username' %}<i class="fas fa-user me-2"></i>{{ _('Username') }}
                                 {% elif field.name == 'first_name' %}<i class="fas fa-id-card me-2"></i>{{ _('First Name') }}
@@ -24,47 +33,63 @@
                                 {% elif field.name == 'county' %}<i class="fas fa-map-marker-alt me-2"></i>{{ _('County') }}
                                 {% endif %}
                             </label>
-                            {{ field(class="form-control form-control-lg", placeholder=field.label.text) }}
+                            {{ field(class="form-control form-control-lg", placeholder=field.label.text, maxlength=field.maxlength or 255, aria_describedby=field.id + '-errors') }}
+
+                            <small class="char-count text-muted position-absolute end-0 top-0 mt-2 me-3">
+                                {{ field.data|length if field.data else 0 }}/{{ field.maxlength or 255 }}
+                            </small>
+
                             {% if field.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in field.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
+                            <div class="text-danger mt-1" id="{{ field.id }}-errors">
+                                {% for error in field.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
                             {% endif %}
                         </div>
                         {% endfor %}
 
-                        <div class="mb-4">
+                        <div class="mb-4" data-aos="fade-up" data-aos-delay="500">
                             <label for="{{ edit_profile_form.language.id }}" class="form-label fw-semibold">
                                 <i class="fas fa-globe me-2"></i>{{ _('Language') }}
                             </label>
-                            {{ edit_profile_form.language(class="form-select form-select-lg") }}
+                            {{ edit_profile_form.language(class="form-select form-select-lg", aria_describedby='language-errors') }}
                             {% if edit_profile_form.language.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in edit_profile_form.language.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
+                            <div class="text-danger mt-1" id="language-errors">
+                                {% for error in edit_profile_form.language.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
                             {% endif %}
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-4" data-aos="fade-up" data-aos-delay="600">
                             <label for="{{ edit_profile_form.roles.id }}" class="form-label fw-semibold">
                                 <i class="fas fa-user-tag me-2"></i>{{ _('Roles') }}
                             </label>
-                            {{ edit_profile_form.roles(class="form-select form-select-lg") }}
+                            {{ edit_profile_form.roles(class="form-select form-select-lg", aria_describedby='roles-errors') }}
                             {% if edit_profile_form.roles.errors %}
-                                <div class="text-danger mt-1">
-                                    {% for error in edit_profile_form.roles.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
+                            <div class="text-danger mt-1" id="roles-errors">
+                                {% for error in edit_profile_form.roles.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
                             {% endif %}
                         </div>
 
+                        <div class="mb-4" data-aos="fade-up" data-aos-delay="700">
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-2"></i>{{ _('New Password') }}
+                            </label>
+                            <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="{{ _('Enter new password') }}" aria-describedby="password-strength">
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small id="passwordStrengthText" class="text-muted mt-1">{{ _('Password strength: Weak') }}</small>
+                        </div>
+
                         <div class="d-grid gap-2 mb-4">
-                            {{ edit_profile_form.submit(class="btn btn-primary btn-lg bubble-effect") }}
+                            {{ edit_profile_form.submit(class="btn btn-primary btn-lg bubble-effect", data_bs_toggle='modal', data_bs_target='#confirmModal') }}
                         </div>
                     </form>
                 </div>
@@ -82,6 +107,28 @@
     </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-glass">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="confirmModalLabel">{{ _('Confirm Changes') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
+            </div>
+            <div class="modal-body">
+                {{ _('Are you sure you want to save these profile changes?') }}
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="confirmSubmit">{{ _('Save Changes') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block styles %}
 <style>
     :root {
         --primary-color: #34c759;
@@ -90,6 +137,12 @@
         --text-color: #222;
         --light-text: #fff;
         --glass-bg: rgba(255, 255, 255, 0.2);
+    }
+
+    .dark {
+        --glass-bg: rgba(45, 55, 72, 0.95);
+        --text-color: #e2e8f0;
+        --light-text: #1a202c;
     }
 
     .bg-glass {
@@ -106,12 +159,29 @@
         border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 10px;
         transition: border 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
     }
 
     .form-control:focus, .form-select:focus {
         border-color: var(--accent-color);
         box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
         outline: none;
+    }
+
+    .form-control.is-valid {
+        border-color: var(--primary-color);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath fill='%2334c759' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: 1em;
+    }
+
+    .form-control.is-invalid {
+        border-color: var(--destructive);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3E%3Ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: 1em;
     }
 
     .btn-primary {
@@ -172,11 +242,259 @@
         height: 200%;
     }
 
+    .char-count {
+        font-size: 0.8rem;
+    }
+
+    .profile-picture img {
+        transition: transform 0.3s ease;
+    }
+
+    .profile-picture img:hover {
+        transform: scale(1.1);
+    }
+
+    .progress-bar.bg-weak { background-color: var(--destructive); }
+    .progress-bar.bg-moderate { background-color: var(--warning); }
+    .progress-bar.bg-strong { background-color: var(--primary-color); }
+
     @media (max-width: 768px) {
         .card-footer {
             flex-direction: column;
             align-items: stretch;
         }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation: none !important;
+            transition: none !important;
+        }
+    }
 </style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editProfileForm');
+    const profilePicture = document.getElementById('profilePicture');
+    const profilePreview = document.getElementById('profilePreview');
+    const clearPicture = document.getElementById('clearPicture');
+    const passwordInput = document.getElementById('password');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const passwordStrengthText = document.getElementById('passwordStrengthText');
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    const confirmSubmit = document.getElementById('confirmSubmit');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    let autosaveTimeout;
+
+    // Real-time validation
+    const inputs = form.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            validateField(input);
+            if (input.type !== 'password') {
+                triggerAutosave();
+            }
+        });
+    });
+
+    function validateField(field) {
+        const value = field.value.trim();
+        let isValid = true;
+        let error = '';
+
+        if (field.required && !value) {
+            isValid = false;
+            error = '{{ _("This field is required") }}';
+        } else if (field.type === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                isValid = false;
+                error = '{{ _("Invalid email address") }}';
+            }
+        } else if (field.name === 'phone_number') {
+            const phoneRegex = /^\+?[\d\s-]{10,}$/;
+            if (!phoneRegex.test(value)) {
+                isValid = false;
+                error = '{{ _("Invalid phone number") }}';
+            }
+        }
+
+        const errorContainer = document.getElementById(`${field.id}-errors`);
+        if (errorContainer) {
+            errorContainer.innerHTML = isValid ? '' : `<small>${error}</small>`;
+        }
+        field.classList.toggle('is-valid', isValid && value);
+        field.classList.toggle('is-invalid', !isValid);
+    }
+
+    // Password strength meter
+    if (passwordInput) {
+        passwordInput.addEventListener('input', () => {
+            const strength = calculatePasswordStrength(passwordInput.value);
+            passwordStrength.style.width = `${strength.score}%`;
+            passwordStrength.className = `progress-bar bg-${strength.level}`;
+            passwordStrengthText.textContent = `{{ _("Password strength:") }} ${strength.label}`;
+        });
+    }
+
+    function calculatePasswordStrength(password) {
+        let score = 0;
+        if (password.length > 0) score += 20;
+        if (password.length >= 8) score += 20;
+        if (/[A-Z]/.test(password)) score += 20;
+        if (/[0-9]/.test(password)) score += 20;
+        if (/[^A-Za-z0-9]/.test(password)) score += 20;
+
+        let level = 'weak';
+        let label = '{{ _("Weak") }}';
+        if (score >= 80) {
+            level = 'strong';
+            label = '{{ _("Strong") }}';
+        } else if (score >= 60) {
+            level = 'moderate';
+            label = '{{ _("Moderate") }}';
+        }
+
+        return { score, level, label };
+    }
+
+    // Profile picture handling
+    profilePicture.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.size <= 2 * 1024 * 1024) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                profilePreview.src = reader.result;
+                triggerAutosave();
+            };
+            reader.readAsDataURL(file);
+        } else if (file) {
+            showNotification('{{ _("File size exceeds 2MB limit") }}', 'error');
+            profilePicture.value = '';
+        }
+    });
+
+    clearPicture.addEventListener('click', () => {
+        profilePicture.value = '';
+        profilePreview.src = '/static/img/default-profile.jpg';
+        triggerAutosave();
+    });
+
+    // Autosave functionality
+    function triggerAutosave() {
+        clearTimeout(autosaveTimeout);
+        autosaveTimeout = setTimeout(() => {
+            saveFormData();
+        }, 2000);
+    }
+
+    function saveFormData() {
+        const formData = new FormData(form);
+        fetch('/api/autosave_profile', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (response.ok) {
+                showNotification('{{ _("Form autosaved") }}', 'success');
+            } else {
+                showNotification('{{ _("Failed to autosave form") }}', 'error');
+            }
+        }).catch(() => {
+            showNotification('{{ _("Failed to autosave form") }}', 'error');
+        });
+    }
+
+    // Form submission with confirmation
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        confirmModal.show();
+    });
+
+    confirmSubmit.addEventListener('click', () => {
+        loadingSpinner.classList.remove('hidden');
+        const formData = new FormData(form);
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            loadingSpinner.classList.add('hidden');
+            if (response.ok) {
+                showNotification('{{ _("Profile updated successfully") }}', 'success');
+                confirmModal.hide();
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("auth.profile") }}';
+                }, 1000);
+            } else {
+                showNotification('{{ _("Failed to update profile") }}', 'error');
+                confirmModal.hide();
+            }
+        }).catch(() => {
+            loadingSpinner.classList.add('hidden');
+            showNotification('{{ _("Failed to update profile") }}', 'error');
+            confirmModal.hide();
+        });
+    });
+
+    // Input sanitization
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            if (input.type !== 'password') {
+                input.value = input.value.replace(/[<>]/g, '');
+            }
+        });
+    });
+
+    // Character counters
+    form.querySelectorAll('input[data-maxlength]').forEach(input => {
+        const counter = input.parentElement.querySelector('.char-count');
+        input.addEventListener('input', () => {
+            counter.textContent = `${input.value.length}/${input.dataset.maxlength}`;
+        });
+    });
+
+    // Accessibility: Keyboard navigation
+    inputs.forEach((input, index) => {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && input.tagName !== 'SELECT') {
+                e.preventDefault();
+                const nextIndex = (index + 1) % inputs.length;
+                inputs[nextIndex].focus();
+            }
+        });
+    });
+
+    // Notification system (assuming it's defined in base.html)
+    function showNotification(message, type) {
+        const container = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        container.appendChild(notification);
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+});
+document.getElementById('profilePicture').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('profilePreview');
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('clearPicture').addEventListener('click', function () {
+    const input = document.getElementById('profilePicture');
+    input.value = '';
+    document.getElementById('profilePreview').src = "{{ url_for('static', filename='img/default-profile.jpg') }}";
+});
+</script>
 {% endblock %}

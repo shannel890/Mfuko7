@@ -3,390 +3,732 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Property Assignment for PropertyPayTrack">
   <title>{{ _('Properties') }} | REPT</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" defer>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" defer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer></script>
+  <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --secondary-gradient: linear-gradient(135deg, #ff6ec4 0%, #ff9a9e 100%);
-        --accent-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-        --glass-bg: rgba(255, 255, 255, 0.15);
-        --glass-border: rgba(255, 255, 255, 0.2);
-        --text-primary: #2d3748;
-        --text-secondary: #4a5568;
-        --success: #48bb78;
-        --error: #f56565;
-        --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
-        --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #ff6ec4 0%, #ff9a9e 100%);
+      --accent-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      --glass-bg: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --success: #48bb78;
+      --error: #f56565;
+      --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+      --background: #f7fafc;
+      --foreground: #2d3748;
+      --muted: #e2e8f0;
+    }
+
+    body.dark {
+      --background: #1a202c;
+      --foreground: #e2e8f0;
+      --glass-bg: rgba(45, 55, 72, 0.15);
+      --glass-border: rgba(160, 174, 192, 0.2);
+      --text-primary: #e2e8f0;
+      --text-secondary: #a0aec0;
+      --muted: #2d3748;
     }
 
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff6ec4 100%);
-        min-height: 100vh;
-        position: relative;
-        overflow-x: hidden;
+      background: var(--background);
+      color: var(--foreground);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* Animated background elements */
     body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: 
-            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 110, 196, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(255, 206, 84, 0.2) 0%, transparent 50%);
-        animation: float 20s ease-in-out infinite;
-        z-index: -1;
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 110, 196, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 206, 84, 0.2) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      z-index: -1;
     }
 
     @keyframes float {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        33% { transform: translateY(-20px) rotate(1deg); }
-        66% { transform: translateY(-10px) rotate(-1deg); }
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-20px) rotate(1deg); }
+      66% { transform: translateY(-10px) rotate(-1deg); }
     }
 
     .form-glass {
-        max-width: 650px;
-        margin: 2rem auto;
-        padding: 2.5rem;
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        border-radius: 1.5rem;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        box-shadow: var(--shadow-soft);
-        position: relative;
-        overflow: hidden;
-        transform: translateY(20px);
-        opacity: 0;
-        animation: slideUp 0.8s ease-out forwards;
+      max-width: 650px;
+      margin: 2rem auto;
+      padding: 2.5rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 1.5rem;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideUp 0.8s ease-out forwards;
     }
 
     @keyframes slideUp {
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     .form-glass::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--primary-gradient);
-        z-index: 1;
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary-gradient);
+      z-index: 1;
     }
 
     .form-glass::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-        z-index: 0;
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .form-glass:hover::after {
-        opacity: 1;
+      opacity: 1;
     }
 
     .form-header {
-        text-align: center;
-        margin-bottom: 2rem;
-        font-size: 2rem;
-        font-weight: 800;
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        position: relative;
-        z-index: 2;
-        letter-spacing: -0.025em;
-        line-height: 1.2;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+      z-index: 2;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
     }
 
     .form-header::after {
-        content: '';
-        position: absolute;
-        bottom: -0.5rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 3px;
-        background: var(--secondary-gradient);
-        border-radius: 2px;
+      content: '';
+      position: absolute;
+      bottom: -0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: var(--secondary-gradient);
+      border-radius: 2px;
     }
 
     .form-group {
-        margin-bottom: 1.5rem;
-        position: relative;
-        z-index: 2;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 2;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .form-label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-        color: var(--text-primary);
-        font-size: 0.95rem;
-        letter-spacing: 0.025em;
-        position: relative;
-        padding-left: 1rem;
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      letter-spacing: 0.025em;
+      position: relative;
+      padding-left: 1rem;
     }
 
     .form-label::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 4px;
-        background: var(--secondary-gradient);
-        border-radius: 50%;
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 4px;
+      background: var(--secondary-gradient);
+      border-radius: 50%;
     }
 
     .form-control,
     select {
-        width: 100%;
-        padding: 1rem 1.25rem;
-        border: 2px solid transparent;
-        border-radius: 0.75rem;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        font-size: 0.95rem;
-        color: var(--text-primary);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        position: relative;
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border: 2px solid transparent;
+      border-radius: 0.75rem;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .form-control:focus,
     select:focus {
-        border-color: #667eea;
-        box-shadow: 
-            0 0 0 3px rgba(102, 126, 234, 0.1),
-            0 8px 25px rgba(102, 126, 234, 0.15);
-        outline: none;
-        background: rgba(255, 255, 255, 0.95);
-        transform: translateY(-2px);
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 8px 25px rgba(102, 126, 234, 0.15);
+      outline: none;
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-2px);
     }
 
-    .form-control:hover,
-    select:hover {
-        border-color: rgba(102, 126, 234, 0.3);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    .form-control.error,
+    select.error {
+      border-color: var(--error);
     }
 
-    /* Custom select arrow */
     select {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 1rem;
-        padding-right: 3rem;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+      padding-right: 3rem;
     }
 
     .text-danger {
-        color: var(--error);
-        font-size: 0.85rem;
-        margin-top: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 500;
+      color: var(--error);
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      animation: shake 0.5s ease-in-out;
     }
 
     .text-danger::before {
-        content: '⚠';
-        font-size: 0.9rem;
+      content: '⚠';
+      font-size: 0.9rem;
+    }
+
+    .btn-submit,
+    .btn-cancel {
+      display: inline-block;
+      width: 100%;
+      padding: 1rem 2rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.025em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
     }
 
     .btn-submit {
-        display: inline-block;
-        width: 100%;
-        padding: 1rem 2rem;
-        font-weight: 700;
-        font-size: 1.05rem;
-        color: #fff;
-        border: none;
-        border-radius: 0.75rem;
-        background: var(--primary-gradient);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        letter-spacing: 0.025em;
-        text-transform: uppercase;
-        font-size: 0.9rem;
+      background: var(--primary-gradient);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
     }
 
-    .btn-submit::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s ease;
+    .btn-cancel {
+      background: var(--muted);
+      color: var(--foreground);
+      border: 1px solid var(--glass-border);
     }
 
-    .btn-submit:hover::before {
-        left: 100%;
+    .btn-submit::before,
+    .btn-cancel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-submit:hover::before,
+    .btn-cancel:hover::before {
+      left: 100%;
     }
 
     .btn-submit:hover {
-        transform: translateY(-3px);
-        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-        box-shadow: var(--shadow-hover);
+      transform: translateY(-3px);
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      box-shadow: var(--shadow-hover);
     }
 
-    .btn-submit:active {
-        transform: translateY(-1px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    .btn-cancel:hover {
+      transform: translateY(-3px);
+      background: var(--muted);
+      opacity: 0.9;
     }
 
-    /* Loading state */
-    .btn-submit:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-        transform: none;
+    .btn-submit:disabled,
+    .btn-cancel:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
     }
 
-    /* Responsive design */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      color: #fff;
+      z-index: 1000;
+      animation: slideIn 0.3s ease forwards, slideOut 0.3s ease 2.7s forwards;
+    }
+
+    .notification.success {
+      background: var(--success);
+    }
+
+    .notification.error {
+      background: var(--error);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: var(--background);
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #667eea;
+      border-top: 4px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .tooltip {
+      position: relative;
+    }
+
+    .tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-primary);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 10;
+    }
+
+    .tooltip:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--muted);
+      border-radius: 2px;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: var(--primary-gradient);
+      width: 0;
+      transition: width 0.3s ease;
+    }
+
+    nav {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark nav {
+      background: rgba(45, 55, 72, 0.15);
+    }
+
+    .nav-link {
+      color: var(--foreground);
+      transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #667eea;
+    }
+
+    .dark .nav-link {
+      color: #e2e8f0;
+    }
+
+    .dark .nav-link:hover {
+      color: #8b9afe;
+    }
+
     @media (max-width: 768px) {
-        .form-glass {
-            margin: 1rem;
-            padding: 1.5rem;
-            border-radius: 1rem;
-        }
+      .form-glass {
+        margin: 1rem;
+        padding: 1.5rem;
+        border-radius: 1rem;
+      }
 
-        .form-header {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
+      .form-header {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
 
-        .form-control,
-        select {
-            padding: 0.875rem 1rem;
-            font-size: 0.9rem;
-        }
+      .form-control,
+      select {
+        padding: 0.875rem 1rem;
+        font-size: 0.9rem;
+      }
 
-        .btn-submit {
-            padding: 0.875rem 1.5rem;
-            font-size: 0.85rem;
-        }
+      .btn-submit,
+      .btn-cancel {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.85rem;
+      }
     }
 
-    /* Success state animation */
-    .form-success {
-        animation: success-pulse 0.6s ease-out;
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
     }
+  </style>
+</head>
+<body>
+  <div class="loading hidden">
+    <div class="spinner"></div>
+  </div>
 
-    @keyframes success-pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
-    }
-
-    /* Focus visible for accessibility */
-    .form-control:focus-visible,
-    select:focus-visible,
-    .btn-submit:focus-visible {
-        outline: 2px solid #667eea;
-        outline-offset: 2px;
-    }
-
-    /* Smooth transitions for form validation */
-    .form-group {
-        transition: all 0.3s ease;
-    }
-
-    .form-group.has-error {
-        animation: shake 0.5s ease-in-out;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-</style>
-<nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
         <a href="{{ url_for('main.landlord_dashboard') }}" class="text-xl font-bold text-indigo-600">
           <span class="text-green-500">Property</span><span class="text-yellow-500">Pay</span><span class="text-pink-500">Track</span>
         </a>
-        <div class="hidden md:flex space-x-6">
-          <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-pink-600">Dashboard</a>
-          <a href="{{ url_for('main.properties_list') }}" class="text-gray-700 hover:text-pink-600">Properties</a>
-          <a href="{{ url_for('main.tenants_list') }}" class="text-gray-700 hover:text-pink-600">Tenants</a>
-          <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-pink-600">Payments</a>
-          <a href="{{ url_for('main.assign_property') }}" class="text-gray-700 hover:text-pink-600">Assign</a>
-          <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-pink-600">Profile</a>
+        <div class="hidden md:flex space-x-6 items-center">
+          <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
+          <a href="{{ url_for('main.properties_list') }}" class="nav-link" aria-label="View Properties">Properties</a>
+          <a href="{{ url_for('main.tenants_list') }}" class="nav-link" aria-label="View Tenants">Tenants</a>
+          <a href="{{ url_for('main.payments_history') }}" class="nav-link" aria-label="View Payments">Payments</a>
+          <a href="{{ url_for('main.assign_property') }}" class="nav-link" aria-label="Assign Property">Assign</a>
+          <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="View Profile">Profile</a>
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle dark mode">
+            <i class="fas fa-moon hidden dark:block"></i>
+            <i class="fas fa-sun block dark:hidden"></i>
+          </button>
         </div>
-        <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-pink-600">Logout</a>
+        <div class="flex items-center space-x-4">
+          <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block nav-link" aria-label="Logout">Logout</a>
+          <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none" aria-label="Toggle mobile menu">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
       </div>
     </div>
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+      <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 nav-link">Dashboard</a>
+      <a href="{{ url_for('main.properties_list') }}" class="block py-2 nav-link">Properties</a>
+      <a href="{{ url_for('main.tenants_list') }}" class="block py-2 nav-link">Tenants</a>
+      <a href="{{ url_for('main.payments_history') }}" class="block py-2 nav-link">Payments</a>
+      <a href="{{ url_for('main.assign_property') }}" class="block py-2 nav-link">Assign</a>
+      <a href="{{ url_for('auth.profile') }}" class="block py-2 nav-link">Profile</a>
+      <a href="{{ url_for('auth.logout') }}" class="block py-2 nav-link">Logout</a>
+      <button id="mobileThemeToggle" class="block py-2 nav-link" aria-label="Toggle dark mode">Toggle Theme</button>
+    </div>
   </nav>
-<div class="form-glass">
+
+  <div class="form-glass">
+    <div class="progress-bar"></div>
     {% if tenant %}
-        <h2 class="form-header">Assign Property to {{ tenant.first_name }} {{ tenant.last_name }}</h2>
+      <h2 class="form-header">{{ _('Assign Property to') }} {{ tenant.first_name }} {{ tenant.last_name }}</h2>
     {% else %}
-        <h2 class="form-header">Assign Property to Tenant</h2>
+      <h2 class="form-header">{{ _('Assign Property to Tenant') }}</h2>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('main.assign_property', tenant_id=tenant.id if tenant else None) }}">
-        {{ form.hidden_tag() }}
+    <form method="POST" action="{{ url_for('main.assign_property', tenant_id=tenant.id if tenant else None) }}" id="assignForm">
+      {{ form.hidden_tag() }}
 
-        <div class="form-group">
-            {{ form.tenant_id.label(class="form-label") }}
-            {{ form.tenant_id(class="form-control") }}
-            {% for error in form.tenant_id.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
+      <div class="form-group tooltip" data-tooltip="Select a tenant to assign to a property">
+        {{ form.tenant_id.label(class="form-label") }}
+        {{ form.tenant_id(class="form-control", **{'aria-required': 'true'}) }}
+        {% for error in form.tenant_id.errors %}
+          <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
 
-        <div class="form-group">
-            {{ form.property_id.label(class="form-label") }}
-            {{ form.property_id(class="form-control") }}
-            {% for error in form.property_id.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
+      <div class="form-group tooltip" data-tooltip="Choose a property to assign">
+        {{ form.property_id.label(class="form-label") }}
+        {{ form.property_id(class="form-control", **{'aria-required': 'true'}) }}
+        {% for error in form.property_id.errors %}
+          <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
 
-        <div class="form-group">
-            {{ form.unit_id.label(class="form-label") }}
-            {{ form.unit_id(class="form-control") }}
-            {% for error in form.unit_id.errors %}
-                <div class="text-danger">{{ error }}</div>
-            {% endfor %}
-        </div>
+      <div class="form-group tooltip" data-tooltip="Select a specific unit within the property">
+        {{ form.unit_id.label(class="form-label") }}
+        {{ form.unit_id(class="form-control", **{'aria-required': 'true'}) }}
+        {% for error in form.unit_id.errors %}
+          <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
 
-        <div class="form-group">
-            {{ form.submit(class="btn-submit") }}
-        </div>
+      <div class="form-actions">
+        {{ form.submit(class="btn-submit", **{'aria-label': 'Submit property assignment'}) }}
+        <a href="{{ url_for('main.tenants_list') }}" class="btn-cancel" id="cancelBtn" aria-label="Cancel and return to tenants list">{{ _('Cancel') }}</a>
+      </div>
     </form>
-</div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize theme
+      const theme = localStorage.getItem('theme') || 'light';
+      if (theme === 'dark') {
+        document.body.classList.add('dark');
+      }
+
+      // Theme toggle
+      const themeToggles = [document.getElementById('themeToggle'), document.getElementById('mobileThemeToggle')];
+      themeToggles.forEach(toggle => {
+        if (toggle) {
+          toggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+            showNotification('Theme changed successfully', 'success');
+          });
+        }
+      });
+
+      // Mobile menu
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+      mobileMenuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
+        mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
+      });
+
+      // Form handling
+      const form = document.getElementById('assignForm');
+      const tenantSelect = document.getElementById('tenant_id');
+      const propertySelect = document.getElementById('property_id');
+      const unitSelect = document.getElementById('unit_id');
+      const submitBtn = form.querySelector('.btn-submit');
+      const loading = document.querySelector('.loading');
+      const progressBar = document.querySelector('.progress-bar');
+      let isFormDirty = false;
+
+      // Mock data for units (replace with actual API call)
+      const propertyUnits = {
+        // Example: 'property_id': [{value: 'unit_id', text: 'Unit Name'}, ...]
+      };
+
+      // Dynamic unit selection
+      function updateUnits() {
+        const selectedProperty = propertySelect.value;
+        unitSelect.innerHTML = '<option value="">Select Unit</option>';
+        if (selectedProperty && propertyUnits[selectedProperty]) {
+          propertyUnits[selectedProperty].forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit.value;
+            option.textContent = unit.text;
+            unitSelect.appendChild(option);
+          });
+        }
+        updateProgress();
+      }
+
+      // Form progress
+      function updateProgress() {
+        const fields = [tenantSelect, propertySelect, unitSelect];
+        const filledFields = fields.filter(field => field.value).length;
+        const progress = (filledFields / fields.length) * 100;
+        progressBar.querySelector('::before').style.width = `${progress}%`;
+      }
+
+      // Real-time validation
+      function validateField(field) {
+        const existingError = field.parentNode.querySelector('.text-danger');
+        if (existingError) existingError.remove();
+        field.classList.remove('error');
+
+        if (field.hasAttribute('required') && !field.value) {
+          showError(field, 'This field is required');
+          return false;
+        }
+        return true;
+      }
+
+      function showError(field, message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'text-danger';
+        errorDiv.textContent = message;
+        field.parentNode.appendChild(errorDiv);
+        field.classList.add('error');
+        field.parentNode.classList.add('has-error');
+        setTimeout(() => field.parentNode.classList.remove('has-error'), 1000);
+      }
+
+      // Form submission
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        let isValid = true;
+
+        [tenantSelect, propertySelect, unitSelect].forEach(field => {
+          if (!validateField(field)) isValid = false;
+        });
+
+        if (isValid) {
+          loading.classList.remove('hidden');
+          submitBtn.disabled = true;
+          setTimeout(() => {
+            loading.classList.add('hidden');
+            submitBtn.disabled = false;
+            showNotification('Property assigned successfully', 'success');
+            form.submit();
+          }, 1000);
+        } else {
+          showNotification('Please fill all required fields', 'error');
+        }
+      });
+
+      // Track form changes
+      form.querySelectorAll('select').forEach(field => {
+        field.addEventListener('change', () => {
+          isFormDirty = true;
+          if (field === propertySelect) updateUnits();
+          validateField(field);
+          updateProgress();
+        });
+      });
+
+      // Cancel button confirmation
+      document.getElementById('cancelBtn').addEventListener('click', function(e) {
+        if (isFormDirty && !confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+          e.preventDefault();
+        }
+      });
+
+      // Notification system
+      function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+      }
+
+      // Accessibility: Focus management
+      form.querySelectorAll('select, button').forEach(element => {
+        element.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && element.tagName !== 'BUTTON') {
+            e.preventDefault();
+            const formElements = Array.from(form.querySelectorAll('select, button'));
+            const currentIndex = formElements.indexOf(element);
+            const nextElement = formElements[currentIndex + 1];
+            if (nextElement) nextElement.focus();
+          }
+        });
+      });
+
+      // Close mobile menu on link click
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+          mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+          mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        });
+      });
+
+      // Escape key handling
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          mobileMenu.classList.add('hidden');
+          mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+          mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        }
+      });
+
+      // Initialize
+      updateUnits();
+      updateProgress();
+    });
+  </script>
+</body>
+</html>
