@@ -846,9 +846,13 @@
                         <i class="fas fa-download me-2"></i>{{ _('Download Receipt') }}
                       </a></li>
                       <li><hr class="dropdown-divider"></li>
-                      <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete({{ payment.id }})">
-                        <i class="fas fa-trash me-2"></i>{{ _('Delete') }}
-                      </a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a href="#" class="dropdown-item text-danger" onclick="confirmDelete({{ payment.id }}); return false;">
+                          <i class="fas fa-trash me-2"></i> {{ _('Delete') }}
+                        </a>
+                      </li>
+
                     </ul>
                   </div>
                 </td>

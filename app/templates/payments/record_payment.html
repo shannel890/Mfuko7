@@ -4,63 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Record a new rental payment with PropertyPayTrack.">
-    <meta name="author" content="PropertyPayTrack">
     <meta name="keywords" content="property management, payment tracking, real estate, landlord">
-    <meta name="robots" content="index, follow">
-
     <meta property="og:title" content="PropertyPayTrack - Record Payment">
     <meta property="og:description" content="Record a new rental payment with PropertyPayTrack.">
     <meta property="og:image" content="/static/img/og-image.jpg">
     <meta property="og:url" content="https://www.propertypaytrack.com/record-payment">
     <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="PropertyPayTrack - Record Payment">
-    <meta name="twitter:description" content="Record a new rental payment with PropertyPayTrack.">
-    <meta name="twitter:image" content="/static/img/og-image.jpg">
-
-    <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
-
     <title>{{ _('Record Payment') }} - PropertyPayTrack</title>
 
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <style>
         :root {
             --primary-color: #0066cc;
-            --secondary-color: #1a1a1a;
             --accent-color: #2aa648;
-            --accent-secondary: #00d4aa;
             --background-color: #f0f4fa;
             --surface-color: #ffffff;
-            --card-background: rgba(255, 255, 255, 0.8);
             --text-color: #333333;
-            --light-text-color: #ffffff;
             --muted-text: #666666;
-            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.1);
-            --shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.15);
-            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.3);
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-accent: linear-gradient(135deg, #2aa648 0%, #238f3a 100%);
-            --gradient-background: linear-gradient(135deg, #f0f4fa 0%, #d9e6f2 100%);
             --border-color: rgba(0, 0, 0, 0.1);
             --radius: 0.5rem;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
             --notification-success: #2aa648;
             --notification-error: #ef4444;
-            --notification-warning: #f59e0b;
         }
 
         .dark {
             --background-color: #1f2937;
             --surface-color: #374151;
-            --card-background: rgba(55, 65, 81, 0.95);
             --text-color: #e5e7eb;
             --muted-text: #9ca3af;
             --border-color: rgba(255, 255, 255, 0.2);
@@ -73,47 +49,22 @@
             font-family: 'Inter', sans-serif;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            background: var(--gradient-background);
+            background: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            animation: gradientShift 15s ease-in-out infinite;
-        }
-
-        @keyframes gradientShift {
-            0% { background: linear-gradient(135deg, #f0f4fa 0%, #d9e6f2 100%); }
-            50% { background: linear-gradient(135deg, #d9e6f2 0%, #f0f4fa 100%); }
-            100% { background: linear-gradient(135deg, #f0f4fa 0%, #d9e6f2 100%); }
         }
 
         .modern-nav {
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: var(--card-background);
-            backdrop-filter: blur(20px);
+            background: var(--surface-color);
             border-bottom: 1px solid var(--border-color);
             transition: var(--transition);
-        }
-
-        .dark .modern-nav {
-            background: rgba(45, 55, 72, 0.95);
-        }
-
-        .modern-nav.scrolled {
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: var(--shadow-light);
-        }
-
-        .dark .modern-nav.scrolled {
-            background: rgba(45, 55, 72, 0.98);
         }
 
         .nav-container {
@@ -129,66 +80,39 @@
         .brand-logo {
             font-family: 'Playfair Display', serif;
             font-size: 1.75rem;
-            font-weight: 700;
+            font-weight: 600;
             text-decoration: none;
-            display: flex;
-            align-items: center;
+            color: var(--primary-color);
         }
-
-        .brand-logo span:nth-child(1) { color: #10b981; }
-        .brand-logo span:nth-child(2) { color: #f59e0b; }
-        .brand-logo span:nth-child(3) { color: #3b82f6; }
 
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .nav-link {
             color: var(--muted-text);
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.875rem;
             transition: var(--transition);
-            position: relative;
         }
 
-        .nav-link:hover {
-            color: var(--text-color);
-        }
-
-        .nav-link.active {
+        .nav-link:hover, .nav-link.active {
             color: var(--accent-color);
-            font-weight: 600;
-        }
-
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--gradient-accent);
         }
 
         .logout-btn {
             padding: 0.5rem 1rem;
-            background: var(--gradient-accent);
-            color: var(--light-text-color);
+            background: var(--accent-color);
+            color: #fff;
             border-radius: var(--radius);
             text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             transition: var(--transition);
         }
 
         .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(42, 166, 72, 0.3);
+            background: #238f3a;
         }
 
         .theme-toggle {
@@ -197,20 +121,13 @@
             color: var(--text-color);
             font-size: 1.2rem;
             cursor: pointer;
-            padding: 0.5rem;
-            transition: var(--transition);
-        }
-
-        .theme-toggle:hover {
-            color: var(--accent-color);
         }
 
         .hamburger {
             display: none;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 4px;
             width: 24px;
-            height: 18px;
             cursor: pointer;
         }
 
@@ -221,144 +138,33 @@
             transition: var(--transition);
         }
 
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -7px);
-        }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
 
         .mobile-menu {
             display: none;
             flex-direction: column;
-            background: var(--card-background);
-            backdrop-filter: blur(10px);
+            background: var(--surface-color);
             position: absolute;
             top: 64px;
             left: 0;
             right: 0;
             padding: 1rem;
-            box-shadow: var(--shadow-medium);
-        }
-
-        .dark .mobile-menu {
-            background: rgba(45, 55, 72, 0.95);
+            box-shadow: var(--shadow);
         }
 
         .mobile-menu.active {
             display: flex;
         }
 
-        .mobile-menu .nav-link,
-        .mobile-menu .logout-btn {
-            margin: 0.5rem 0;
-            padding: 0.5rem 1rem;
-        }
-
-        .loading-spinner {
-            position: fixed;
-            inset: 0;
-            background: var(--background-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-
-        .spinner {
-            border: 6px solid rgba(255, 255, 255, 0.1);
-            border-top: 6px solid var(--accent-color);
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        .sr-only:focus {
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            width: auto;
-            height: auto;
-            padding: 0.5rem 1rem;
-            background: var(--accent-color);
-            color: var(--light-text-color);
-            border-radius: 0.5rem;
-            clip: auto;
-            z-index: 1000;
-        }
-
-        .header-section {
-            position: relative;
-            background: var(--surface-color);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: var(--shadow-medium);
-            margin-bottom: 2rem;
-            overflow: hidden;
-        }
-
-        .dark .header-section {
-            background: var(--surface-color);
-        }
-
-        .gradient-orb {
-            background: var(--gradient-primary);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .gradient-orb-2 {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            animation: float 6s ease-in-out infinite reverse;
-        }
-
-        .gradient-orb-3 {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            animation: float 8s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-
-        .text-gradient {
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
         .form-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
             display: grid;
             gap: 2rem;
             grid-template-columns: 1fr;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
         }
 
         @media (min-width: 1024px) {
@@ -367,57 +173,41 @@
             }
         }
 
-        .form-card {
-            background: var(--card-background);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: var(--shadow-medium);
-            backdrop-filter: blur(10px);
+        .form-card, .summary-card {
+            background: var(--surface-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-
-        .form-card:hover {
-            box-shadow: var(--shadow-heavy);
         }
 
         .form-header {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
         }
 
         .form-icon {
-            width: 3rem;
-            height: 3rem;
+            width: 2.5rem;
+            height: 2.5rem;
             border-radius: 50%;
             background: rgba(42, 166, 72, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--accent-color);
-            font-size: 1.25rem;
         }
 
         .form-title {
             font-family: 'Playfair Display', serif;
             font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 0.25rem;
-        }
-
-        .form-description {
-            color: var(--muted-text);
-            font-size: 0.875rem;
+            font-weight: 600;
         }
 
         .form-grid {
             display: grid;
-            gap: 1.5rem;
+            gap: 1rem;
             grid-template-columns: 1fr;
         }
 
@@ -432,62 +222,34 @@
         }
 
         .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
         }
 
-        .form-label i {
-            color: var(--accent-color);
-            width: 1rem;
-        }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
+        .form-input, .form-select, .form-textarea {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 0.75rem;
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
-            background: rgba(255, 255, 255, 0.8);
-            transition: var(--transition);
+            background: var(--surface-color);
             font-size: 0.875rem;
         }
 
-        .dark .form-input,
-        .dark .form-select,
-        .dark .form-textarea {
-            background: rgba(55, 65, 81, 0.8);
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
             border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(42, 166, 72, 0.1);
-            background: rgba(255, 255, 255, 0.95);
         }
 
-        .form-input.is-valid {
+        .form-input.is-valid, .form-select.is-valid {
             border-color: var(--notification-success);
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath fill='%232aa648' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: 1em;
         }
 
-        .form-input.is-invalid,
-        .form-select.is-invalid {
+        .form-input.is-invalid, .form-select.is-invalid {
             border-color: var(--notification-error);
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3E%3Ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: 1em;
         }
 
         .modern-select {
@@ -495,406 +257,136 @@
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
             background-position: right 0.5rem center;
             background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
+            background-size: 1.5em;
             padding-right: 2.5rem;
         }
 
         .amount-input-wrapper {
             position: relative;
-            display: flex;
-            align-items: center;
         }
 
         .currency {
             position: absolute;
             left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--muted-text);
             font-weight: 600;
-            z-index: 1;
         }
 
         .amount-input {
             padding-left: 3rem;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .tenant-info-display {
-            margin-top: 1rem;
-        }
-
-        .tenant-card {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: rgba(42, 166, 72, 0.05);
-            border: 1px solid rgba(42, 166, 72, 0.2);
-            border-radius: var(--radius);
-        }
-
-        .tenant-avatar {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 50%;
-            background: rgba(42, 166, 72, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-color);
-        }
-
-        .tenant-name {
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.25rem;
-        }
-
-        .tenant-property,
-        .tenant-rent {
-            font-size: 0.875rem;
-            color: var(--muted-text);
-            margin-bottom: 0.125rem;
-        }
-
-        .quick-amounts {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(42, 166, 72, 0.05);
-            border: 1px solid rgba(42, 166, 72, 0.2);
-            border-radius: var(--radius);
-        }
-
-        .quick-amounts-header {
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.75rem;
-            font-size: 0.875rem;
-        }
-
-        .amount-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .amount-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--accent-color);
-            background: transparent;
-            color: var(--accent-color);
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .amount-btn:hover,
-        .amount-btn.active {
-            background: var(--accent-color);
-            color: var(--light-text-color);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .btn-secondary {
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--border-color);
-            background: transparent;
-            color: var(--muted-text);
-            border-radius: var(--radius);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-secondary:hover {
-            background: var(--muted-text);
-            color: var(--light-text-color);
         }
 
         .form-error {
             color: var(--notification-error);
             font-size: 0.75rem;
             margin-top: 0.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .form-error::before {
-            content: "⚠";
-            font-size: 0.75rem;
         }
 
         .form-hint {
             color: var(--muted-text);
             font-size: 0.75rem;
             margin-top: 0.25rem;
-            font-style: italic;
         }
 
-        .summary-card {
-            background: var(--card-background);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-medium);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            height: fit-content;
-            top: 2rem;
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary-custom, .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
             transition: var(--transition);
         }
 
-        .dark .summary-card {
-            background: rgba(55, 65, 81, 0.95);
+        .btn-primary-custom {
+            background: var(--accent-color);
+            color: #fff;
+            border: none;
         }
 
-        .summary-card:hover {
-            box-shadow: var(--shadow-heavy);
+        .btn-primary-custom:hover {
+            background: #238f3a;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--muted-text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--muted-text);
+            color: #fff;
         }
 
         .summary-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .summary-header h3 {
+            margin-bottom: 1rem;
             font-family: 'Playfair Display', serif;
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            color: var(--text-color);
-        }
-
-        .summary-content {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
         }
 
         .summary-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            margin-bottom: 0.5rem;
         }
 
         .summary-label {
             color: var(--muted-text);
-            font-size: 0.875rem;
         }
 
         .summary-value {
             font-weight: 600;
-            color: var(--text-color);
-        }
-
-        .btn-primary-custom {
-            padding: 0.75rem 1.5rem;
-            background: var(--gradient-accent);
-            color: var(--light-text-color);
-            border-radius: var(--radius);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(42, 166, 72, 0.4);
-        }
-
-        .btn-primary-custom.loading {
-            position: relative;
-            color: transparent;
-        }
-
-        .btn-primary-custom.loading::after {
-            content: "";
-            position: absolute;
-            width: 1rem;
-            height: 1rem;
-            top: 50%;
-            left: 50%;
-            margin-left: -0.5rem;
-            margin-top: -0.5rem;
-            border: 2px solid transparent;
-            border-top-color: var(--light-text-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .receipt-preview {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-        }
-
-        .dark .receipt-preview {
-            background: rgba(55, 65, 81, 0.95);
-        }
-
-        .autocomplete-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: var(--shadow-light);
-        }
-
-        .dark .autocomplete-suggestions {
-            background: var(--surface-color);
-        }
-
-        .autocomplete-suggestion {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .autocomplete-suggestion:hover {
-            background: var(--accent-color);
-            color: var(--light-text-color);
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: var(--gradient-accent);
-            border-radius: var(--radius);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent-color);
-            transition: width 0.5s ease;
         }
 
         .notification {
             position: fixed;
             top: 1rem;
             right: 1rem;
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             border-radius: var(--radius);
-            box-shadow: var(--shadow-light);
+            box-shadow: var(--shadow);
             z-index: 1000;
-            opacity: 1;
-            transition: opacity 0.3s ease;
             max-width: 300px;
         }
 
         .notification.success {
             background: var(--notification-success);
-            color: var(--light-text-color);
+            color: #fff;
         }
 
         .notification.error {
             background: var(--notification-error);
-            color: var(--light-text-color);
-        }
-
-        .notification.warning {
-            background: var(--notification-warning);
-            color: var(--light-text-color);
-        }
-
-        .form-progress {
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            background: rgba(42, 166, 72, 0.05);
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .form-progress-bar {
-            flex: 1;
-            height: 6px;
-            background: var(--border-color);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        .form-progress-fill {
-            height: 100%;
-            background: var(--gradient-accent);
-            transition: width 0.3s ease;
+            color: #fff;
         }
 
         .footer {
-            background: var(--card-background);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border-color);
-            padding: 3rem 1rem;
+            background: var(--surface-color);
+            padding: 2rem 1rem;
             margin-top: auto;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dark .footer {
-            background: rgba(45, 55, 72, 0.95);
+            border-top: 1px solid var(--border-color);
         }
 
         .footer-container {
             max-width: 1200px;
             margin: 0 auto;
             display: grid;
+            gap: 1.5rem;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            padding: 0 1rem;
-        }
-
-        .footer-section {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
         }
 
         .footer-section h4 {
             font-family: 'Playfair Display', serif;
             font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-color);
             margin-bottom: 1rem;
-        }
-
-        .footer-links {
-            list-style: none;
-            padding: 0;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.5rem;
         }
 
         .footer-links a {
@@ -906,135 +398,28 @@
 
         .footer-links a:hover {
             color: var(--accent-color);
-            transform: translateX(5px);
-            display: inline-block;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .social-links a {
-            color: var(--muted-text);
-            font-size: 1.5rem;
-            transition: var(--transition);
-        }
-
-        .social-links a:hover {
-            color: var(--accent-color);
-            transform: translateY(-3px);
-        }
-
-        .footer-contact p {
-            color: var(--muted-text);
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-contact a {
-            color: var(--accent-color);
-            text-decoration: none;
-        }
-
-        .footer-contact a:hover {
-            text-decoration: underline;
         }
 
         .footer-bottom {
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.5rem;
-            margin-top: 2rem;
             text-align: center;
-        }
-
-        .footer-bottom p {
+            margin-top: 1.5rem;
             color: var(--muted-text);
-            font-size: 0.875rem;
-            margin: 0;
         }
 
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .logout-btn {
-                display: none;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            .mobile-menu .logout-btn {
-                display: flex;
-                justify-content: center;
-            }
-
-            .form-card {
-                padding: 1.5rem;
-            }
-
-            .form-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 0.75rem;
-            }
-
-            .form-actions {
-                flex-direction: column-reverse;
-            }
-
-            .form-actions button {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .summary-card {
-                order: -1;
-            }
-
-            .notification {
-                left: 1rem;
-                right: 1rem;
-                max-width: none;
-            }
-
-            .footer-container {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .social-links {
-                justify-content: center;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation: none !important;
-                transition: none !important;
-            }
+            .nav-links, .logout-btn { display: none; }
+            .hamburger { display: flex; }
+            .mobile-menu .logout-btn { display: flex; justify-content: center; }
+            .form-actions { flex-direction: column; }
+            .form-actions button { width: 100%; }
+            .summary-card { order: -1; }
         }
     </style>
 </head>
 <body>
-    <!-- Notification Container -->
-    <div id="notificationContainer"></div>
-
-    <!-- Loading Spinner -->
-    <div class="loading-spinner" id="loadingSpinner">
-        <div class="spinner"></div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="modern-nav" id="navbar">
+    <nav class="modern-nav" role="navigation" aria-label="Main navigation">
         <div class="nav-container">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="brand-logo" aria-label="{{ _('PropertyPayTrack Home') }}">
-                <span>Property</span><span>Pay</span><span>Track</span>
-            </a>
+            <a href="{{ url_for('main.landlord_dashboard') }}" class="brand-logo" aria-label="{{ _('PropertyPayTrack Home') }}">PropertyPayTrack</a>
             <div class="nav-links">
                 <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="{{ _('Go to Dashboard') }}">{{ _('Dashboard') }}</a>
                 <a href="{{ url_for('main.properties_list') }}" class="nav-link" aria-label="{{ _('Go to Properties') }}">{{ _('Properties') }}</a>
@@ -1042,304 +427,183 @@
                 <a href="{{ url_for('main.payments_history') }}" class="nav-link active" aria-label="{{ _('Go to Payments') }}">{{ _('Payments') }}</a>
                 <a href="{{ url_for('main.assign_property') }}" class="nav-link" aria-label="{{ _('Go to Assign Property') }}">{{ _('Assign') }}</a>
                 <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="{{ _('Go to Profile') }}">{{ _('Profile') }}</a>
-                <a href="{{ url_for('auth.logout') }}" class="logout-btn" aria-label="{{ _('Logout') }}">
-                    <i class="fas fa-sign-out-alt me-2"></i>{{ _('Logout') }}
-                </a>
-                <button class="theme-toggle" aria-label="{{ _('Toggle theme') }}">
-                    <i class="fas fa-moon"></i>
-                </button>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn" aria-label="{{ _('Logout') }}">{{ _('Logout') }}</a>
+                <button class="theme-toggle" aria-label="{{ _('Toggle theme') }}"><i class="fas fa-moon"></i></button>
             </div>
-            <div class="hamburger" id="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
+            <div class="hamburger" id="hamburger" role="button" aria-label="{{ _('Toggle navigation menu') }}">
+                <span></span><span></span><span></span>
             </div>
         </div>
-        <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu" id="mobileMenu" role="menu">
             <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="{{ _('Go to Dashboard') }}">{{ _('Dashboard') }}</a>
             <a href="{{ url_for('main.properties_list') }}" class="nav-link" aria-label="{{ _('Go to Properties') }}">{{ _('Properties') }}</a>
             <a href="{{ url_for('main.tenants_list') }}" class="nav-link" aria-label="{{ _('Go to Tenants') }}">{{ _('Tenants') }}</a>
             <a href="{{ url_for('main.payments_history') }}" class="nav-link active" aria-label="{{ _('Go to Payments') }}">{{ _('Payments') }}</a>
             <a href="{{ url_for('main.assign_property') }}" class="nav-link" aria-label="{{ _('Go to Assign Property') }}">{{ _('Assign') }}</a>
             <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="{{ _('Go to Profile') }}">{{ _('Profile') }}</a>
-            <a href="{{ url_for('auth.logout') }}" class="logout-btn" aria-label="{{ _('Logout') }}">
-                <i class="fas fa-sign-out-alt me-2"></i>{{ _('Logout') }}
-            </a>
-            <button class="theme-toggle" aria-label="{{ _('Toggle theme') }}">
-                <i class="fas fa-moon"></i>
-            </button>
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn" aria-label="{{ _('Logout') }}">{{ _('Logout') }}</a>
+            <button class="theme-toggle" aria-label="{{ _('Toggle theme') }}"><i class="fas fa-moon"></i></button>
         </div>
     </nav>
 
-    <!-- Skip Link -->
-    <a href="#main-content" class="sr-only">{{ _('Skip to main content') }}</a>
+    <div class="form-container">
+        <section class="form-card" role="form" aria-labelledby="payment-details-title">
+            <div class="form-header">
+                <div class="form-icon"><i class="fas fa-receipt"></i></div>
+                <h2 class="form-title" id="payment-details-title">{{ _('Payment Details') }}</h2>
+            </div>
+            <form method="POST" novalidate class="payment-form was-validated" id="paymentForm" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label" for="tenant_id"><i class="fas fa-user"></i> {{ _('Tenant') }}</label>
+                        <input type="text" class="form-input" id="tenant_search" placeholder="{{ _('Search tenants...') }}" aria-label="{{ _('Search tenants') }}" autocomplete="off">
+                        <select class="form-select modern-select" id="tenant_id" name="tenant_id" required aria-label="{{ _('Select Tenant') }}">
+                            <option value="">{{ _('Select a tenant') }}</option>
+                            {% for tenant in tenants %}
+                                <option value="{{ tenant.id }}"
+                                        data-name="{{ tenant.name|default('') }}"
+                                        data-property="{{ tenant.property.name if tenant.property else '' }}"
+                                        data-rent="{{ tenant.monthly_rent or 0 }}">
+                                    {{ tenant.name|default('Unknown') }}
+                                </option>
+                            {% endfor %}
+                        </select>
 
-    <!-- Main Content -->
-    <div class="dashboard-container px-4 sm:px-6 lg:px-8 pt-8" id="main-content">
-        <!-- Header Section -->
-        <div class="header-section hover-lift" data-aos="fade-down" data-aos-duration="800">
-            <div class="absolute -top-4 -left-4 w-24 h-24 rounded-full opacity-20 blur-xl gradient-orb"></div>
-            <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full opacity-15 blur-2xl gradient-orb-2"></div>
-            <div class="absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-10 blur-lg gradient-orb-3"></div>
-            <div class="relative z-10 flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                <div class="mb-6 sm:mb-0">
-                    <div class="flex items-center mb-2">
-                        <div class="w-2 h-8 rounded-full mr-4" style="background: linear-gradient(to bottom, #4A90E2, #7B68EE);"></div>
-                        <h1 class="text-4xl font-bold text-gradient">{{ _('Record Payment') }}</h1>
+                        <div class="form-error" id="tenant_id_error" style="display: none;">{{ _('Please select a tenant.') }}</div>
                     </div>
-                    <p class="text-base font-medium ml-6" style="color: #5A6270;">{{ _('Add a new rental payment to the system') }}</p>
-                    <div class="flex items-center mt-3 ml-6 text-sm" style="color: #8A8D8F;">
-                        <i class="fas fa-home mr-2"></i>
-                        <span>{{ _('Dashboard') }}</span>
-                        <i class="fas fa-chevron-right mx-2 text-xs"></i>
-                        <span>{{ _('Payments') }}</span>
-                        <i class="fas fa-chevron-right mx-2 text-xs"></i>
-                        <span style="color: #4A90E2; font-weight: 600;">{{ _('Record Payment') }}</span>
+                    <div class="form-group">
+                        <label class="form-label" for="amount"><i class="fas fa-money-bill-wave"></i> {{ _('Amount') }}</label>
+                        <div class="amount-input-wrapper">
+                            <span class="currency">KSh</span>
+                            <input type="number" class="form-input amount-input" id="amount" name="amount" step="0.01" required min="0.01" max="1000000" aria-label="{{ _('Payment Amount') }}">
+                        </div>
+                        <div class="form-error" id="amount_error" style="display: none;">{{ _('Please enter a valid amount.') }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="payment_method"><i class="fas fa-credit-card"></i> {{ _('Payment Method') }}</label>
+                        <select class="form-select modern-select" id="payment_method" name="payment_method" required aria-label="{{ _('Select Payment Method') }}">
+                            <option value="">{{ _('Select a method') }}</option>
+                            <option value="mpesa">M-Pesa</option>
+                            <option value="bank">Bank Transfer</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                        <div class="form-error" id="payment_method_error" style="display: none;">{{ _('Please select a payment method.') }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="payment_date"><i class="fas fa-calendar-alt"></i> {{ _('Payment Date') }}</label>
+                        <input type="text" class="form-input" id="payment_date" name="payment_date" required aria-label="{{ _('Payment Date') }}">
+                        <div class="form-error" id="payment_date_error" style="display: none;">{{ _('Please select a valid date.') }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="transaction_id"><i class="fas fa-barcode"></i> {{ _('Transaction ID') }}</label>
+                        <input type="text" class="form-input" id="transaction_id" name="transaction_id" placeholder="{{ _('e.g., MP12345678') }}" aria-label="{{ _('Transaction ID') }}">
+                        <div class="form-hint">{{ _('Optional: Reference number') }}</div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="description"><i class="fas fa-comment"></i> {{ _('Description') }}</label>
+                        <textarea class="form-textarea" id="description" name="description" rows="3" placeholder="{{ _('Add notes...') }}" aria-label="{{ _('Payment Description') }}"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <input type="checkbox" id="is_offline" name="is_offline" aria-label="{{ _('Offline Payment') }}">
+                        <label for="is_offline">{{ _('Offline Payment') }}</label>
+                    </div>
+                    <div class="form-group full-width" id="offline_reference_group" style="display: none;">
+                        <label class="form-label" for="offline_reference"><i class="fas fa-file-alt"></i> {{ _('Offline Reference') }}</label>
+                        <input type="text" class="form-input" id="offline_reference" name="offline_reference" placeholder="{{ _('e.g., Manual Receipt #123') }}" aria-label="{{ _('Offline Reference') }}">
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="receipt_upload"><i class="fas fa-file-upload"></i> {{ _('Receipt Upload') }}</label>
+                        <input type="file" class="form-input" id="receipt_upload" name="receipt_upload" accept="image/*,application/pdf" aria-label="{{ _('Upload Receipt') }}">
+                        <div class="form-hint">{{ _('Optional: Max 5MB') }}</div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <a href="{{ url_for('main.payments_history') }}" class="inline-flex items-center px-6 py-3 text-sm font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105" aria-label="{{ _('Back to Payment History') }}" style="background: linear-gradient(to right, #1B365D, #2D4A72); color: #ffffff; box-shadow: 0 5px 15px rgba(27, 54, 93, 0.3);">
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        <span>{{ _('Back to History') }}</span>
-                    </a>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="history.back()" aria-label="{{ _('Cancel Payment') }}">{{ _('Cancel') }}</button>
+                    <button type="button" class="btn-primary-custom" id="submitBtn" data-bs-toggle="modal" data-bs-target="#confirmModal" aria-label="{{ _('Submit Payment') }}">{{ _('Submit Payment') }}</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="summary-card" id="paymentSummary" style="display: none;" role="complementary" aria-labelledby="payment-summary-title">
+            <div class="summary-header">
+                <h3 id="payment-summary-title">{{ _('Payment Summary') }}</h3>
+            </div>
+            <div class="summary-content">
+                <div class="summary-item">
+                    <span class="summary-label">{{ _('Tenant') }}</span>
+                    <span class="summary-value" id="summaryTenant">-</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">{{ _('Amount') }}</span>
+                    <span class="summary-value" id="summaryAmount">-</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">{{ _('Method') }}</span>
+                    <span class="summary-value" id="summaryMethod">-</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">{{ _('Date') }}</span>
+                    <span class="summary-value" id="summaryDate">-</span>
                 </div>
             </div>
-        </div>
-
-        <!-- Payment Form -->
-        <div class="form-container">
-            <div class="form-card hover-lift" data-aos="fade-up" data-aos-duration="800">
-                <div class="form-header">
-                    <div class="form-icon">
-                        <i class="fas fa-receipt"></i>
-                    </div>
-                    <div class="form-title-section">
-                        <h2 class="form-title">{{ _('Payment Details') }}</h2>
-                        <p class="form-description">{{ _('Fill in the payment information below') }}</p>
-                    </div>
-                </div>
-                <div class="form-progress">
-                    <span id="formProgressText">0% Complete</span>
-                    <div class="form-progress-bar">
-                        <div class="form-progress-fill" id="formProgressFill" style="width: 0%"></div>
-                    </div>
-                </div>
-                <form method="POST" novalidate class="payment-form" id="paymentForm" enctype="multipart/form-data">
-                    {{ form.hidden_tag() }}
-                    <div class="form-grid">
-                        <!-- Tenant -->
-                        <div class="form-group full-width">
-                            <label class="form-label" for="tenant_id"><i class="fas fa-user"></i> {{ _('Tenant') }}</label>
-                            <div class="position-relative">
-                                <input type="text" class="form-input" id="tenant_search" placeholder="{{ _('Search tenants...') }}" aria-label="{{ _('Search tenants') }}" autocomplete="off">
-                                <select class="form-select modern-select" id="tenant_id" name="tenant_id" required aria-label="{{ _('Select Tenant') }}" style="display: none;">
-                                    <option value="">{{ _('Select a tenant') }}</option>
-                                    {% for tenant in tenants %}
-                                    <option value="{{ tenant.id }}" data-name="{{ tenant.name|default('Unknown') }}" data-property="{{ tenant.property.name if tenant.property else '' }}" data-rent="{{ tenant.monthly_rent or 0 }}">{{ tenant.name|default('Unknown') }}</option>
-                                    {% endfor %}
-                                </select>
-                                <div class="autocomplete-suggestions" id="tenantSuggestions" style="display: none;"></div>
-                            </div>
-                            <div class="form-error" id="tenant_id_error" style="display: none;" role="alert" aria-live="assertive">{{ _('Please select a tenant.') }}</div>
-                            <div class="tenant-info-display" id="tenantInfo" style="display: none;">
-                                <div class="tenant-card">
-                                    <div class="tenant-avatar">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div class="tenant-details">
-                                        <div class="tenant-name" id="selectedTenantName"></div>
-                                        <div class="tenant-property" id="selectedTenantProperty"></div>
-                                        <div class="tenant-rent" id="selectedTenantRent"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Amount -->
-                        <div class="form-group">
-                            <label class="form-label" for="amount"><i class="fas fa-money-bill-wave"></i> {{ _('Amount') }}</label>
-                            <div class="amount-input-wrapper">
-                                <span class="currency">KSh</span>
-                                <input type="number" class="form-input amount-input" id="amount" name="amount" step="0.01" required min="0" aria-label="{{ _('Payment Amount') }}">
-                            </div>
-                            <div class="form-error" id="amount_error" style="display: none;" role="alert" aria-live="assertive">{{ _('Please enter a valid amount.') }}</div>
-                            <div class="progress-bar mt-2">
-                                <div class="progress-fill" id="amountProgress" style="width: 0%;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Payment Method -->
-                        <div class="form-group">
-                            <label class="form-label" for="payment_method"><i class="fas fa-credit-card"></i> {{ _('Payment Method') }}</label>
-                            <select class="form-select modern-select" id="payment_method" name="payment_method" required aria-label="{{ _('Select Payment Method') }}">
-                                <option value="">{{ _('Select a method') }}</option>
-                                <option value="mpesa">M-Pesa</option>
-                                <option value="bank">Bank Transfer</option>
-                                <option value="cash">Cash</option>
-                            </select>
-                            <div class="form-error" id="payment_method_error" style="display: none;" role="alert" aria-live="assertive">{{ _('Please select a payment method.') }}</div>
-                        </div>
-
-                        <!-- Transaction ID -->
-                        <div class="form-group">
-                            <label class="form-label" for="transaction_id"><i class="fas fa-barcode"></i> {{ _('Transaction ID') }}</label>
-                            <input type="text" class="form-input" id="transaction_id" name="transaction_id" placeholder="{{ _('e.g., MP12345678') }}" aria-label="{{ _('Transaction ID') }}">
-                            <div class="form-hint">{{ _('Optional: Reference number from payment provider') }}</div>
-                            <div class="form-error" id="transaction_id_error" style="display: none;" role="alert" aria-live="assertive">{{ _('Invalid transaction ID format.') }}</div>
-                        </div>
-
-                        <!-- Payment Date -->
-                        <div class="form-group">
-                            <label class="form-label" for="payment_date"><i class="fas fa-calendar-alt"></i> {{ _('Payment Date') }}</label>
-                            <input type="text" class="form-input" id="payment_date" name="payment_date" required aria-label="{{ _('Payment Date') }}">
-                            <div class="form-error" id="payment_date_error" style="display: none;" role="alert" aria-live="assertive">{{ _('Please select a valid date.') }}</div>
-                        </div>
-
-                        <!-- Description -->
-                        <div class="form-group full-width">
-                            <label class="form-label" for="description"><i class="fas fa-comment"></i> {{ _('Description') }}</label>
-                            <textarea class="form-textarea" id="description" name="description" rows="3" placeholder="{{ _('Add any additional notes about this payment...') }}" aria-label="{{ _('Payment Description') }}"></textarea>
-                        </div>
-
-                        <!-- Offline Checkbox -->
-                        <div class="form-group full-width">
-                            <div class="checkbox-wrapper">
-                                <input type="checkbox" id="is_offline" name="is_offline" aria-label="{{ _('Offline Payment') }}">
-                                <label for="is_offline">{{ _('Offline Payment') }}</label>
-                            </div>
-                        </div>
-
-                        <!-- Offline Reference -->
-                        <div class="form-group full-width" id="offline_reference_group" style="display: none;">
-                            <label class="form-label" for="offline_reference"><i class="fas fa-file-alt"></i> {{ _('Offline Reference') }}</label>
-                            <input type="text" class="form-input" id="offline_reference" name="offline_reference" placeholder="{{ _('e.g., Manual Receipt #123') }}" aria-label="{{ _('Offline Reference') }}">
-                        </div>
-
-                        <!-- Receipt Upload -->
-                        <div class="form-group full-width">
-                            <label class="form-label" for="receipt_upload"><i class="fas fa-file-upload"></i> {{ _('Receipt Upload') }}</label>
-                            <input type="file" class="form-input" id="receipt_upload" name="receipt_upload" accept="image/*,application/pdf" aria-label="{{ _('Upload Receipt') }}">
-                            <div class="form-hint">{{ _('Optional: Upload a receipt image or PDF (max 5MB)') }}</div>
-                        </div>
-
-                        <!-- Receipt Preview -->
-                        <div class="form-group full-width receipt-preview" id="receiptPreview" style="display: none;">
-                            <h4>{{ _('Receipt Preview') }}</h4>
-                            <img id="receiptImage" style="max-width: 100%; border-radius: var(--radius); display: none;">
-                            <iframe id="receiptPDF" style="width: 100%; height: 300px; border: none; display: none;"></iframe>
-                        </div>
-                    </div>
-
-                    <!-- Quick Amounts Section -->
-                    <div class="quick-amounts" id="quickAmounts" style="display: none;">
-                        <div class="quick-amounts-header">{{ _('Quick Amount Selection') }}</div>
-                        <div class="amount-buttons">
-                            <button type="button" class="amount-btn" data-amount="full">{{ _('Full Rent') }}</button>
-                            <button type="button" class="amount-btn" data-amount="half">{{ _('Half Rent') }}</button>
-                            <button type="button" class="amount-btn" data-amount="partial">{{ _('Partial') }}</button>
-                            <button type="button" class="amount-btn" data-amount="previous">{{ _('Last Payment') }}</button>
-                        </div>
-                    </div>
-
-                    <!-- Submit Actions -->
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="history.back()" aria-label="{{ _('Cancel Payment') }}">
-                            <i class="fas fa-times"></i>
-                            {{ _('Cancel') }}
-                        </button>
-                        <button type="button" class="btn-primary-custom" id="submitBtn" data-bs-toggle="modal" data-bs-target="#confirmModal" aria-label="{{ _('Submit Payment') }}">
-                            <i class="fas fa-receipt mr-2"></i>
-                            {{ _('Submit Payment') }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Payment Summary -->
-            <div class="summary-card hover-lift" id="paymentSummary" style="display: none;" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
-                <div class="summary-header">
-                    <h3><i class="fas fa-receipt mr-2"></i>{{ _('Payment Summary') }}</h3>
-                </div>
-                <div class="summary-content">
-                    <div class="summary-item">
-                        <span class="summary-label">{{ _('Tenant') }}</span>
-                        <span class="summary-value" id="summaryTenant">-</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">{{ _('Amount') }}</span>
-                        <span class="summary-value" id="summaryAmount">KSh 0</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">{{ _('Method') }}</span>
-                        <span class="summary-value" id="summaryMethod">-</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">{{ _('Date') }}</span>
-                        <span class="summary-value" id="summaryDate">-</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">{{ _('Transaction ID') }}</span>
-                        <span class="summary-value" id="summaryTransaction">-</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </aside>
     </div>
 
-    <!-- Confirmation Modal -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-glass">
-                <div class="modal-header border-0">
+            <div class="modal-content">
+                <div class="modal-header">
                     <h5 class="modal-title" id="confirmModalLabel">{{ _('Confirm Payment') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
                 </div>
                 <div class="modal-body">
-                    {{ _('Are you sure you want to record this payment?') }}
+                    <p>{{ _('Please review the payment details:') }}</p>
+                    <div class="payment-details" id="modalPaymentDetails">
+                        <div class="detail-item">
+                            <span class="detail-label">{{ _('Tenant') }}:</span>
+                            <span class="detail-value" id="modalTenant">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">{{ _('Amount') }}:</span>
+                            <span class="detail-value" id="modalAmount">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">{{ _('Method') }}:</span>
+                            <span class="detail-value" id="modalMethod">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">{{ _('Date') }}:</span>
+                            <span class="detail-value" id="modalDate">-</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
                     <button type="button" class="btn btn-primary" id="confirmSubmit">{{ _('Confirm') }}</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
         <div class="footer-container">
             <div class="footer-section">
-                <h4>{{ _('About PropertyPayTrack') }}</h4>
-                <p class="text-muted">{{ _('Streamline your property management with our intuitive payment tracking solution.') }}</p>
+                <h4>{{ _('About') }}</h4>
+                <p>{{ _('Streamline property management with payment tracking.') }}</p>
             </div>
             <div class="footer-section">
                 <h4>{{ _('Quick Links') }}</h4>
                 <ul class="footer-links">
-                    <li><a href="{{ url_for('main.index') }}" aria-label="{{ _('Go to Home section') }}">{{ _('Home') }}</a></li>
-                    <li><a href="{{ url_for('main.features') }}" aria-label="{{ _('Go to Features section') }}">{{ _('Features') }}</a></li>
-                    <li><a href="{{ url_for('main.contact') }}" aria-label="{{ _('Go to Contact section') }}">{{ _('Contact') }}</a></li>
-                    <li><a href="#" aria-label="{{ _('Privacy Policy') }}">{{ _('Privacy Policy') }}</a></li>
-                    <li><a href="#" aria-label="{{ _('Terms of Service') }}">{{ _('Terms of Service') }}</a></li>
+                    <li><a href="{{ url_for('main.index') }}">{{ _('Home') }}</a></li>
+                    <li><a href="{{ url_for('main.features') }}">{{ _('Features') }}</a></li>
+                    <li><a href="{{ url_for('main.contact') }}">{{ _('Contact') }}</a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h4>{{ _('Connect With Us') }}</h4>
-                <div class="social-links">
-                    <a href="#" aria-label="{{ _('Follow us on Twitter') }}"><i class="fab fa-twitter"></i></a>
-                    <a href="#" aria-label="{{ _('Follow us on Facebook') }}"><i class="fab fa-facebook"></i></a>
-                    <a href="#" aria-label="{{ _('Follow us on LinkedIn') }}"><i class="fab fa-linkedin"></i></a>
-                    <a href="#" aria-label="{{ _('Follow us on Instagram') }}"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h4>{{ _('Contact Info') }}</h4>
-                <p class="footer-contact">
-                    <i class="fas fa-envelope mr-2"></i>
-                    <a href="mailto:support@propertypaytrack.com">{{ _('support@propertypaytrack.com') }}</a>
-                </p>
-                <p class="footer-contact">
-                    <i class="fas fa-phone mr-2"></i>{{ _('+1-800-123-4567') }}
-                </p>
+                <h4>{{ _('Contact') }}</h4>
+                <p><a href="mailto:support@propertypaytrack.com">{{ _('support@propertypaytrack.com') }}</a></p>
+                <p>{{ _('+1-800-123-4567') }}</p>
             </div>
         </div>
         <div class="footer-bottom">
@@ -1347,510 +611,101 @@
         </div>
     </footer>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        // Initialize AOS
-        AOS.init({
-            duration: 800,
-            easing: 'ease-out-cubic',
-            once: true,
-            offset: 100
+document.addEventListener('DOMContentLoaded', () => {
+    const isOffline = document.getElementById('is_offline');
+    const offlineGroup = document.getElementById('offline_reference_group');
+    const form = document.getElementById('paymentForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    const confirmSubmit = document.getElementById('confirmSubmit');
+    const tenantSearch = document.getElementById('tenant_search');
+    const tenantSelect = document.getElementById('tenant_id');
+
+    // Toggle offline reference field
+    isOffline.addEventListener('change', () => {
+        offlineGroup.style.display = isOffline.checked ? 'block' : 'none';
+    });
+
+    // Tenant search filter
+    tenantSearch.addEventListener('input', () => {
+        const search = tenantSearch.value.toLowerCase();
+        let matched = false;
+        Array.from(tenantSelect.options).forEach(option => {
+            const name = option.dataset.name?.toLowerCase() || '';
+            option.hidden = !name.includes(search);
+            if (!option.hidden && option.value !== "") matched = true;
         });
+        tenantSelect.style.display = matched ? 'block' : 'none';
+    });
 
-        // Theme toggle functionality
-        function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            document.querySelectorAll('.theme-toggle i').forEach(icon => {
-                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-            });
-        }
-
-        // Apply saved theme
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark');
-            document.querySelectorAll('.theme-toggle i').forEach(icon => {
-                icon.className = 'fas fa-sun';
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const navbar = document.getElementById('navbar');
-            const form = document.getElementById('paymentForm');
-            const tenantSearch = document.getElementById('tenant_search');
-            const tenantSelect = document.getElementById('tenant_id');
-            const tenantInfo = document.getElementById('tenantInfo');
-            const quickAmounts = document.getElementById('quickAmounts');
-            const amountInput = document.getElementById('amount');
-            const paymentSummary = document.getElementById('paymentSummary');
-            const submitBtn = document.getElementById('submitBtn');
-            const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
-            const confirmSubmit = document.getElementById('confirmSubmit');
-            const offlineCheckbox = document.getElementById('is_offline');
-            const offlineReferenceGroup = document.getElementById('offline_reference_group');
-            const receiptUpload = document.getElementById('receipt_upload');
-            const receiptPreview = document.getElementById('receiptPreview');
-            const receiptImage = document.getElementById('receiptImage');
-            const receiptPDF = document.getElementById('receiptPDF');
-            const paymentMethod = document.getElementById('payment_method');
-            const transactionId = document.getElementById('transaction_id');
-            const paymentDate = document.getElementById('payment_date');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            let autosaveTimeout;
-
-            // Theme toggle event listeners
-            document.querySelectorAll('.theme-toggle').forEach(button => {
-                button.addEventListener('click', toggleTheme);
-            });
-
-            // Initialize Flatpickr with accessibility improvements
-            flatpickr(paymentDate, {
-                dateFormat: 'Y-m-d',
-                maxDate: 'today',
-                defaultDate: new Date().toISOString().split('T')[0],
-                onChange: function(selectedDates, dateStr) {
-                    updateSummary();
-                    validateField(this.element, 'payment_date_error');
-                    updateFormProgress();
-                },
-                ariaDateFormat: 'F j, Y'
-            });
-
-            // Tenant data with proper handling for empty or invalid tenants
-            const tenantData = {% if tenants %}{
-                {% for tenant in tenants %}
-                {{ tenant.id|tojson|safe }}: {
-                    id: {{ tenant.id|tojson|safe }},
-                    name: {{ tenant.name|default('Unknown')|tojson|safe }},
-                    property: {{ (tenant.property.name if tenant.property else '')|default('')|tojson|safe }},
-                    rent: {{ tenant.monthly_rent|default(0)|float|tojson|safe }},
-                    lastPayment: {{ tenant.last_payment_amount|default(0)|float|tojson|safe }}
-                }{% if not loop.last %},{% endif %}
-                {% endfor %}
-            }{% else %}{}{% endif %};
-
-            console.log('tenantData:', tenantData); // Debug output
-
-            // Tenant autocomplete with debouncing
-            let searchTimeout;
-            tenantSearch.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    const query = this.value.toLowerCase();
-                    const suggestions = document.getElementById('tenantSuggestions');
-                    suggestions.innerHTML = '';
-                    if (query) {
-                        const matches = Object.values(tenantData).filter(tenant => tenant.name.toLowerCase().includes(query));
-                        matches.forEach(tenant => {
-                            const div = document.createElement('div');
-                            div.className = 'autocomplete-suggestion';
-                            div.textContent = tenant.name;
-                            div.setAttribute('tabindex', '0');
-                            div.setAttribute('role', 'option');
-                            div.addEventListener('click', () => selectTenant(tenant));
-                            div.addEventListener('keypress', (e) => {
-                                if (e.key === 'Enter') selectTenant(tenant);
-                            });
-                            suggestions.appendChild(div);
-                        });
-                        suggestions.style.display = matches.length ? 'block' : 'none';
-                    } else {
-                        suggestions.style.display = 'none';
-                    }
-                }, 300);
-            });
-
-            function selectTenant(tenant) {
-                if (!tenant) {
-                    console.error('Invalid tenant selected');
-                    return;
-                }
-                tenantSearch.value = tenant.name;
-                tenantSelect.value = tenant.id;
-                document.getElementById('tenantSuggestions').style.display = 'none';
-                updateTenantInfo(tenant);
-                setupQuickAmounts(tenant.rent, tenant.lastPayment);
-                updateSummary();
-                validateField(tenantSelect, 'tenant_id_error');
-                updateFormProgress();
-            }
-
-            // Hide suggestions on click outside
-            document.addEventListener('click', (e) => {
-                if (!tenantSearch.contains(e.target) && !document.getElementById('tenantSuggestions').contains(e.target)) {
-                    document.getElementById('tenantSuggestions').style.display = 'none';
-                }
-            });
-
-            // Handle tenant selection
-            tenantSelect.addEventListener('change', function() {
-                const tenantId = this.value;
-                if (tenantId && tenantData[tenantId]) {
-                    const tenant = tenantData[tenantId];
-                    selectTenant(tenant);
-                } else {
-                    tenantInfo.style.display = 'none';
-                    quickAmounts.style.display = 'none';
-                    updateSummary();
-                    updateFormProgress();
-                }
-            });
-
-            function updateTenantInfo(tenant) {
-                document.getElementById('selectedTenantName').textContent = tenant.name;
-                document.getElementById('selectedTenantProperty').textContent = tenant.property ? `{{ _('Property') }}: ${tenant.property}` : '';
-                document.getElementById('selectedTenantRent').textContent = tenant.rent ? `{{ _('Rent') }}: KSh ${tenant.rent.toLocaleString()}/month` : '';
-                tenantInfo.style.display = 'block';
-                quickAmounts.style.display = 'block';
-            }
-
-            // Setup quick amount buttons
-            function setupQuickAmounts(rentAmount, lastPayment) {
-                const amountButtons = document.querySelectorAll('.amount-btn');
-                amountButtons.forEach(btn => {
-                    btn.removeEventListener('click', handleAmountButtonClick);
-                    btn.addEventListener('click', handleAmountButtonClick);
-                    btn.setAttribute('tabindex', '0');
-                    btn.setAttribute('role', 'button');
-                    btn.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') handleAmountButtonClick.call(btn);
-                    });
-                });
-
-                function handleAmountButtonClick() {
-                    const amountType = this.dataset.amount;
-                    let amount = 0;
-                    switch(amountType) {
-                        case 'full':
-                            amount = rentAmount;
-                            break;
-                        case 'half':
-                            amount = rentAmount / 2;
-                            break;
-                        case 'partial':
-                            amount = rentAmount * 0.3;
-                            break;
-                        case 'previous':
-                            amount = lastPayment;
-                            break;
-                    }
-                    amountInput.value = amount.toFixed(2);
-                    updateProgressBar(amount, rentAmount);
-                    updateSummary();
-                    amountButtons.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    validateField(amountInput, 'amount_error');
-                    updateFormProgress();
-                }
-            }
-
-            // Progress bar for amount
-            function updateProgressBar(amount, rentAmount) {
-                const progress = (amount / rentAmount) * 100;
-                document.getElementById('amountProgress').style.width = `${Math.min(progress, 100)}%`;
-            }
-
-            // Form progress tracking
-            function updateFormProgress() {
-                const inputs = form.querySelectorAll('input[required], select[required]');
-                let filled = 0;
-                inputs.forEach(input => {
-                    if (input.value) filled++;
-                });
-                const progress = (filled / inputs.length) * 100;
-                document.getElementById('formProgressFill').style.width = `${progress}%`;
-                document.getElementById('formProgressText').textContent = `${Math.round(progress)}% Complete`;
-            }
-
-            // Handle offline checkbox
-            offlineCheckbox.addEventListener('change', function() {
-                offlineReferenceGroup.style.display = this.checked ? 'block' : 'none';
-                updateFormProgress();
-            });
-
-            // Receipt upload handling
-            receiptUpload.addEventListener('change', function() {
-                const file = this.files[0];
-                if (file && file.size <= 5 * 1024 * 1024) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        if (file.type.startsWith('image/')) {
-                            receiptImage.src = reader.result;
-                            receiptImage.style.display = 'block';
-                            receiptPDF.style.display = 'none';
-                        } else if (file.type === 'application/pdf') {
-                            receiptPDF.src = reader.result;
-                            receiptPDF.style.display = 'block';
-                            receiptImage.style.display = 'none';
-                        }
-                        receiptPreview.style.display = 'block';
-                        triggerAutosave();
-                        updateFormProgress();
-                    };
-                    reader.readAsDataURL(file);
-                } else if (file) {
-                    showNotification('{{ _("File size exceeds 5MB limit") }}', 'error');
-                    this.value = '';
-                }
-            });
-
-            // Payment method specific validation
-            paymentMethod.addEventListener('change', function() {
-                const method = this.value;
-                if (method === 'mpesa') {
-                    transactionId.pattern = '^[A-Z0-9]{10}$';
-                    transactionId.placeholder = '{{ _("e.g., MP1234567890") }}';
-                } else if (method === 'bank') {
-                    transactionId.pattern = '^[A-Z0-9-]{6,20}$';
-                    transactionId.placeholder = '{{ _("e.g., BANK123456") }}';
-                } else {
-                    transactionId.pattern = '';
-                    transactionId.placeholder = '{{ _("e.g., MP12345678") }}';
-                }
-                validateField(this, 'payment_method_error');
-                updateSummary();
-                updateFormProgress();
-            });
-
-            // Transaction ID validation
-            transactionId.addEventListener('input', function() {
-                const method = paymentMethod.value;
-                let isValid = true;
-                if (method === 'mpesa' && this.value && !/^[A-Z0-9]{10}$/.test(this.value)) {
-                    isValid = false;
-                } else if (method === 'bank' && this.value && !/^[A-Z0-9-]{6,20}$/.test(this.value)) {
-                    isValid = false;
-                }
-                const errorElement = document.getElementById('transaction_id_error');
-                this.classList.toggle('is-valid', isValid && this.value);
-                this.classList.toggle('is-invalid', !isValid && this.value);
-                errorElement.style.display = !isValid && this.value ? 'block' : 'none';
-                updateSummary();
-                updateFormProgress();
-            });
-
-            // Update summary
-            function updateSummary() {
-                const tenantSelect = document.getElementById('tenant_id');
-                const amountInput = document.getElementById('amount');
-                const methodSelect = document.getElementById('payment_method');
-                const dateInput = document.getElementById('payment_date');
-                const transactionInput = document.getElementById('transaction_id');
-                if (tenantSelect.value || amountInput.value || methodSelect.value || dateInput.value || transactionInput.value) {
-                    document.getElementById('summaryTenant').textContent = tenantSearch.value || '-';
-                    document.getElementById('summaryAmount').textContent = amountInput.value ? `KSh ${parseFloat(amountInput.value).toLocaleString()}` : 'KSh 0';
-                    document.getElementById('summaryMethod').textContent = methodSelect.options[methodSelect.selectedIndex]?.text || '-';
-                    document.getElementById('summaryDate').textContent = dateInput.value ? new Date(dateInput.value).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '-';
-                    document.getElementById('summaryTransaction').textContent = transactionInput.value || '-';
-                    paymentSummary.style.display = 'block';
-                } else {
-                    paymentSummary.style.display = 'none';
-                }
-                triggerAutosave();
-            }
-
-            // Form validation
-            function validateField(field, errorId) {
-                const errorElement = document.getElementById(errorId);
-                let isValid = true;
-                if (field.required && !field.value) {
-                    isValid = false;
-                } else if (field.type === 'number' && field.value <= 0) {
-                    isValid = false;
-                }
-                field.classList.toggle('is-valid', isValid && field.value);
-                field.classList.toggle('is-invalid', !isValid);
-                errorElement.style.display = !isValid ? 'block' : 'none';
-                return isValid;
-            }
-
-            const formInputs = form.querySelectorAll('input[required], select[required]');
-            formInputs.forEach(input => {
-                input.addEventListener('change', function() {
-                    updateSummary();
-                    validateField(this, `${this.id}_error`);
-                    updateFormProgress();
-                });
-                input.addEventListener('input', function() {
-                    updateSummary();
-                    validateField(this, `${this.id}_error`);
-                    updateFormProgress();
-                });
-            });
-
-            // Autosave functionality with debouncing
-            function triggerAutosave() {
-                clearTimeout(autosaveTimeout);
-                autosaveTimeout = setTimeout(() => {
-                    const formData = new FormData(form);
-                    const data = {};
-                    formData.forEach((value, key) => {
-                        if (key !== 'receipt_upload') {
-                            data[key] = value;
-                        }
-                    });
-                    localStorage.setItem('paymentFormData', JSON.stringify(data));
-                    showNotification('{{ _("Form autosaved") }}', 'success');
-                }, 2000);
-            }
-
-            // Restore autosaved data
-            const savedData = localStorage.getItem('paymentFormData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                Object.keys(data).forEach(key => {
-                    const input = form.querySelector(`[name="${key}"]`);
-                    if (input && input.type !== 'file') {
-                        input.value = data[key];
-                        if (key === 'tenant_id' && data[key]) {
-                            const tenant = tenantData[data[key]];
-                            if (tenant) {
-                                updateTenantInfo(tenant);
-                                setupQuickAmounts(tenant.rent, tenant.lastPayment);
-                            }
-                        }
-                    }
-                });
-                updateSummary();
-                updateFormProgress();
-            }
-
-            // Form submission with retry
-            submitBtn.addEventListener('click', () => {
-                let isValid = true;
-                formInputs.forEach(input => {
-                    if (!validateField(input, `${input.id}_error`)) {
-                        isValid = false;
-                    }
-                });
-                if (isValid) {
-                    confirmModal.show();
-                } else {
-                    showNotification('{{ _("Please fill all required fields correctly") }}', 'error');
-                }
-            });
-
-            confirmSubmit.addEventListener('click', () => {
-                loadingSpinner.classList.remove('hidden');
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
-                submitWithRetry(3);
-            });
-
-            function submitWithRetry(attempts) {
-                const formData = new FormData(form);
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                }).then(response => {
-                    loadingSpinner.classList.add('hidden');
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-                    if (response.ok) {
-                        localStorage.removeItem('paymentFormData');
-                        showNotification('{{ _("Payment recorded successfully") }}', 'success');
-                        confirmModal.hide();
-                        setTimeout(() => {
-                            window.location.href = '{{ url_for("main.payments_history") }}';
-                        }, 1000);
-                    } else {
-                        if (attempts > 1) {
-                            showNotification(`{{ _("Retrying... Attempts left:") }} ${attempts - 1}`, 'warning');
-                            setTimeout(() => submitWithRetry(attempts - 1), 1000);
-                        } else {
-                            showNotification('{{ _("Failed to record payment") }}', 'error');
-                            confirmModal.hide();
-                        }
-                    }
-                }).catch(error => {
-                    console.error('Submission error:', error);
-                    loadingSpinner.classList.add('hidden');
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-                    if (attempts > 1) {
-                        showNotification(`{{ _("Retrying... Attempts left:") }} ${attempts - 1}`, 'warning');
-                        setTimeout(() => submitWithRetry(attempts - 1), 1000);
-                    } else {
-                        showNotification('{{ _("Failed to record payment") }}', 'error');
-                        confirmModal.hide();
-                    }
-                });
-            }
-
-            // Enhanced notification system
-            function showNotification(message, type) {
-                const container = document.getElementById('notificationContainer');
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                notification.textContent = message;
-                notification.setAttribute('role', 'alert');
-                notification.setAttribute('aria-live', 'assertive');
-                container.appendChild(notification);
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            }
-
-            // Navbar scroll effect
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
-                }
-            });
-
-            // Hamburger menu toggle
-            const hamburger = document.getElementById('hamburger');
-            const mobileMenu = document.getElementById('mobileMenu');
-            hamburger.addEventListener('click', () => {
-                hamburger.classList.toggle('active');
-                mobileMenu.classList.toggle('active');
-                hamburger.setAttribute('aria-expanded', hamburger.classList.contains('active'));
-            });
-
-            // Close mobile menu when clicking a link
-            mobileMenu.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
-                    hamburger.classList.remove('active');
-                    mobileMenu.classList.remove('active');
-                    hamburger.setAttribute('aria-expanded', 'false');
-                });
-            });
-
-            // Smooth scrolling for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                        targetElement.focus({ preventScroll: true });
-                    }
-                });
-            });
-
-            // Loading spinner
-            window.addEventListener('load', function() {
-                loadingSpinner.style.opacity = '0';
-                setTimeout(() => {
-                    loadingSpinner.style.display = 'none';
-                }, 500);
-            });
-
-            // Initialize form progress
-            updateFormProgress();
+    // Dark mode toggle
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            btn.innerHTML = `<i class="fas ${isDark ? 'fa-sun' : 'fa-moon'}"></i>`;
         });
+    });
+
+    // Flatpickr initialization
+    flatpickr("#payment_date", {
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
+        maxDate: "today"
+    });
+
+    // Enhanced form validation
+    form.addEventListener('submit', (e) => {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            form.classList.add('was-validated');
+        }
+    });
+
+    // Update modal with summary before showing
+    submitBtn.addEventListener('click', () => {
+        if (form.checkValidity()) {
+            // Update modal summary
+            document.getElementById('modalTenant').textContent = tenantSearch.value || '-';
+            document.getElementById('modalAmount').textContent = formatCurrency(document.getElementById('amount').value);
+            const methodSelect = document.getElementById('payment_method');
+            document.getElementById('modalMethod').textContent = methodSelect.options[methodSelect.selectedIndex].text || '-';
+            document.getElementById('modalDate').textContent = formatDate(document.getElementById('payment_date').value);
+
+            // Update summary card
+            document.getElementById('summaryTenant').textContent = tenantSearch.value || '-';
+            document.getElementById('summaryAmount').textContent = formatCurrency(document.getElementById('amount').value);
+            document.getElementById('summaryMethod').textContent = methodSelect.options[methodSelect.selectedIndex].text || '-';
+            document.getElementById('summaryDate').textContent = formatDate(document.getElementById('payment_date').value);
+            document.getElementById('paymentSummary').style.display = 'block';
+
+            confirmModal.show();
+        } else {
+            form.classList.add('was-validated');
+        }
+    });
+
+    // Prevent duplicate submissions
+    confirmSubmit.addEventListener('click', () => {
+        confirmSubmit.disabled = true;
+        confirmSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ _("Processing...") }}';
+        form.submit();
+    });
+
+    // Format helpers
+    function formatCurrency(amount) {
+        return amount ? `KSh ${parseFloat(amount).toLocaleString()}` : '-';
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+});
     </script>
 </body>
 </html>

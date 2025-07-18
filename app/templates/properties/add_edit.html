@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Property Details for PropertyPayTrack">
   <title>{{ _('Property Details') }}</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" defer>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" defer>
-
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     :root {
       --primary: 142 76% 36%;
@@ -57,7 +55,7 @@
       animation: slideIn 0.5s ease;
     }
 
-    @keyframes slideIn {
+    @keyframes fadeInNav {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
@@ -501,11 +499,13 @@
           </div>
         </div>
 
-        <div class="button-group">
-          <button type="submit" class="btn-primary" aria-label="Save Property">
-            <i class="fas fa-save mr-2"></i>{{ _('Save Property') }}
+        <div class="button-group mt-4 flex gap-3">
+          <button type="submit" class="btn btn-primary flex items-center gap-2" aria-label="Save Property">
+            <i class="fas fa-save"></i> {{ _('Save Property') }}
           </button>
-          <a href="{{ url_for('main.properties_list') }}" class="btn-secondary" aria-label="Cancel">{{ _('Cancel') }}</a>
+          <a href="{{ url_for('main.properties_list') }}" class="btn btn-secondary" aria-label="Cancel">
+            {{ _('Cancel') }}
+          </a>
         </div>
       </form>
     </div>
@@ -522,179 +522,6 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Initialize theme
-      const theme = localStorage.getItem('theme') || 'light';
-      if (theme === 'dark') {
-        document.body.classList.add('dark');
-      }
-
-      // Theme toggle
-      const themeToggles = [document.getElementById('themeToggle'), document.getElementById('mobileThemeToggle')];
-      themeToggles.forEach(toggle => {
-        if (toggle) {
-          toggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-            showNotification('Theme changed successfully', 'success');
-          });
-        }
-      });
-
-      // Mobile menu
-      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-      const mobileMenu = document.getElementById('mobileMenu');
-      mobileMenuToggle.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-        mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
-        mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
-      });
-
-      // Form validation and preview
-      const form = document.getElementById('propertyForm');
-      const inputs = form.querySelectorAll('.form-input, .form-select');
-      const previewCard = document.getElementById('previewCard');
-      const loading = document.querySelector('.loading');
-
-      // Character counters
-      const charCountFields = [
-        { input: form.name, counter: document.getElementById('name-count'), max: 100 },
-        { input: form.address, counter: document.getElementById('address-count'), max: 200 },
-        { input: form.unit_numbers, counter: document.getElementById('unit-numbers-count'), max: 100 }
-      ];
-
-      charCountFields.forEach(({ input, counter, max }) => {
-        input.addEventListener('input', () => {
-          const length = input.value.length;
-          counter.textContent = `${length}/${max}`;
-          counter.style.color = length > max * 0.9 ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))';
-        });
-      });
-
-      // Real-time validation
-      inputs.forEach(input => {
-        input.addEventListener('input', function () {
-          validateField(this);
-          updatePreview();
-        });
-        input.addEventListener('blur', function () {
-          validateField(this);
-        });
-      });
-
-      function validateField(field) {
-        const value = field.value.trim();
-        const isRequired = field.hasAttribute('required');
-        const errorElement = document.getElementById(`${field.name}-error`);
-        let isValid = true;
-
-        if (isRequired && !value) {
-          isValid = false;
-          if (!errorElement) {
-            const error = document.createElement('div');
-            error.className = 'error-message';
-            error.id = `${field.name}-error`;
-            error.textContent = `${field.name.replace('_', ' ')} is required`;
-            field.parentElement.appendChild(error);
-          }
-        } else if (field.type === 'number' && field.value < field.min) {
-          isValid = false;
-          if (!errorElement) {
-            const error = document.createElement('div');
-            error.className = 'error-message';
-            error.id = `${field.name}-error`;
-            error.textContent = `${field.name.replace('_', ' ')} must be at least ${field.min}`;
-            field.parentElement.appendChild(error);
-          }
-        } else if (field.maxLength && value.length > field.maxLength) {
-          isValid = false;
-          if (!errorElement) {
-            const error = document.createElement('div');
-            error.className = 'error-message';
-            error.id = `${field.name}-error`;
-            error.textContent = `${field.name.replace('_', ' ')} exceeds maximum length`;
-            field.parentElement.appendChild(error);
-          }
-        } else if (errorElement) {
-          errorElement.remove();
-        }
-
-        field.style.borderColor = isValid ? 'hsl(var(--border))' : 'hsl(var(--destructive))';
-        return isValid;
-      }
-
-      // Update preview
-      function updatePreview() {
-        previewCard.style.display = 'block';
-        document.getElementById('preview-name').textContent = form.name.value || 'N/A';
-        document.getElementById('preview-type').textContent = form.property_type.value || 'N/A';
-        document.getElementById('preview-address').textContent = form.address.value || 'N/A';
-        document.getElementById('preview-county').textContent = form.county.value || 'N/A';
-        document.getElementById('preview-units').textContent = form.number_of_units.value || 'N/A';
-        document.getElementById('preview-unit-numbers').textContent = form.unit_numbers.value || 'N/A';
-        document.getElementById('preview-payment-method').textContent = form.payment_method.value || 'N/A';
-      }
-
-      // Form submission
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        let isValid = true;
-        inputs.forEach(input => {
-          if (!validateField(input)) {
-            isValid = false;
-          }
-        });
-
-        if (isValid) {
-          loading.classList.remove('hidden');
-          setTimeout(() => {
-            loading.classList.add('hidden');
-            showNotification('Property saved successfully', 'success');
-            // form.submit(); // Uncomment in production to actually submit
-          }, 1000);
-        } else {
-          showNotification('Please fix the errors in the form', 'error');
-        }
-      });
-
-      // Notification system
-      function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
-      }
-
-      // Accessibility: Focus management
-      form.querySelectorAll('.form-input, .form-select').forEach((input, index) => {
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && index < inputs.length - 1) {
-            inputs[index + 1].focus();
-            e.preventDefault();
-          }
-        });
-      });
-
-      // Close mobile menu on link click
-      mobileMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-          mobileMenu.classList.add('hidden');
-          mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-          mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-        });
-      });
-
-      // Escape key handling
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          mobileMenu.classList.add('hidden');
-          mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-          mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-        }
-      });
-    });
-  </script>
+  
 </body>
 </html>
