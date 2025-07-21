@@ -356,10 +356,11 @@
         </div>
       </div>
 
+
       <div class="flex flex-col sm:flex-row gap-4">
-        <input 
-          type="text" 
-          placeholder="{{ _('Search properties...') }}" 
+        <input
+          type="text"
+          placeholder="{{ _('Search properties...') }}"
           class="search-input"
           style="max-width: 20rem;"
           id="searchInput"
@@ -381,13 +382,14 @@
         </select>
       </div>
 
+
       <div class="grid" id="propertiesGrid" role="list" aria-label="Properties list">
         {% for property in properties %}
-        <div 
-          class="property-card" 
-          data-name="{{ property.name.lower() }}" 
+        <div
+          class="property-card"
+          data-name="{{ property.name.lower() }}"
           data-address="{{ property.address.lower() }}"
-          data-type="{{ property.property_type.lower() }}"
+          data-type="{{ property.property_type.lower() if property.property_type else '' }}" {# Added a check for property_type #}
           data-rent="{{ property.monthly_rent or 0 }}"
           data-occupancy="{{ ((property.occupied_units or 0) / property.number_of_units * 100) if property.number_of_units > 0 else 0 }}"
           role="listitem"
@@ -397,14 +399,17 @@
             <span class="status-badge status-active">{{ _('Active') }}</span>
           </div>
 
+
           <div class="space-y-4">
             <div class="flex items-center text-sm text-muted">
               <span class="mr-2">📍</span>{{ property.address }}
             </div>
 
+
             <div class="flex items-center text-sm text-muted">
               <span class="mr-2">🏠</span>{{ property.property_type }}
             </div>
+
 
             <div class="flex justify-between items-center">
               <div class="text-sm">
@@ -413,13 +418,14 @@
               </div>
               <div class="w-16">
                 <div class="occupancy-bar">
-                  <div 
+                  <div
                     class="occupancy-fill"
-                    width: {{ ((property.occupied_units or 0) / property.number_of_units * 100) if property.number_of_units > 0 else 0 }}%"
+                    style="width: {{ ((property.occupied_units or 0) / property.number_of_units * 100) if property.number_of_units > 0 else 0 }}%" {# FIX APPLIED HERE #}
                   ></div>
                 </div>
               </div>
             </div>
+
 
             <div class="flex items-center justify-between pt-2 border-t">
               <span class="font-semibold" style="color: hsl(var(--primary))">
@@ -427,7 +433,13 @@
               </span>
               <div class="flex gap-4">
                 <a href="{{ url_for('main.property_edit', id=property.id) }}" class="btn-outline" aria-label="Edit {{ property.name }}">{{ _('Edit') }}</a>
-                <button class="btn-outline" data-id="{{ property.id }}" aria-label="View details of {{ property.name }}">{{ _('View Details') }}</button>
+                <form action="{{ url_for('main.delete_property', property_id=property.id) }}" method="post" style="display: inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <button type="submit" class="btn-outline" aria-label="Delete {{ property.name }}">
+                        {{ _('Delete') }}
+                    </button>
+                </form>
               </div>
             </div>
           </div>
@@ -441,6 +453,9 @@
         </div>
         {% endfor %}
       </div>
+    </div>
+</div>
+
 
       <div class="pagination" id="pagination">
         <!-- Pagination buttons will be dynamically inserted here -->

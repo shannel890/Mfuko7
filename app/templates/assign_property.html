@@ -1,14 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Property Assignment for PropertyPayTrack">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Property Assignment for PropertyPayTrack" />
   <title>{{ _('Properties') }} | REPT</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" defer>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" defer>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer></script>
-  <style>
+
+  <!-- Load CSS normally without defer -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+
+  <!-- Load jQuery with defer -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+    defer
+  ></script>
+
+  <<style>
     :root {
       --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       --secondary-gradient: linear-gradient(135deg, #ff6ec4 0%, #ff9a9e 100%);
@@ -475,11 +489,15 @@
     <div class="spinner"></div>
   </div>
 
-  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
+  <nav
+    class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
         <a href="{{ url_for('main.landlord_dashboard') }}" class="text-xl font-bold text-indigo-600">
-          <span class="text-green-500">Property</span><span class="text-yellow-500">Pay</span><span class="text-pink-500">Track</span>
+          <span class="text-green-500">Property</span
+          ><span class="text-yellow-500">Pay</span
+          ><span class="text-pink-500">Track</span>
         </a>
         <div class="hidden md:flex space-x-6 items-center">
           <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
@@ -488,14 +506,27 @@
           <a href="{{ url_for('main.payments_history') }}" class="nav-link" aria-label="View Payments">Payments</a>
           <a href="{{ url_for('main.assign_property') }}" class="nav-link" aria-label="Assign Property">Assign</a>
           <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="View Profile">Profile</a>
-          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle dark mode">
+          <button
+            id="themeToggle"
+            class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+            aria-label="Toggle dark mode"
+          >
             <i class="fas fa-moon hidden dark:block"></i>
             <i class="fas fa-sun block dark:hidden"></i>
           </button>
         </div>
         <div class="flex items-center space-x-4">
-          <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block nav-link" aria-label="Logout">Logout</a>
-          <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none" aria-label="Toggle mobile menu">
+          <a
+            href="{{ url_for('auth.logout') }}"
+            class="hidden md:inline-block nav-link"
+            aria-label="Logout"
+            >Logout</a
+          >
+          <button
+            id="mobileMenuToggle"
+            class="md:hidden text-gray-700 focus:outline-none"
+            aria-label="Toggle mobile menu"
+          >
             <i class="fas fa-bars"></i>
           </button>
         </div>
@@ -509,102 +540,128 @@
       <a href="{{ url_for('main.assign_property') }}" class="block py-2 nav-link">Assign</a>
       <a href="{{ url_for('auth.profile') }}" class="block py-2 nav-link">Profile</a>
       <a href="{{ url_for('auth.logout') }}" class="block py-2 nav-link">Logout</a>
-      <button id="mobileThemeToggle" class="block py-2 nav-link" aria-label="Toggle dark mode">Toggle Theme</button>
+      <button
+        id="mobileThemeToggle"
+        class="block py-2 nav-link"
+        aria-label="Toggle dark mode"
+      >
+        Toggle Theme
+      </button>
     </div>
   </nav>
 
   <div class="form-glass">
-    <div class="progress-bar"></div>
+    <!-- Progress bar with updated markup -->
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+
     {% if tenant %}
-      <h2 class="form-header">{{ _('Assign Property to') }} {{ tenant.first_name }} {{ tenant.last_name }}</h2>
+    <h2 class="form-header">{{ _('Assign Property to') }} {{ tenant.first_name }} {{ tenant.last_name }}</h2>
     {% else %}
-      <h2 class="form-header">{{ _('Assign Property to Tenant') }}</h2>
+    <h2 class="form-header">{{ _('Assign Property to Tenant') }}</h2>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('main.assign_property', tenant_id=tenant.id if tenant else None) }}" id="assignForm">
+    <form method="POST" action="{{ url_for('main.assign_property', tenant_id=tenant.id if tenant else None) }}" id="assignForm" novalidate>
       {{ form.hidden_tag() }}
 
       <div class="form-group tooltip" data-tooltip="Select a tenant to assign to a property">
         {{ form.tenant_id.label(class="form-label") }}
-        {{ form.tenant_id(class="form-control", **{'aria-required': 'true'}) }}
+        {{ form.tenant_id(class="form-control", **{'aria-required': 'true', 'required': True}) }}
         {% for error in form.tenant_id.errors %}
-          <div class="text-danger">{{ error }}</div>
+        <div class="text-danger">{{ error }}</div>
         {% endfor %}
       </div>
 
       <div class="form-group tooltip" data-tooltip="Choose a property to assign">
         {{ form.property_id.label(class="form-label") }}
-        {{ form.property_id(class="form-control", **{'aria-required': 'true'}) }}
+        {{ form.property_id(class="form-control", **{'aria-required': 'true', 'required': True}) }}
         {% for error in form.property_id.errors %}
-          <div class="text-danger">{{ error }}</div>
+        <div class="text-danger">{{ error }}</div>
         {% endfor %}
       </div>
 
       <div class="form-group tooltip" data-tooltip="Select a specific unit within the property">
         {{ form.unit_id.label(class="form-label") }}
-        {{ form.unit_id(class="form-control", **{'aria-required': 'true'}) }}
+        {{ form.unit_id(class="form-control", **{'aria-required': 'true', 'required': True}) }}
         {% for error in form.unit_id.errors %}
-          <div class="text-danger">{{ error }}</div>
+        <div class="text-danger">{{ error }}</div>
         {% endfor %}
       </div>
 
       <div class="form-actions">
         {{ form.submit(class="btn-submit", **{'aria-label': 'Submit property assignment'}) }}
-        <a href="{{ url_for('main.tenants_list') }}" class="btn-cancel" id="cancelBtn" aria-label="Cancel and return to tenants list">{{ _('Cancel') }}</a>
+        <a
+          href="{{ url_for('main.tenants_list') }}"
+          class="btn-cancel"
+          id="cancelBtn"
+          aria-label="Cancel and return to tenants list"
+          >{{ _('Cancel') }}</a
+        >
       </div>
     </form>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize theme
+    document.addEventListener('DOMContentLoaded', function () {
+      // Theme initialization
       const theme = localStorage.getItem('theme') || 'light';
       if (theme === 'dark') {
         document.body.classList.add('dark');
       }
 
-      // Theme toggle
-      const themeToggles = [document.getElementById('themeToggle'), document.getElementById('mobileThemeToggle')];
-      themeToggles.forEach(toggle => {
+      // Theme toggle buttons
+      const themeToggles = [
+        document.getElementById('themeToggle'),
+        document.getElementById('mobileThemeToggle'),
+      ];
+      themeToggles.forEach((toggle) => {
         if (toggle) {
           toggle.addEventListener('click', () => {
             document.body.classList.toggle('dark');
-            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-            showNotification('Theme changed successfully', 'success');
+            localStorage.setItem(
+              'theme',
+              document.body.classList.contains('dark') ? 'dark' : 'light'
+            );
+            showNotification(
+              'Theme changed successfully',
+              'success'
+            );
           });
         }
       });
 
-      // Mobile menu
+      // Mobile menu toggle
       const mobileMenuToggle = document.getElementById('mobileMenuToggle');
       const mobileMenu = document.getElementById('mobileMenu');
       mobileMenuToggle.addEventListener('click', () => {
         mobileMenu.classList.toggle('hidden');
-        mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
-        mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
+        const icon = mobileMenuToggle.querySelector('i');
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-times');
       });
 
-      // Form handling
+      // Form elements
       const form = document.getElementById('assignForm');
       const tenantSelect = document.getElementById('tenant_id');
       const propertySelect = document.getElementById('property_id');
       const unitSelect = document.getElementById('unit_id');
       const submitBtn = form.querySelector('.btn-submit');
       const loading = document.querySelector('.loading');
-      const progressBar = document.querySelector('.progress-bar');
+      const progressFill = document.querySelector('.progress-fill');
       let isFormDirty = false;
 
-      // Mock data for units (replace with actual API call)
+      // Mock data for units per property (to replace with real API in future)
       const propertyUnits = {
-        // Example: 'property_id': [{value: 'unit_id', text: 'Unit Name'}, ...]
+        // Example:
+        // 1: [{ value: '1A', text: 'Unit 1A' }, { value: '1B', text: 'Unit 1B' }],
+        // 2: [{ value: '2A', text: 'Unit 2A' }, { value: '2B', text: 'Unit 2B' }],
       };
 
-      // Dynamic unit selection
       function updateUnits() {
         const selectedProperty = propertySelect.value;
-        unitSelect.innerHTML = '<option value="">Select Unit</option>';
+        // Clear existing options
+        unitSelect.innerHTML = '<option value="">{{ _("Select Unit") }}</option>';
         if (selectedProperty && propertyUnits[selectedProperty]) {
-          propertyUnits[selectedProperty].forEach(unit => {
+          propertyUnits[selectedProperty].forEach((unit) => {
             const option = document.createElement('option');
             option.value = unit.value;
             option.textContent = unit.text;
@@ -614,21 +671,20 @@
         updateProgress();
       }
 
-      // Form progress
       function updateProgress() {
         const fields = [tenantSelect, propertySelect, unitSelect];
-        const filledFields = fields.filter(field => field.value).length;
+        const filledFields = fields.filter((field) => field.value && field.value.trim() !== '').length;
         const progress = (filledFields / fields.length) * 100;
-        progressBar.querySelector('::before').style.width = `${progress}%`;
+        progressFill.style.width = `${progress}%`;
       }
 
-      // Real-time validation
       function validateField(field) {
+        // Remove previous error
         const existingError = field.parentNode.querySelector('.text-danger');
         if (existingError) existingError.remove();
         field.classList.remove('error');
 
-        if (field.hasAttribute('required') && !field.value) {
+        if (field.hasAttribute('required') && !field.value.trim()) {
           showError(field, 'This field is required');
           return false;
         }
@@ -645,31 +701,30 @@
         setTimeout(() => field.parentNode.classList.remove('has-error'), 1000);
       }
 
-      // Form submission
-      form.addEventListener('submit', function(e) {
+      form.addEventListener('submit', function (e) {
         e.preventDefault();
-        let isValid = true;
 
-        [tenantSelect, propertySelect, unitSelect].forEach(field => {
+        let isValid = true;
+        [tenantSelect, propertySelect, unitSelect].forEach((field) => {
           if (!validateField(field)) isValid = false;
         });
 
         if (isValid) {
           loading.classList.remove('hidden');
           submitBtn.disabled = true;
+          // Simulate processing delay
           setTimeout(() => {
             loading.classList.add('hidden');
             submitBtn.disabled = false;
             showNotification('Property assigned successfully', 'success');
-            form.submit();
-          }, 1000);
+            form.submit(); // Submit form normally
+          }, 800);
         } else {
           showNotification('Please fill all required fields', 'error');
         }
       });
 
-      // Track form changes
-      form.querySelectorAll('select').forEach(field => {
+      [tenantSelect, propertySelect, unitSelect].forEach((field) => {
         field.addEventListener('change', () => {
           isFormDirty = true;
           if (field === propertySelect) updateUnits();
@@ -678,14 +733,12 @@
         });
       });
 
-      // Cancel button confirmation
-      document.getElementById('cancelBtn').addEventListener('click', function(e) {
+      document.getElementById('cancelBtn').addEventListener('click', function (e) {
         if (isFormDirty && !confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
           e.preventDefault();
         }
       });
 
-      // Notification system
       function showNotification(message, type) {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
@@ -694,8 +747,8 @@
         setTimeout(() => notification.remove(), 3000);
       }
 
-      // Accessibility: Focus management
-      form.querySelectorAll('select, button').forEach(element => {
+      // Accessibility: Focus management for select and buttons
+      form.querySelectorAll('select, button').forEach((element) => {
         element.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' && element.tagName !== 'BUTTON') {
             e.preventDefault();
@@ -708,7 +761,7 @@
       });
 
       // Close mobile menu on link click
-      mobileMenu.querySelectorAll('a').forEach(link => {
+      mobileMenu.querySelectorAll('a').forEach((link) => {
         link.addEventListener('click', () => {
           mobileMenu.classList.add('hidden');
           mobileMenuToggle.querySelector('i').classList.remove('fa-times');
@@ -716,7 +769,7 @@
         });
       });
 
-      // Escape key handling
+      // Escape key closes mobile menu
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           mobileMenu.classList.add('hidden');
@@ -725,10 +778,15 @@
         }
       });
 
-      // Initialize
+      // Initialize initial progress and units
       updateUnits();
       updateProgress();
     });
   </script>
 </body>
 </html>
+
+
+
+
+  

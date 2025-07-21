@@ -2,6 +2,7 @@ from app.extensions import db
 from flask_login import UserMixin
 from datetime import datetime, timezone, timedelta
 import json
+from app.utils.constrants import UserRoles
 
 roles_users = db.Table('roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE')),
@@ -26,6 +27,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=True)
     is_oauth_user = db.Column(db.Boolean, default=False, nullable=False) 
+    role = db.Column(
+        db.Enum('tenant', 'landlord', name='user_roles_enum'),
+        nullable=False
+    )
     active = db.Column(db.Boolean(), default=True)
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False)
     confirmed_at = db.Column(db.DateTime)

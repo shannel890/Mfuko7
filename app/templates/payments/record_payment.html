@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <style>
-        :root {
+             :root {
             --primary-color: #0066cc;
             --accent-color: #2aa648;
             --background-color: #f0f4fa;
@@ -452,77 +452,103 @@
                 <div class="form-icon"><i class="fas fa-receipt"></i></div>
                 <h2 class="form-title" id="payment-details-title">{{ _('Payment Details') }}</h2>
             </div>
-            <form method="POST" novalidate class="payment-form was-validated" id="paymentForm" enctype="multipart/form-data">
+           <form method="POST" novalidate class="payment-form" id="paymentForm" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label class="form-label" for="tenant_id"><i class="fas fa-user"></i> {{ _('Tenant') }}</label>
-                        <input type="text" class="form-input" id="tenant_search" placeholder="{{ _('Search tenants...') }}" aria-label="{{ _('Search tenants') }}" autocomplete="off">
-                        <select class="form-select modern-select" id="tenant_id" name="tenant_id" required aria-label="{{ _('Select Tenant') }}">
-                            <option value="">{{ _('Select a tenant') }}</option>
-                            {% for tenant in tenants %}
-                                <option value="{{ tenant.id }}"
-                                        data-name="{{ tenant.name|default('') }}"
-                                        data-property="{{ tenant.property.name if tenant.property else '' }}"
-                                        data-rent="{{ tenant.monthly_rent or 0 }}">
-                                    {{ tenant.name|default('Unknown') }}
-                                </option>
-                            {% endfor %}
-                        </select>
 
-                        <div class="form-error" id="tenant_id_error" style="display: none;">{{ _('Please select a tenant.') }}</div>
+                <div class="form-grid">
+                
+                    <!-- Tenant Field -->
+                    <div class="form-group full-width">
+                        {{ form.tenant_id.label(class_="form-label") }}
+                        {{ form.tenant_id(class_="form-select modern-select", aria_label=form.tenant_id.label.text) }}
+                        {% if form.tenant_id.errors %}
+                            <div class="form-error">{{ form.tenant_id.errors[0] }}</div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Amount Field -->
                     <div class="form-group">
-                        <label class="form-label" for="amount"><i class="fas fa-money-bill-wave"></i> {{ _('Amount') }}</label>
+                        {{ form.amount.label(class_="form-label") }}
                         <div class="amount-input-wrapper">
                             <span class="currency">KSh</span>
-                            <input type="number" class="form-input amount-input" id="amount" name="amount" step="0.01" required min="0.01" max="1000000" aria-label="{{ _('Payment Amount') }}">
+                            {{ form.amount(class_="form-input amount-input", aria_label=form.amount.label.text) }}
                         </div>
-                        <div class="form-error" id="amount_error" style="display: none;">{{ _('Please enter a valid amount.') }}</div>
+                        {% if form.amount.errors %}
+                            <div class="form-error">{{ form.amount.errors[0] }}</div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Payment Method -->
                     <div class="form-group">
-                        <label class="form-label" for="payment_method"><i class="fas fa-credit-card"></i> {{ _('Payment Method') }}</label>
-                        <select class="form-select modern-select" id="payment_method" name="payment_method" required aria-label="{{ _('Select Payment Method') }}">
-                            <option value="">{{ _('Select a method') }}</option>
-                            <option value="mpesa">M-Pesa</option>
-                            <option value="bank">Bank Transfer</option>
-                            <option value="cash">Cash</option>
-                        </select>
-                        <div class="form-error" id="payment_method_error" style="display: none;">{{ _('Please select a payment method.') }}</div>
+                        {{ form.payment_method.label(class_="form-label") }}
+                        {{ form.payment_method(class_="form-select modern-select", aria_label=form.payment_method.label.text) }}
+                        {% if form.payment_method.errors %}
+                            <div class="form-error">{{ form.payment_method.errors[0] }}</div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Payment Date -->
                     <div class="form-group">
-                        <label class="form-label" for="payment_date"><i class="fas fa-calendar-alt"></i> {{ _('Payment Date') }}</label>
-                        <input type="text" class="form-input" id="payment_date" name="payment_date" required aria-label="{{ _('Payment Date') }}">
-                        <div class="form-error" id="payment_date_error" style="display: none;">{{ _('Please select a valid date.') }}</div>
+                        {{ form.payment_date.label(class_="form-label") }}
+                        {{ form.payment_date(class_="form-input", aria_label=form.payment_date.label.text) }}
+                        {% if form.payment_date.errors %}
+                            <div class="form-error">{{ form.payment_date.errors[0] }}</div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Transaction ID -->
                     <div class="form-group">
-                        <label class="form-label" for="transaction_id"><i class="fas fa-barcode"></i> {{ _('Transaction ID') }}</label>
-                        <input type="text" class="form-input" id="transaction_id" name="transaction_id" placeholder="{{ _('e.g., MP12345678') }}" aria-label="{{ _('Transaction ID') }}">
+                        {{ form.transaction_id.label(class_="form-label") }}
+                        {{ form.transaction_id(class_="form-input", placeholder=form.transaction_id.render_kw.placeholder, aria_label=form.transaction_id.label.text) }}
+                        {% if form.transaction_id.errors %}
+                            <div class="form-error">{{ form.transaction_id.errors[0] }}</div>
+                        {% endif %}
                         <div class="form-hint">{{ _('Optional: Reference number') }}</div>
                     </div>
+                    
+                    <!-- Description -->
                     <div class="form-group full-width">
-                        <label class="form-label" for="description"><i class="fas fa-comment"></i> {{ _('Description') }}</label>
-                        <textarea class="form-textarea" id="description" name="description" rows="3" placeholder="{{ _('Add notes...') }}" aria-label="{{ _('Payment Description') }}"></textarea>
+                        {{ form.description.label(class_="form-label") }}
+                        {{ form.description(class_="form-textarea", aria_label=form.description.label.text) }}
+                        {% if form.description.errors %}
+                            <div class="form-error">{{ form.description.errors[0] }}</div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Offline Payment -->
                     <div class="form-group full-width">
-                        <input type="checkbox" id="is_offline" name="is_offline" aria-label="{{ _('Offline Payment') }}">
-                        <label for="is_offline">{{ _('Offline Payment') }}</label>
+                        <label for="{{ form.is_offline.id }}">
+                            {{ form.is_offline(class_="form-check-input") }}
+                            {{ form.is_offline.label.text }}
+                        </label>
+                        {% if form.is_offline.errors %}
+                            <div class="form-error">{{ form.is_offline.errors[0] }}</div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Offline Reference (conditionally shown by JS) -->
                     <div class="form-group full-width" id="offline_reference_group" style="display: none;">
-                        <label class="form-label" for="offline_reference"><i class="fas fa-file-alt"></i> {{ _('Offline Reference') }}</label>
-                        <input type="text" class="form-input" id="offline_reference" name="offline_reference" placeholder="{{ _('e.g., Manual Receipt #123') }}" aria-label="{{ _('Offline Reference') }}">
+                        {{ form.offline_reference.label(class_="form-label") }}
+                        {{ form.offline_reference(class_="form-input", aria_label=form.offline_reference.label.text) }}
+                        {% if form.offline_reference.errors %}
+                            <div class="form-error">{{ form.offline_reference.errors[0] }}</div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Receipt Upload -->
                     <div class="form-group full-width">
-                        <label class="form-label" for="receipt_upload"><i class="fas fa-file-upload"></i> {{ _('Receipt Upload') }}</label>
+                        <label for="receipt_upload"><i class="fas fa-file-upload"></i> {{ _('Receipt Upload') }}</label>
                         <input type="file" class="form-input" id="receipt_upload" name="receipt_upload" accept="image/*,application/pdf" aria-label="{{ _('Upload Receipt') }}">
                         <div class="form-hint">{{ _('Optional: Max 5MB') }}</div>
                     </div>
                 </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="history.back()" aria-label="{{ _('Cancel Payment') }}">{{ _('Cancel') }}</button>
-                    <button type="button" class="btn-primary-custom" id="submitBtn" data-bs-toggle="modal" data-bs-target="#confirmModal" aria-label="{{ _('Submit Payment') }}">{{ _('Submit Payment') }}</button>
+                    {{ form.submit(class_="btn-primary-custom") }}
                 </div>
             </form>
+
         </section>
 
         <aside class="summary-card" id="paymentSummary" style="display: none;" role="complementary" aria-labelledby="payment-summary-title">
@@ -610,102 +636,167 @@
             <p>© {{ datetime.utcnow()|datetimeformat('YYYY') }} PropertyPayTrack. {{ _('All rights reserved.') }}</p>
         </div>
     </footer>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const isOffline = document.getElementById('is_offline');
-    const offlineGroup = document.getElementById('offline_reference_group');
-    const form = document.getElementById('paymentForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
-    const confirmSubmit = document.getElementById('confirmSubmit');
-    const tenantSearch = document.getElementById('tenant_search');
-    const tenantSelect = document.getElementById('tenant_id');
+    document.addEventListener('DOMContentLoaded', () => {
+        const isOffline = document.getElementById('is_offline');
+        const offlineGroup = document.getElementById('offline_reference_group');
+        const form = document.getElementById('paymentForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const confirmModalInst = new bootstrap.Modal(document.getElementById('confirmModal'));
+        const confirmSubmit = document.getElementById('confirmSubmit');
+        const tenantSearch = document.getElementById('tenant_search');
+        const tenantSelect = document.getElementById('tenant_id');
 
-    // Toggle offline reference field
-    isOffline.addEventListener('change', () => {
-        offlineGroup.style.display = isOffline.checked ? 'block' : 'none';
-    });
-
-    // Tenant search filter
-    tenantSearch.addEventListener('input', () => {
-        const search = tenantSearch.value.toLowerCase();
-        let matched = false;
-        Array.from(tenantSelect.options).forEach(option => {
-            const name = option.dataset.name?.toLowerCase() || '';
-            option.hidden = !name.includes(search);
-            if (!option.hidden && option.value !== "") matched = true;
+        // Hamburger menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
         });
-        tenantSelect.style.display = matched ? 'block' : 'none';
-    });
 
-    // Dark mode toggle
-    document.querySelectorAll('.theme-toggle').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            const isDark = document.body.classList.contains('dark');
-            btn.innerHTML = `<i class="fas ${isDark ? 'fa-sun' : 'fa-moon'}"></i>`;
+        // Toggle offline reference field
+        isOffline.addEventListener('change', () => {
+            offlineGroup.style.display = isOffline.checked ? 'block' : 'none';
         });
-    });
 
-    // Flatpickr initialization
-    flatpickr("#payment_date", {
-        altInput: true,
-        altFormat: "F j, Y",
-        dateFormat: "Y-m-d",
-        maxDate: "today"
-    });
+        // Tenant search filter
+        tenantSearch.addEventListener('input', () => {
+            const search = tenantSearch.value.toLowerCase();
+            let matched = false;
+            Array.from(tenantSelect.options).forEach(option => {
+                if (option.value === "") {
+                    option.hidden = false; // keep the "Select a tenant" option visible
+                    return;
+                }
+                const name = option.dataset.name?.toLowerCase() || '';
+                const hideOption = !name.includes(search);
+                option.hidden = hideOption;
+                if (!hideOption) matched = true;
+            });
+            // Optionally could show a message if no tenants match
+        });
 
-    // Enhanced form validation
-    form.addEventListener('submit', (e) => {
-        if (!form.checkValidity()) {
-            e.preventDefault();
-            form.classList.add('was-validated');
+        // Dark mode toggle
+        document.querySelectorAll('.theme-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                const isDark = document.body.classList.contains('dark');
+                btn.innerHTML = `<i class="fas ${isDark ? 'fa-sun' : 'fa-moon'}"></i>`;
+            });
+        });
+
+        // Flatpickr initialization
+        flatpickr("#payment_date", {
+            altInput: true,
+            altFormat: "F j, Y",
+            dateFormat: "Y-m-d",
+            maxDate: "today"
+        });
+
+        // Enhanced form validation on submit (confirm button)
+        form.addEventListener('submit', (e) => {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                form.classList.add('was-validated');
+            }
+        });
+
+        // Update modal with summary before showing
+        submitBtn.addEventListener('click', () => {
+            // Manually check required fields
+            const tenant = tenantSelect.value;
+            const amount = document.getElementById('amount').value;
+            const method = document.getElementById('payment_method').value;
+            const date = document.getElementById('payment_date').value;
+
+            let valid = true;
+
+            if (!tenant) {
+                document.getElementById('tenant_id_error').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('tenant_id_error').style.display = 'none';
+            }
+
+            if (!amount || parseFloat(amount) <= 0) {
+                document.getElementById('amount_error').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('amount_error').style.display = 'none';
+            }
+
+            if (!method) {
+                document.getElementById('payment_method_error').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('payment_method_error').style.display = 'none';
+            }
+
+            if (!date) {
+                document.getElementById('payment_date_error').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('payment_date_error').style.display = 'none';
+            }
+
+            if (valid) {
+                // Fill summary
+                const selectedOption = tenantSelect.options[tenantSelect.selectedIndex];
+                document.getElementById('summaryTenant').textContent = selectedOption?.dataset.name || '-';
+                document.getElementById('summaryAmount').textContent = formatCurrency(amount);
+                document.getElementById('summaryMethod').textContent = document.getElementById('payment_method').selectedOptions[0].text;
+                document.getElementById('summaryDate').textContent = formatDate(date);
+                document.getElementById('paymentSummary').style.display = 'block';
+
+                // Fill modal too
+                document.getElementById('modalTenant').textContent = selectedOption?.dataset.name || '-';
+                document.getElementById('modalAmount').textContent = formatCurrency(amount);
+                document.getElementById('modalMethod').textContent = document.getElementById('payment_method').selectedOptions[0].text;
+                document.getElementById('modalDate').textContent = formatDate(date);
+
+                confirmModalInst.show();
+            } else {
+                form.classList.add('was-validated');
+            }
+        });
+
+        // Prevent duplicate submissions & enforce validation
+        confirmSubmit.addEventListener('click', (e) => {
+            // Check one more time for validity before submit (for security)
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                confirmModalInst.hide();
+                return;
+            }
+            confirmSubmit.disabled = true;
+            confirmSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ _("Processing...") }}';
+            // Submit programmatically, so HTML5 validation would NOT fire;
+            // but we already checked above.
+            form.submit();
+        });
+
+        // Optional: enforce max 5MB client-side
+        document.getElementById('receipt_upload').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file && file.size > 5 * 1024 * 1024) { // 5MB
+                alert('{{ _("File is too large. Maximum allowed size is 5MB.") }}');
+                this.value = '';
+            }
+        });
+
+        // Format helpers
+        function formatCurrency(amount) {
+            return amount ? `KSh ${parseFloat(amount).toLocaleString()}` : '-';
+        }
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         }
     });
-
-    // Update modal with summary before showing
-    submitBtn.addEventListener('click', () => {
-        if (form.checkValidity()) {
-            // Update modal summary
-            document.getElementById('modalTenant').textContent = tenantSearch.value || '-';
-            document.getElementById('modalAmount').textContent = formatCurrency(document.getElementById('amount').value);
-            const methodSelect = document.getElementById('payment_method');
-            document.getElementById('modalMethod').textContent = methodSelect.options[methodSelect.selectedIndex].text || '-';
-            document.getElementById('modalDate').textContent = formatDate(document.getElementById('payment_date').value);
-
-            // Update summary card
-            document.getElementById('summaryTenant').textContent = tenantSearch.value || '-';
-            document.getElementById('summaryAmount').textContent = formatCurrency(document.getElementById('amount').value);
-            document.getElementById('summaryMethod').textContent = methodSelect.options[methodSelect.selectedIndex].text || '-';
-            document.getElementById('summaryDate').textContent = formatDate(document.getElementById('payment_date').value);
-            document.getElementById('paymentSummary').style.display = 'block';
-
-            confirmModal.show();
-        } else {
-            form.classList.add('was-validated');
-        }
-    });
-
-    // Prevent duplicate submissions
-    confirmSubmit.addEventListener('click', () => {
-        confirmSubmit.disabled = true;
-        confirmSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ _("Processing...") }}';
-        form.submit();
-    });
-
-    // Format helpers
-    function formatCurrency(amount) {
-        return amount ? `KSh ${parseFloat(amount).toLocaleString()}` : '-';
-    }
-
-    function formatDate(dateStr) {
-        if (!dateStr) return '-';
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    }
-});
     </script>
 </body>
 </html>

@@ -774,7 +774,7 @@ def delete_tenant(tenant_id):
     flash('Tenant deleted successfully', 'success')
     return redirect(url_for('main.tenants_list'))
 
-@main.route('/payment/delete/<int:payment_id>',methods=['GET','POST'])
+@main.route('/payment/delete/<int:payment_id>',methods=['POST'])
 @login_required
 @roles_required('landlord')
 def delete_payment(payment_id):
@@ -786,3 +786,13 @@ def delete_payment(payment_id):
 @main.route('/something')
 def use_mpesa():
     return current_app.mpesa_api.ensure_valid_token()
+
+@main.route('/property/delete/<int:property_id>', methods=['POST'])
+@login_required
+@roles_required('landlord')
+def delete_property(property_id):
+    property = Property.query.get_or_404(property_id)
+    db.session.delete(property)
+    db.session.commit()
+    flash('Property deleted successfully', 'success')
+    return redirect(url_for('main.properties_list'))

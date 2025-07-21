@@ -4,13 +4,14 @@ from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Email, Length, Optional, ValidationError, NumberRange, EqualTo
 from app.models import Property, Tenant, Role
 from flask import current_app
-
+from app.utils.constrants import UserRoles
 class RegistrationForm(FlaskForm):
     first_name = StringField(_l('First Name'), validators=[DataRequired()])
     last_name = StringField(_l('Last Name'), validators=[DataRequired()])
     email = StringField(_l('Email'), validators=[DataRequired(), Email()])
     password = PasswordField(_l('Password'), validators=[DataRequired()])
     confirm_password = PasswordField(_l('Confirm Password'), validators=[DataRequired(), EqualTo('password')])
+    role = SelectField('Register As', choices=[(UserRoles.TENANT, 'Tenant'), (UserRoles.LANDLORD, 'Landlord')], default=UserRoles.TENANT)
     submit = SubmitField(_l('Register'))
 
 class LoginForm(FlaskForm):

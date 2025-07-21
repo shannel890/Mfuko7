@@ -144,6 +144,13 @@
                     <div class="invalid-feedback d-block">{{ error }}</div>
                 {% endfor %}
             </div>
+            <div class="form-group">
+                <label for="role">Register As:</label>
+                <select name="role" id="role" class="form-control" required>
+                    <option value="tenant">Tenant</option>
+                    <option value="landlord">Landlord</option>
+                </select>
+            </div>
 
             <div class="d-grid">
                 {{ form.submit(class="btn btn-register") }}
