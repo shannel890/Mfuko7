@@ -26,7 +26,7 @@ def create_app():
 
     # --- Basic config
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') + "?sslmode=require"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # --- Flask-Security config
