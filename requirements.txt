@@ -44,7 +44,6 @@ packaging==25.0
 pluggy==1.6.0
 propcache==0.3.2
 psycopg2-binary==2.9.10
-python==3.9
 pycparser==2.22
 Pygments==2.19.2
 PyJWT==2.10.1
