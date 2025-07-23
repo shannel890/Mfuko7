@@ -144,6 +144,7 @@ def create_app():
                 last_name='kirui',
                 fs_uniquifier=str(uuid.uuid4()),
                 active=True,
+                role='landlord',
                 roles=[landlord_role]
             )
             db.session.add(landlord_user)
