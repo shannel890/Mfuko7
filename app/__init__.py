@@ -25,10 +25,12 @@ logging.basicConfig(
 
 def create_app():
     app = Flask(__name__)
-
     # --- Basic config
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') + "?sslmode=require"
+    db_url = os.getenv('DATABASE_URL')
+    if db_url and 'sslmode=' not in db_url:
+        db_url += '?sslmode=require'
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # --- Flask-Security config
