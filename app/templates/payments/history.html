@@ -662,45 +662,58 @@
     <div class="spinner"></div>
   </div>
 
-  <nav class="modern-nav">
+  <nav class="modern-nav bg-white dark:bg-gray-900 shadow">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
-        <a href="{{ url_for('main.landlord_dashboard') }}" class="brand-logo">
-          <span class="text-emerald-500">Property</span><span class="text-amber-500">Pay</span><span class="text-rose-500">Track</span>
+        <!-- Logo -->
+        <a href="{{ url_for('main.landlord_dashboard') }}" class="brand-logo text-xl font-bold">
+          <span class="text-emerald-500">Property</span>
+          <span class="text-amber-500">Pay</span>
+          <span class="text-rose-500">Track</span>
         </a>
-        <div class="hidden md:flex space-x-8 items-center">
-          <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
-          <a href="{{ url_for('main.properties_list') }}" class="nav-link" aria-label="View Properties">Properties</a>
-          <a href="{{ url_for('main.tenants_list') }}" class="nav-link" aria-label="View Tenants">Tenants</a>
-          <a href="{{ url_for('main.payments_history') }}" class="nav-link active" aria-label="View Payments">Payments</a>
-          <a href="{{ url_for('main.assign_property') }}" class="nav-link" aria-label="Assign Property">Assign</a>
-          <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="View Profile">Profile</a>
-          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle dark mode">
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex space-x-6 items-center">
+          <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link">Dashboard</a>
+          <a href="{{ url_for('main.properties_list') }}" class="nav-link">Properties</a>
+          <a href="{{ url_for('main.tenants_list') }}" class="nav-link">Tenants</a>
+          <a href="{{ url_for('main.payments_history') }}" class="nav-link active">Payments</a>
+          <a href="{{ url_for('main.assign_property') }}" class="nav-link">Assign</a>
+          <a href="{{ url_for('auth.profile') }}" class="nav-link">Profile</a>
+          <!-- Theme Toggle -->
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle theme">
             <i class="fas fa-moon hidden dark:block"></i>
             <i class="fas fa-sun block dark:hidden"></i>
           </button>
         </div>
+
+        <!-- Right Controls -->
         <div class="flex items-center space-x-4">
-          <a href="{{ url_for('auth.logout') }}" class="logout-btn hidden md:inline-flex" aria-label="Logout">
-            <i class="fas fa-sign-out-alt me-2"></i>{{ _('Logout') }}
+          <!-- Logout (Desktop) -->
+          <a href="{{ url_for('auth.logout') }}" class="logout-btn hidden md:inline-flex items-center gap-2">
+            <i class="fas fa-sign-out-alt"></i> {{ _('Logout') }}
           </a>
-          <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none" aria-label="Toggle mobile menu">
-            <i class="fas fa-bars"></i>
+          <!-- Mobile Toggle -->
+          <button id="mobileMenuToggle" class="md:hidden text-gray-700 dark:text-gray-200 focus:outline-none" aria-label="Open menu">
+            <i class="fas fa-bars text-xl"></i>
           </button>
         </div>
       </div>
     </div>
-    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-      <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 nav-link">Dashboard</a>
-      <a href="{{ url_for('main.properties_list') }}" class="block py-2 nav-link">Properties</a>
-      <a href="{{ url_for('main.tenants_list') }}" class="block py-2 nav-link">Tenants</a>
-      <a href="{{ url_for('main.payments_history') }}" class="block py-2 nav-link active">Payments</a>
-      <a href="{{ url_for('main.assign_property') }}" class="block py-2 nav-link">Assign</a>
-      <a href="{{ url_for('auth.profile') }}" class="block py-2 nav-link">Profile</a>
-      <a href="{{ url_for('auth.logout') }}" class="block py-2 nav-link">Logout</a>
-      <button id="mobileThemeToggle" class="block py-2 nav-link" aria-label="Toggle dark mode">Toggle Theme</button>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="md:hidden hidden flex flex-col px-4 py-4 space-y-2 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+      <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link block">Dashboard</a>
+      <a href="{{ url_for('main.properties_list') }}" class="nav-link block">Properties</a>
+      <a href="{{ url_for('main.tenants_list') }}" class="nav-link block">Tenants</a>
+      <a href="{{ url_for('main.payments_history') }}" class="nav-link block active">Payments</a>
+      <a href="{{ url_for('main.assign_property') }}" class="nav-link block">Assign</a>
+      <a href="{{ url_for('auth.profile') }}" class="nav-link block">Profile</a>
+      <a href="{{ url_for('auth.logout') }}" class="nav-link block">Logout</a>
+      <button id="mobileThemeToggle" class="nav-link block text-left" aria-label="Toggle theme">Toggle Theme</button>
     </div>
   </nav>
+
 
  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3" style="margin-bottom: 1.5rem; gap: 1rem;">
   <div class="d-flex gap-2" style="gap: 0.5rem;">
@@ -770,7 +783,23 @@
       const searchInput = document.getElementById('paymentSearch');
       const paymentTableBody = document.getElementById('paymentTableBody');
       const selectAllCheckbox = document.getElementById('selectAll');
-      let rowCheckboxes = paymentTableBody.querySelectorAll('.select-row'); // get dynamic list later when needed
+      let rowCheckboxes = paymentTableBody.querySelectorAll('.select-row');
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+      const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+      const desktopThemeToggle = document.getElementById('themeToggle');
+
+      mobileMenuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+
+      const toggleTheme = () => {
+        document.documentElement.classList.toggle('dark');
+      };
+
+      desktopThemeToggle?.addEventListener('click', toggleTheme);
+      mobileThemeToggle?.addEventListener('click', toggleTheme);
+    });
 
       // Update result count display
       function updateResultCount() {
