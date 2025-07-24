@@ -11,12 +11,7 @@ class RegistrationForm(FlaskForm):
     email = StringField(_l('Email'), validators=[DataRequired(), Email()])
     password = PasswordField(_l('Password'), validators=[DataRequired()])
     confirm_password = PasswordField(_l('Confirm Password'), validators=[DataRequired(), EqualTo('password')])
-    role = SelectField(
-        'Register As',
-        choices=[('tenant', 'Tenant'), ('landlord', 'Landlord')],
-        default='tenant'
-    )
-
+    role = SelectField(_l('Role'), choices=[('tenant', _l('Tenant')), ('landlord', _l('Landlord'))], validators=[Optional()])
     submit = SubmitField(_l('Register'))
 
 class LoginForm(FlaskForm):

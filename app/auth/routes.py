@@ -71,7 +71,7 @@ def register():
             password=hashed_password,
             fs_uniquifier=str(uuid.uuid4()),
             active=True,
-            role=selected_enum_role  # ✅ Enum field gets assigned here
+            
         )
         new_user.roles.append(selected_role_obj)  # ✅ Relationship table gets updated here
 

@@ -1,5 +1,3 @@
-from enum import Enum
-
-class UserRoles(Enum):
+class UserRoles():
     LANDLORD = 'landlord'
     TENANT = 'tenant'

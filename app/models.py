@@ -2,7 +2,7 @@ from app.extensions import db
 from flask_login import UserMixin
 from datetime import datetime, timezone, timedelta
 import json
-from app.utils.constrants import UserRoles
+#from app.utils.constrants import UserRoles
 
 roles_users = db.Table('roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE')),
@@ -27,10 +27,6 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=True)
     is_oauth_user = db.Column(db.Boolean, default=False, nullable=False) 
-    role = db.Column(
-        db.Enum('tenant', 'landlord', name='user_roles_enum'),
-        nullable=False
-    )
     active = db.Column(db.Boolean(), default=True)
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False)
     confirmed_at = db.Column(db.DateTime)
@@ -58,17 +54,14 @@ class User(db.Model, UserMixin):
             return json.loads(self.notification_preferences) if self.notification_preferences else {}
         except json.JSONDecodeError:
             return {}
-        
-    def has_role(self, role_name):
-        return any(role.name == role_name for role in self.roles)
+    def has_role(self, role_name: str):
+        return any(role.name.lower() == role_name.lower() for role in self.roles)
 
     @prefs.setter
     def prefs(self, value):
         self.notification_preferences = json.dumps(value)
 
-    def has_role(self, role):
-        return any(r.name == role for r in self.roles)
-
+    
     def __repr__(self):
         return f'<User {self.email}>'
 
@@ -125,13 +118,13 @@ class Property(db.Model):
     @property
     def utility_bill_list(self):
         try:
-            return json.loads(self.utility_bill) if self.utility_bill else []
+            return json.loads(self.utility_bill_types) if self.utility_bill_types else []
         except json.JSONDecodeError:
-            return self.utility_bill.split(',') if self.utility_bill else []
+            return self.utility_bill_types.split(',') if self.utility_bill_types else []
 
     @utility_bill_list.setter
     def utility_bill_list(self, value):
-        self.utility_bill = json.dumps(value)
+        self.utility_bill_types = json.dumps(value)
 
     def __repr__(self):
         return f'<Property {self.name}>'
