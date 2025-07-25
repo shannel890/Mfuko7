@@ -406,50 +406,60 @@ def property_edit(id):
 @roles_required('landlord')
 def assign_property(tenant_id):
     try:
+        tenant = None
         if tenant_id:
             tenant = Tenant.query.get(tenant_id)
             if not tenant:
                 flash(_l('Tenant not found.'), 'warning')
                 return redirect(url_for('main.landlord_dashboard'))
-        else:
-            tenant = None
 
+        # Get landlord's properties
         properties = Property.query.filter_by(landlord_id=current_user.id).all()
         property_ids = [p.id for p in properties]
-        units = Unit.query.filter(Unit.property_id.in_([p.id for p in properties]), Unit.status == 'vacant').all()
 
+        # Get vacant units in those properties
+        units = Unit.query.filter(Unit.property_id.in_(property_ids), Unit.status == 'vacant').all()
+
+        # Initialize form
         form = AssignPropertyForm()
+
+        # Populate form choices
         form.property_id.choices = [(p.id, p.name) for p in properties]
         form.unit_id.choices = [(u.id, f"{u.unit_number} - {u.property.name}") for u in units]
-        print("Vacant units:", [(u.id, u.unit_number, u.status) for u in units])
         form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name}") for t in Tenant.query.all()]
 
+        if request.method == 'GET' and tenant:
+            form.tenant_id.data = tenant.id  # Pre-fill tenant if passed via URL
+
         if form.validate_on_submit():
-            tenant_id = form.tenant_id.data
-            unit_id = form.unit_id.data
-            tenant = Tenant.query.get(tenant_id)
-            unit = Unit.query.get(unit_id)
-            if tenant and unit:
-                tenant.unit_id = unit.id
-                tenant.property_id = unit.property_id
-                unit.status = 'occupied'
+            selected_tenant = Tenant.query.get(form.tenant_id.data)
+            selected_unit = Unit.query.get(form.unit_id.data)
+
+            if selected_tenant and selected_unit:
+                selected_tenant.unit_id = selected_unit.id
+                selected_tenant.property_id = selected_unit.property_id
+                selected_unit.status = 'occupied'
+
                 db.session.commit()
                 flash(_l('Property assigned successfully!'), 'success')
                 return redirect(url_for('main.landlord_dashboard'))
             else:
                 flash(_l('Invalid tenant or unit selected.'), 'danger')
-                print("Units:", [(u.id, u.status) for u in units])
-                print("Form unit choices:", form.unit_id.choices)
 
-
-        return render_template('assign_property.html', tenant=tenant, properties=properties, units=units, form=form)
+        return render_template(
+            'assign_property.html',
+            tenant=tenant,
+            properties=properties,
+            units=units,
+            form=form
+        )
 
     except Exception as e:
         logging.error("Assign property error:")
         logging.error(traceback.format_exc())
         flash(_l('An error occurred while loading the assignment page.'), 'danger')
         return redirect(url_for('main.landlord_dashboard'))
-
+    
 @main.route('/tenants')
 @login_required
 @roles_required('landlord')
