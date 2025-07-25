@@ -6,20 +6,52 @@
   <meta name="description" content="Property Assignment for PropertyPayTrack" />
   <title>{{ _('Properties') }} | REPT</title>
 
-  <!-- Load CSS normally without defer -->
+
+  <!-- Preconnect to required origins for faster font and CDN loading -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Inline critical CSS for above-the-fold content (minimal critical styles, rest deferred) -->
+  <style>
+    /* Critical CSS: Only minimal for above-the-fold, rest is deferred */
+    body { background: #f7fafc; color: #2d3748; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .form-glass { max-width: 650px; margin: 2rem auto; padding: 2.5rem; background: rgba(255,255,255,0.15); border-radius: 1.5rem; }
+    .form-header { text-align: center; margin-bottom: 2rem; font-size: 2rem; font-weight: 800; }
+    nav { background: rgba(255,255,255,0.8); border-bottom: 1px solid #e2e8f0; }
+    .progress-bar { width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin-bottom: 1rem; position: relative; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 0; transition: width 0.3s ease; }
+    .btn-submit { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-radius: 0.75rem; padding: 1rem 2rem; font-weight: 700; border: none; }
+    .btn-cancel { background: #e2e8f0; color: #2d3748; border-radius: 0.75rem; padding: 1rem 2rem; border: 1px solid #cbd5e1; }
+    .loading { display: none; }
+    .notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: #fff; z-index: 1000; }
+    .notification.success { background: #48bb78; }
+    .notification.error { background: #f56565; }
+    @media (max-width: 768px) { .form-glass { margin: 1rem; padding: 1.5rem; border-radius: 1rem; } .form-header { font-size: 1.5rem; margin-bottom: 1.5rem; } }
+  </style>
+
+  <!-- Defer non-critical CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
     rel="stylesheet"
+    media="print"
+    onload="this.media='all'"
   />
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    media="print"
+    onload="this.media='all'"
   />
 
-  <!-- Load jQuery with defer -->
+  <!-- Use font-display: swap for custom fonts (if any) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Load jQuery with async (not render-blocking) -->
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-    defer
+    async
   ></script>
 
   <style>
@@ -560,12 +592,12 @@
     <h2 class="form-header">{{ _('Assign Property to Tenant') }}</h2>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('main.assign_property', tenant_id=tenant.id if tenant else None) }}" id="assignForm" novalidate>
+    <form method="POST" action="{{ url_for('main.assign_property', tenant_id=tenant.id if tenant else None) }}" id="assignForm" novalidate autocomplete="off">
       {{ form.hidden_tag() }}
 
       <div class="form-group tooltip" data-tooltip="Select a tenant to assign to a property">
         {{ form.tenant_id.label(class="form-label") }}
-        {{ form.tenant_id(class="form-control", **{'aria-required': 'true', 'required': True}) }}
+        {{ form.tenant_id(class="form-control", **{'aria-required': 'true', 'required': True, 'id': 'tenant_id'}) }}
         {% for error in form.tenant_id.errors %}
         <div class="text-danger">{{ error }}</div>
         {% endfor %}
@@ -573,7 +605,7 @@
 
       <div class="form-group tooltip" data-tooltip="Choose a property to assign">
         {{ form.property_id.label(class="form-label") }}
-        {{ form.property_id(class="form-control", **{'aria-required': 'true', 'required': True}) }}
+        {{ form.property_id(class="form-control", **{'aria-required': 'true', 'required': True, 'id': 'property_id'}) }}
         {% for error in form.property_id.errors %}
         <div class="text-danger">{{ error }}</div>
         {% endfor %}
@@ -581,7 +613,7 @@
 
       <div class="form-group tooltip" data-tooltip="Select a specific unit within the property">
         {{ form.unit_id.label(class="form-label") }}
-        {{ form.unit_id(class="form-control", **{'aria-required': 'true', 'required': True}) }}
+        {{ form.unit_id(class="form-control", **{'aria-required': 'true', 'required': True, 'id': 'unit_id'}) }}
         {% for error in form.unit_id.errors %}
         <div class="text-danger">{{ error }}</div>
         {% endfor %}
@@ -738,6 +770,14 @@
         const icon = mobileMenuToggle.querySelector('i');
         icon.classList.remove('fa-times');
         icon.classList.add('fa-bars');
+      }
+    });
+
+
+    // Lazy load all images
+    document.querySelectorAll('img').forEach(img => {
+      if (!img.hasAttribute('loading')) {
+        img.setAttribute('loading', 'lazy');
       }
     });
 
