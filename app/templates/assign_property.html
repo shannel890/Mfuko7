@@ -1,3 +1,9 @@
+<!--
+Performance Monitoring:
+- Use Lighthouse and PageSpeed Insights after each deployment.
+- Integrate performance budgets (LCP, FCP, SI) into CI/CD using Lighthouse CI.
+- Prioritize image, CSS, and JS optimizations as above.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,32 +23,27 @@
   <style>
     /* Critical CSS: Only minimal for above-the-fold, rest is deferred */
     body { background: #f7fafc; color: #2d3748; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    .form-glass { max-width: 650px; margin: 2rem auto; padding: 2.5rem; background: rgba(255,255,255,0.15); border-radius: 1.5rem; }
-    .form-header { text-align: center; margin-bottom: 2rem; font-size: 2rem; font-weight: 800; }
     nav { background: rgba(255,255,255,0.8); border-bottom: 1px solid #e2e8f0; }
     .progress-bar { width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin-bottom: 1rem; position: relative; overflow: hidden; }
     .progress-fill { height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 0; transition: width 0.3s ease; }
-    .btn-submit { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-radius: 0.75rem; padding: 1rem 2rem; font-weight: 700; border: none; }
-    .btn-cancel { background: #e2e8f0; color: #2d3748; border-radius: 0.75rem; padding: 1rem 2rem; border: 1px solid #cbd5e1; }
-    .loading { display: none; }
-    .notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: #fff; z-index: 1000; }
-    .notification.success { background: #48bb78; }
-    .notification.error { background: #f56565; }
-    @media (max-width: 768px) { .form-glass { margin: 1rem; padding: 1.5rem; border-radius: 1rem; } .form-header { font-size: 1.5rem; margin-bottom: 1.5rem; } }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/assign_property.css') }}" media="all" />
 
   <!-- Defer non-critical CSS -->
+  <!-- PurgeCSS: Remove unused CSS in production build -->
   <link
     href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
     rel="stylesheet"
     media="print"
     onload="this.media='all'"
+    importance="low"
   />
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     media="print"
     onload="this.media='all'"
+    importance="low"
   />
 
   <!-- Use font-display: swap for custom fonts (if any) -->
@@ -168,6 +169,7 @@
       font-size: 2rem;
       font-weight: 800;
       background: var(--primary-gradient);
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       position: relative;
@@ -632,159 +634,7 @@
     </form>
   </div>
 
- <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Theme initialization
-    const theme = localStorage.getItem('theme') || 'light';
-    if (theme === 'dark') {
-      document.body.classList.add('dark');
-    }
-
-    // Theme toggle buttons
-    const themeToggles = [
-      document.getElementById('themeToggle'),
-      document.getElementById('mobileThemeToggle'),
-    ];
-    themeToggles.forEach((toggle) => {
-      if (toggle) {
-        toggle.addEventListener('click', () => {
-          document.body.classList.toggle('dark');
-          localStorage.setItem(
-            'theme',
-            document.body.classList.contains('dark') ? 'dark' : 'light'
-          );
-          showNotification('Theme changed successfully', 'success');
-        });
-      }
-    });
-
-    // Mobile menu toggle
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-    const mobileMenu = document.getElementById('mobileMenu');
-    if (mobileMenuToggle && mobileMenu) {
-      mobileMenuToggle.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-        const icon = mobileMenuToggle.querySelector('i');
-        icon.classList.toggle('fa-bars');
-        icon.classList.toggle('fa-times');
-      });
-    }
-
-    // Form elements
-    const form = document.getElementById('assignForm');
-    const tenantSelect = document.getElementById('tenant_id');
-    const propertySelect = document.getElementById('property_id');
-    const unitSelect = document.getElementById('unit_id');
-    const submitBtn = form?.querySelector('.btn-submit');
-    const loading = document.querySelector('.loading');
-    const progressFill = document.querySelector('.progress-fill');
-    let isFormDirty = false;
-
-    function updateProgress() {
-      const fields = [tenantSelect, propertySelect, unitSelect];
-      const filledFields = fields.filter((field) => field?.value && field.value.trim() !== '').length;
-      const progress = (filledFields / fields.length) * 100;
-      if (progressFill) {
-        progressFill.style.width = `${progress}%`;
-      }
-    }
-
-    function validateField(field) {
-      const existingError = field.parentNode.querySelector('.text-danger');
-      if (existingError) existingError.remove();
-      field.classList.remove('error');
-
-      if (field.hasAttribute('required') && !field.value.trim()) {
-        showError(field, 'This field is required');
-        return false;
-      }
-      return true;
-    }
-
-    function showError(field, message) {
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'text-danger';
-      errorDiv.textContent = message;
-      field.parentNode.appendChild(errorDiv);
-      field.classList.add('error');
-      field.parentNode.classList.add('has-error');
-      setTimeout(() => field.parentNode.classList.remove('has-error'), 1000);
-    }
-
-    [tenantSelect, propertySelect, unitSelect].forEach((field) => {
-      if (field) {
-        field.addEventListener('change', () => {
-          isFormDirty = true;
-          validateField(field);
-          updateProgress();
-        });
-      }
-    });
-
-    const cancelBtn = document.getElementById('cancelBtn');
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', function (e) {
-        if (isFormDirty && !confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
-          e.preventDefault();
-        }
-      });
-    }
-
-    function showNotification(message, type) {
-      const notification = document.createElement('div');
-      notification.className = `notification ${type}`;
-      notification.textContent = message;
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 3000);
-    }
-
-    // Accessibility: Focus management for select and buttons
-    form?.querySelectorAll('select, button').forEach((element) => {
-      element.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && element.tagName !== 'BUTTON') {
-          e.preventDefault();
-          const formElements = Array.from(form.querySelectorAll('select, button'));
-          const currentIndex = formElements.indexOf(element);
-          const nextElement = formElements[currentIndex + 1];
-          if (nextElement) nextElement.focus();
-        }
-      });
-    });
-
-    // Close mobile menu on link click
-    if (mobileMenu) {
-      mobileMenu.querySelectorAll('a').forEach((link) => {
-        link.addEventListener('click', () => {
-          mobileMenu.classList.add('hidden');
-          const icon = mobileMenuToggle.querySelector('i');
-          icon.classList.remove('fa-times');
-          icon.classList.add('fa-bars');
-        });
-      });
-    }
-
-    // Escape key closes mobile menu
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && mobileMenu) {
-        mobileMenu.classList.add('hidden');
-        const icon = mobileMenuToggle.querySelector('i');
-        icon.classList.remove('fa-times');
-        icon.classList.add('fa-bars');
-      }
-    });
-
-
-    // Lazy load all images
-    document.querySelectorAll('img').forEach(img => {
-      if (!img.hasAttribute('loading')) {
-        img.setAttribute('loading', 'lazy');
-      }
-    });
-
-    // Initial progress setup
-    updateProgress();
-  });
-</script>
+ <script src="{{ url_for('static', filename='js/assign_property.js') }}" defer></script>
 
 </body>
 </html>
