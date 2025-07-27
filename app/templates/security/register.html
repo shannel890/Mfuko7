@@ -102,7 +102,7 @@
             {% endif %}
         {% endwith %}
 
-        <form method="POST" novalidate onSubmit={handleSubmit}>
+        <form method="POST">
             {{ form.hidden_tag() }}
 
             <div class="form-floating">
@@ -166,11 +166,4 @@
         </div>
     </div>
 </div>
-<script>
-    const handleSubmit = (e) => {
-    e.preventDefault(); // <--- THIS is critical
-    // your logic to send data to the backend
-    };
-
-</script>
 {% endblock %}
