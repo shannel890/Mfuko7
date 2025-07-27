@@ -196,14 +196,17 @@
             box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
         }
 
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--light-text-color);
-            font-size: 1.5rem;
-            cursor: pointer;
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-nav,
+            .navbar-actions {
+                display: none;
+            }
         }
+
 
         .mobile-menu {
             display: none;
@@ -657,6 +660,9 @@
                     <i class="fas fa-rocket"></i>
                 </a>
             </div>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                ☰
+            </button>
 
             <div class="features">
                 <h2 data-aos="fade-down" data-aos-duration="1000">Why Choose PropertyPayTrack?</h2>
@@ -762,7 +768,16 @@
                 navbar.classList.remove('scrolled');
             }
         });
+         document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            const mobileMenu = document.querySelector('.mobile-menu');
 
+            if (toggle && mobileMenu) {
+                toggle.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('show');
+                });
+            }
+        });
         // Mobile menu toggle
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const mobileMenu = document.getElementById('mobileMenu');
