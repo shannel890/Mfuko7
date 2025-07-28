@@ -109,7 +109,7 @@ def register():
 
     return render_template('security/register.html', form=form)
 
-@auth.route('/auth/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
 
