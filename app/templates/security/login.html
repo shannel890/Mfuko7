@@ -6,29 +6,69 @@
     <meta name="description" content="Login to MFUKO to manage your account securely">
     <meta name="robots" content="index, follow">
     <title>Login | MFUKO</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
     <link rel="icon" type="image/png" href="/static/favicon.png">
     <style>
         :root {
             --primary: #2aa648;
-            --primary-dark: #238f3a;
-            --background: #f0f4fa;
-            --background-end: #d9e6f2;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --text: #333;
-            --muted: #666;
-            --error: #dc2626;
-            --success: #059669;
+            --primary-dark: #1e7e34;
+            --primary-light: #34d058;
+            --background: #0f172a;
+            --background-light: #1e293b;
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --card-border: rgba(148, 163, 184, 0.1);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(51, 65, 85, 0.5);
+            --input-border: rgba(148, 163, 184, 0.2);
+            --error: #f87171;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            background: linear-gradient(135deg, var(--background), var(--background-end));
-            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(42, 166, 72, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(52, 208, 88, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(42, 166, 72, 0.05) 0%, transparent 50%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            color: var(--text);
+        }
+
+        /* Animated background particles */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+            50% { transform: translateY(-100px) rotate(180deg); opacity: 0.3; }
         }
 
         main {
@@ -36,42 +76,120 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 1rem;
+            padding: 2rem 1rem;
+            position: relative;
         }
 
-        .auth-card {
+        .auth-container {
+            display: flex;
+            max-width: 900px;
+            width: 100%;
             background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            max-width: 90%;
-            width: 400px;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
         }
 
-        .auth-card h2 {
-            color: var(--primary);
+        .auth-visual {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-visual::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            animation: drift 30s linear infinite;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-10px, -10px); }
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .visual-tagline {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .auth-form {
+            flex: 1;
+            padding: 3rem;
+            max-width: 450px;
+        }
+
+        .auth-form h2 {
+            color: var(--text);
             font-weight: 600;
             text-align: center;
-            margin-bottom: 1.5rem;
-            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1rem;
         }
 
         .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
             font-size: 0.9rem;
-            color: white;
+            font-weight: 500;
             text-align: center;
+            border: 1px solid;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .alert-success {
-            background: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.2);
         }
 
         .alert-danger {
-            background: var(--error);
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--error);
+            border-color: rgba(248, 113, 113, 0.2);
         }
 
         .form-group {
@@ -81,61 +199,116 @@
 
         .form-group input {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--input-border);
+            border-radius: 12px;
             font-size: 1rem;
-            background: var(--card-bg);
-            transition: border-color 0.3s, box-shadow 0.3s;
+            background: var(--input-bg);
+            color: var(--text);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
         }
 
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(42, 166, 72, 0.1);
+            box-shadow: 0 0 0 4px rgba(42, 166, 72, 0.1);
+            background: rgba(51, 65, 85, 0.7);
         }
 
         .form-group label {
             position: absolute;
-            top: 0.75rem;
-            left: 1rem;
+            top: 1rem;
+            left: 1.25rem;
             font-size: 1rem;
-            color: var(--muted);
-            transition: all 0.2s;
+            color: var(--text-muted);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
             background: transparent;
+            font-weight: 500;
         }
 
         .form-group input:focus + label,
         .form-group input:not(:placeholder-shown) + label {
             top: -0.75rem;
-            left: 0.75rem;
-            font-size: 0.75rem;
+            left: 1rem;
+            font-size: 0.8rem;
             color: var(--primary);
-            background: var(--card-bg);
-            padding: 0 0.25rem;
+            background: var(--background-light);
+            padding: 0 0.5rem;
+            border-radius: 4px;
         }
 
         .form-group .error {
             color: var(--error);
             font-size: 0.85rem;
-            margin-top: 0.25rem;
-            display: block;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group .error::before {
+            content: '⚠';
+            font-size: 0.9rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
         }
 
         .form-check {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
         }
 
         .form-check input {
             width: 1.25rem;
             height: 1.25rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border: 2px solid var(--input-border);
+            border-radius: 6px;
             cursor: pointer;
+            background: var(--input-bg);
+            position: relative;
+            appearance: none;
+            transition: all 0.2s;
+        }
+
+        .form-check input:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .form-check input:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
         }
 
         .form-check input:focus {
@@ -145,72 +318,159 @@
 
         .form-check label {
             font-size: 0.95rem;
-            color: var(--text);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 500;
         }
 
         .btn {
-            display: block;
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-            text-decoration: none;
-            transition: background-color 0.3s, transform 0.2s;
-            cursor: pointer;
-        }
-
-        .btn-login {
-            background: var(--primary);
-            color: white;
-            border: none;
-            margin-bottom: 1rem;
-        }
-
-        .btn-login:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .google-btn {
-            background: white;
-            border: 1px solid #ccc;
-            color: var(--text);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
             margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(42, 166, 72, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(42, 166, 72, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .google-btn {
+            background: rgba(51, 65, 85, 0.5);
+            border: 2px solid var(--input-border);
+            color: var(--text);
+            margin-bottom: 1.5rem;
         }
 
         .google-btn:hover {
-            background: #f5f5f5;
+            background: rgba(51, 65, 85, 0.8);
+            border-color: var(--primary);
             transform: translateY(-2px);
         }
 
         .text-link {
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             margin-top: 1.5rem;
+        }
+
+        .text-link p {
+            margin: 0.75rem 0;
         }
 
         .text-link a {
             color: var(--primary);
             text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
         }
 
         .text-link a:hover {
+            color: var(--primary-light);
             text-decoration: underline;
         }
 
-        @media (max-width: 480px) {
-            .auth-card {
-                padding: 1.5rem;
-                width: 100%;
+        .loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+                max-width: 400px;
+                margin: 1rem;
             }
 
-            .auth-card h2 {
+            .auth-visual {
+                padding: 2rem;
+                min-height: 200px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .visual-tagline {
+                font-size: 1rem;
+            }
+
+            .auth-form {
+                padding: 2rem;
+            }
+
+            .auth-form h2 {
                 font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            main {
+                padding: 1rem;
+            }
+
+            .auth-container {
+                margin: 0;
+            }
+
+            .auth-form {
+                padding: 1.5rem;
             }
 
             .form-group input,
@@ -221,54 +481,133 @@
     </style>
 </head>
 <body>
+    <div class="bg-animation"></div>
+    
     <main>
-        <section class="auth-card">
-            <h2>Login to MFUKO</h2>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}" role="alert">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            <form method="POST">
-                {{ form.hidden_tag() }}
-                <div class="form-group">
-                    {{ form.email(id="email", class="form-input", placeholder=" ") }}
-                    <label for="email">Email Address</label>
-                    {% for error in form.email.errors %}
-                        <span class="error">{{ error }}</span>
-                    {% endfor %}
+        <div class="auth-container">
+            <div class="auth-visual">
+                <div class="visual-content">
+                    <div class="logo">MFUKO</div>
+                    <p class="visual-tagline">
+                        Secure financial management<br>
+                        at your fingertips
+                    </p>
                 </div>
-
-                <div class="form-group">
-                    {{ form.password(id="password", class="form-input", placeholder=" ") }}
-                    <label for="password">Password</label>
-                    {% for error in form.password.errors %}
-                        <span class="error">{{ error }}</span>
-                    {% endfor %}
-                </div>
-
-                <div class="form-check">
-                    {{ form.remember(id="remember", class="form-check-input") }}
-                    <label for="remember">Remember Me</label>
-                </div>
-
-                {{ form.submit(class="btn btn-login", aria_label="Log in") }}
-
-                <a href="{{ url_for('auth.google_login') }}" class="btn google-btn" aria-label="Continue with Google">
-                    <i class="fab fa-google"></i> Continue with Google
-                </a>
-            </form>
-
-            <div class="text-link">
-                <p><a href="{{ url_for('auth.forgot_password') }}">Forgot your password?</a></p>
-                <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
             </div>
-        </section>
+            
+            <section class="auth-form">
+                <h2>Welcome back</h2>
+                <p class="auth-subtitle">Sign in to your account</p>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" id="loginForm">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ form.email(id="email", class="form-input", placeholder=" ", autocomplete="email") }}
+                        <label for="email">Email Address</label>
+                        {% for error in form.email.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.password(id="password", class="form-input", placeholder=" ", autocomplete="current-password") }}
+                        <label for="password">Password</label>
+                        <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {% for error in form.password.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-check">
+                        {{ form.remember(id="remember", class="form-check-input") }}
+                        <label for="remember">Remember me for 30 days</label>
+                    </div>
+
+                    {{ form.submit(class="btn btn-login", id="loginBtn", aria_label="Sign in to your account") }}
+
+                    <a href="{{ url_for('auth.google_login') }}" class="btn google-btn" aria-label="Continue with Google">
+                        <i class="fab fa-google"></i> Continue with Google
+                    </a>
+                </form>
+
+                <div class="text-link">
+                    <p><a href="{{ url_for('auth.forgot_password') }}">Forgot your password?</a></p>
+                    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Create one here</a></p>
+                </div>
+            </section>
+        </div>
     </main>
+
+    <script>
+        // Create animated background particles
+        function createParticles() {
+            const container = document.querySelector('.bg-animation');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Password visibility toggle
+        document.getElementById('passwordToggle').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        });
+
+        // Form submission with loading state
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const submitBtn = document.getElementById('loginBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Signing in...';
+        });
+
+        // Enhanced input interactions
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+
+        // Initialize particles
+        createParticles();
+
+        // Keyboard navigation improvements
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.type === 'checkbox') {
+                e.target.click();
+            }
+        });
+    </script>
 </body>
 </html>
