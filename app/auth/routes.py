@@ -14,6 +14,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import traceback
 import uuid
 from app.utils.constrants import UserRoles
+from sqlalchemy.exc import SQLAlchemyError
 
 def generate_uniquifier():
     return str(uuid.uuid4())
@@ -44,16 +45,20 @@ def roles_required(*required_roles):
         return decorated_function
     return decorator
 
+
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
-        existing_user = User.query.filter_by(email=form.email.data).first()
+        email = form.email.data.lower().strip()
+        existing_user = User.query.filter_by(email=email).first()
+
         if existing_user:
             flash("This email is already registered. Please log in or use a different email.", "danger")
             return redirect(url_for('auth.register'))
 
+        # Role logic
         selected_role_name = form.role.data.lower() if form.role.data else UserRoles.TENANT
         selected_enum_role = getattr(UserRoles, selected_role_name.upper(), UserRoles.TENANT)
 
@@ -63,36 +68,43 @@ def register():
             return redirect(url_for('auth.register'))
 
         hashed_password = generate_password_hash(form.password.data)
-        
-        new_user = User(
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            email=form.email.data,
-            password=hashed_password,
-            fs_uniquifier=str(uuid.uuid4()),
-            active=True,
-            role=selected_role_name  
-            
-        )
-        new_user.roles.append(selected_role_obj)  # ✅ Relationship table gets updated here
 
-        db.session.add(new_user)
-        db.session.commit()
-
-        if selected_role_name == 'tenant':
-            tenant = Tenant(
-                user_id=new_user.id,
-                first_name=new_user.first_name,
-                last_name=new_user.last_name,
-                email=new_user.email,
-                status='active',
-                grace_period_days=5
+        try:
+            new_user = User(
+                first_name=form.first_name.data.strip(),
+                last_name=form.last_name.data.strip(),
+                email=email,
+                password=hashed_password,
+                fs_uniquifier=str(uuid.uuid4()),
+                active=True
             )
-            db.session.add(tenant)
+            new_user.roles.append(selected_role_obj)
+
+            db.session.add(new_user)
+            db.session.flush()  # Ensures new_user.id is available before commit
+
+            # If user is a tenant, create a Tenant record
+            if selected_role_name == 'tenant':
+                tenant = Tenant(
+                    user_id=new_user.id,
+                    first_name=new_user.first_name,
+                    last_name=new_user.last_name,
+                    email=new_user.email,
+                    status='active',
+                    grace_period_days=5
+                )
+                db.session.add(tenant)
+
             db.session.commit()
 
-        flash("Registration successful! Please log in.", "success")
-        return redirect(url_for('auth.login'))
+            flash("Registration successful! Please log in.", "success")
+            return redirect(url_for('auth.login'))
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            flash("An error occurred during registration. Please try again.", "danger")
+            print(f"Registration error: {str(e)}")
+            return redirect(url_for('auth.register'))
 
     return render_template('security/register.html', form=form)
 
