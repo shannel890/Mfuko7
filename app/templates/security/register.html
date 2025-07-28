@@ -1,169 +1,167 @@
-{% extends "base.html" %}
-{% block title %}Register | MFUKO{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | MFUKO</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f4fa, #d9e6f2);
+            font-family: 'Roboto', sans-serif;
+        }
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+            width: 100%;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .auth-card h2 {
+            color: #2aa648;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .form-floating {
+            margin-bottom: 1.2rem;
+        }
+        .btn-register {
+            background-color: #2aa648;
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 1rem;
+            transition: 0.3s;
+        }
+        .btn-register:hover {
+            background-color: #238f3a;
+        }
+        .google-btn {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            color: #444;
+            width: 100%;
+            padding: 10px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .google-btn:hover {
+            background-color: #f5f5f5;
+        }
+        .text-link {
+            text-align: center;
+            font-size: 0.95rem;
+            margin-top: 1rem;
+        }
+        .text-link a {
+            color: #2aa648;
+            text-decoration: none;
+        }
+        .text-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
 
-{% block styles %}
-<style>
-    body {
-        background: linear-gradient(135deg, #f0f4fa, #d9e6f2);
-        font-family: 'Roboto', sans-serif;
-    }
-
-    .auth-wrapper {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 1rem;
-    }
-
-    .auth-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        max-width: 500px;
-        width: 100%;
-        padding: 2.5rem;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .auth-card h2 {
-        color: #2aa648;
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-
-    .form-floating {
-        margin-bottom: 1.2rem;
-    }
-
-    .btn-register {
-        background-color: #2aa648;
-        border: none;
-        padding: 12px;
-        font-weight: 600;
-        width: 100%;
-        margin-bottom: 1rem;
-        transition: 0.3s;
-    }
-
-    .btn-register:hover {
-        background-color: #238f3a;
-    }
-
-    .google-btn {
-        background-color: #fff;
-        border: 1px solid #ccc;
-        color: #444;
-        width: 100%;
-        padding: 10px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        border-radius: 8px;
-        transition: 0.3s;
-    }
-
-    .google-btn:hover {
-        background-color: #f5f5f5;
-    }
-
-    .text-link {
-        text-align: center;
-        font-size: 0.95rem;
-        margin-top: 1rem;
-    }
-
-    .text-link a {
-        color: #2aa648;
-        text-decoration: none;
-    }
-
-    .text-link a:hover {
-        text-decoration: underline;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
 <div class="auth-wrapper">
     <div class="auth-card">
         <h2>Create Your MFUKO Account</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
 
-        <form method="POST">
-            {{ form.hidden_tag() }}
+        <!-- Flash messages area (if needed) -->
+        <div id="flash-messages"></div>
 
+        <form id="registerForm">
             <div class="form-floating">
-                {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), placeholder="First Name") }}
+                <input type="text" class="form-control" id="first_name" placeholder="First Name" required>
                 <label for="first_name">First Name</label>
-                {% for error in form.first_name.errors %}
-                    <div class="invalid-feedback d-block">{{ error }}</div>
-                {% endfor %}
             </div>
-
             <div class="form-floating">
-                {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), placeholder="Last Name") }}
+                <input type="text" class="form-control" id="last_name" placeholder="Last Name" required>
                 <label for="last_name">Last Name</label>
-                {% for error in form.last_name.errors %}
-                    <div class="invalid-feedback d-block">{{ error }}</div>
-                {% endfor %}
             </div>
-
             <div class="form-floating">
-                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Email Address") }}
+                <input type="email" class="form-control" id="email" placeholder="Email Address" required>
                 <label for="email">Email Address</label>
-                {% for error in form.email.errors %}
-                    <div class="invalid-feedback d-block">{{ error }}</div>
-                {% endfor %}
             </div>
-
             <div class="form-floating">
-                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Password") }}
+                <input type="password" class="form-control" id="password" placeholder="Password" required>
                 <label for="password">Password</label>
-                {% for error in form.password.errors %}
-                    <div class="invalid-feedback d-block">{{ error }}</div>
-                {% endfor %}
             </div>
-
             <div class="form-floating">
-                {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirm Password") }}
+                <input type="password" class="form-control" id="confirm_password" placeholder="Confirm Password" required>
                 <label for="confirm_password">Confirm Password</label>
-                {% for error in form.confirm_password.errors %}
-                    <div class="invalid-feedback d-block">{{ error }}</div>
-                {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label for="role">Register As:</label>
-                <select name="role" id="role" class="form-control" required>
+                <select id="role" class="form-control" required>
                     <option value="tenant">Tenant</option>
                     <option value="landlord">Landlord</option>
                 </select>
             </div>
-
             <div class="d-grid">
-                {{ form.submit(class="btn btn-register") }}
+                <button type="submit" class="btn btn-register">Register</button>
             </div>
-
-             <a href="{{ url_for('auth.google_login') }}" class="google-btn">
+            <a href="/auth/google" class="google-btn">
                 <i class="fab fa-google"></i> Continue with Google
             </a>
         </form>
 
         <div class="text-link">
-            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log In</a></p>
+            <p>Already have an account? <a href="/login">Log In</a></p>
         </div>
     </div>
 </div>
-{% endblock %}
+
+<!-- JS scripts -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const data = {
+            first_name: document.getElementById("first_name").value,
+            last_name: document.getElementById("last_name").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            confirm_password: document.getElementById("confirm_password").value,
+            role: document.getElementById("role").value
+        };
+
+        try {
+            const response = await axios.post('/api/users/register', data);
+
+            if (response.data.success) {
+                alert(response.data.message);
+                window.location.href = "/login";
+            } else {
+                alert(response.data.message || 'Registration failed.');
+            }
+        } catch (err) {
+            if (err.response && err.response.data && err.response.data.message) {
+                alert(err.response.data.message);
+            } else {
+                alert("Something went wrong. Please try again.");
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
