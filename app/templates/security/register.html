@@ -118,13 +118,13 @@
             <div class="d-grid">
                 <button type="submit" class="btn btn-register">Register</button>
             </div>
-            <a href="/auth/google" class="google-btn">
+            <a href="{{ url_for('auth.google_login') }}" class="google-btn">
                 <i class="fab fa-google"></i> Continue with Google
             </a>
         </form>
 
         <div class="text-link">
-            <p>Already have an account? <a href="/login">Log In</a></p>
+            <p>Already have an account? <a href="{{url_for('auth.login')}}">Log In</a></p>
         </div>
     </div>
 </div>
