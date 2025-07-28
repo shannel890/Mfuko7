@@ -593,52 +593,40 @@
                 
                 <div id="flash-messages"></div>
 
-                <form id="registerForm">
+                <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+                    {{ form.hidden_tag() }}
+
                     <div class="form-row">
                         <div class="form-group">
-                            <input type="text" id="first_name" placeholder=" " required autocomplete="given-name">
+                            {{ form.first_name(class="form-control", placeholder=" ") }}
                             <label for="first_name">First Name</label>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="last_name" placeholder=" " required autocomplete="family-name">
+                            {{ form.last_name(class="form-control", placeholder=" ") }}
                             <label for="last_name">Last Name</label>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <input type="email" id="email" placeholder=" " required autocomplete="email">
+                        {{ form.email(class="form-control", placeholder=" ") }}
                         <label for="email">Email Address</label>
                     </div>
 
                     <div class="form-group">
-                        <input type="password" id="password" placeholder=" " required autocomplete="new-password">
+                        {{ form.password(class="form-control", placeholder=" ") }}
                         <label for="password">Password</label>
-                        <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <div class="password-strength" id="passwordStrength" style="display: none;">
-                            <div class="strength-bar">
-                                <div class="strength-fill" id="strengthFill"></div>
-                            </div>
-                            <span id="strengthText"></span>
-                        </div>
                     </div>
 
                     <div class="form-group">
-                        <input type="password" id="confirm_password" placeholder=" " required autocomplete="new-password">
+                        {{ form.confirm_password(class="form-control", placeholder=" ") }}
                         <label for="confirm_password">Confirm Password</label>
-                        <button type="button" class="password-toggle" id="confirmPasswordToggle" aria-label="Toggle password visibility">
-                            <i class="fas fa-eye"></i>
-                        </button>
                     </div>
 
                     <div class="role-selector">
                         <div class="role-option">
                             <input type="radio" id="tenant" name="role" value="tenant" required>
                             <label for="tenant" class="role-card">
-                                <div class="role-icon">
-                                    <i class="fas fa-home"></i>
-                                </div>
+                                <div class="role-icon"><i class="fas fa-home"></i></div>
                                 <div class="role-title">Tenant</div>
                                 <div class="role-description">Looking for properties</div>
                             </label>
@@ -646,24 +634,16 @@
                         <div class="role-option">
                             <input type="radio" id="landlord" name="role" value="landlord" required>
                             <label for="landlord" class="role-card">
-                                <div class="role-icon">
-                                    <i class="fas fa-building"></i>
-                                </div>
+                                <div class="role-icon"><i class="fas fa-building"></i></div>
                                 <div class="role-title">Landlord</div>
                                 <div class="role-description">Managing properties</div>
                             </label>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-register" id="registerBtn">
-                        <i class="fas fa-user-plus"></i>
-                        Create Account
-                    </button>
-
-                    <a href="{{ url_for('auth.google_login') }}" class="btn google-btn" aria-label="Continue with Google">
-                        <i class="fab fa-google"></i> Continue with Google
-                    </a>
+                    {{ form.submit(class="btn btn-register") }}
                 </form>
+
 
                 <div class="text-link">
                     <p>Already have an account? <a href="{{url_for('auth.login')}}">Sign In</a></p>
@@ -672,225 +652,6 @@
         </div>
     </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
-    <script>
-        // Create animated background particles
-        function createParticles() {
-            const container = document.querySelector('.bg-animation');
-            const particleCount = 50;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-                container.appendChild(particle);
-            }
-        }
-
-        // Password visibility toggles
-        function setupPasswordToggle(inputId, toggleId) {
-            document.getElementById(toggleId).addEventListener('click', function() {
-                const passwordInput = document.getElementById(inputId);
-                const icon = this.querySelector('i');
-                
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    icon.className = 'fas fa-eye-slash';
-                } else {
-                    passwordInput.type = 'password';
-                    icon.className = 'fas fa-eye';
-                }
-            });
-        }
-
-        setupPasswordToggle('password', 'passwordToggle');
-        setupPasswordToggle('confirm_password', 'confirmPasswordToggle');
-
-        // Password strength indicator
-        function checkPasswordStrength(password) {
-            const strengthIndicator = document.getElementById('passwordStrength');
-            const strengthFill = document.getElementById('strengthFill');
-            const strengthText = document.getElementById('strengthText');
-            
-            if (password.length === 0) {
-                strengthIndicator.style.display = 'none';
-                return;
-            }
-            
-            strengthIndicator.style.display = 'block';
-            
-            let score = 0;
-            let feedback = '';
-            
-            // Length check
-            if (password.length >= 8) score++;
-            if (password.length >= 12) score++;
-            
-            // Character variety checks
-            if (/[a-z]/.test(password)) score++;
-            if (/[A-Z]/.test(password)) score++;
-            if (/[0-9]/.test(password)) score++;
-            if (/[^A-Za-z0-9]/.test(password)) score++;
-            
-            // Update UI based on score
-            strengthFill.className = 'strength-fill';
-            if (score < 3) {
-                strengthFill.classList.add('strength-weak');
-                feedback = 'Weak password';
-            } else if (score < 4) {
-                strengthFill.classList.add('strength-fair');
-                feedback = 'Fair password';
-            } else if (score < 6) {
-                strengthFill.classList.add('strength-good');
-                feedback = 'Good password';
-            } else {
-                strengthFill.classList.add('strength-strong');
-                feedback = 'Strong password';
-            }
-            
-            strengthText.textContent = feedback;
-        }
-
-        document.getElementById('password').addEventListener('input', function() {
-            checkPasswordStrength(this.value);
-        });
-
-        // Form validation
-        function validateForm() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
-            const email = document.getElementById('email').value;
-            
-            // Clear previous errors
-            document.querySelectorAll('.error').forEach(error => error.remove());
-            
-            let isValid = true;
-            
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showFieldError('email', 'Please enter a valid email address');
-                isValid = false;
-            }
-            
-            // Password validation
-            if (password.length < 8) {
-                showFieldError('password', 'Password must be at least 8 characters long');
-                isValid = false;
-            }
-            
-            // Password confirmation
-            if (password !== confirmPassword) {
-                showFieldError('confirm_password', 'Passwords do not match');
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-
-        function showFieldError(fieldId, message) {
-            const field = document.getElementById(fieldId);
-            const formGroup = field.closest('.form-group');
-            const error = document.createElement('span');
-            error.className = 'error';
-            error.textContent = message;
-            formGroup.appendChild(error);
-        }
-
-        function showAlert(message, type = 'danger') {
-            const alertContainer = document.getElementById('flash-messages');
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
-            alert.textContent = message;
-            alertContainer.appendChild(alert);
-            
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                alert.remove();
-            }, 5000);
-        }
-
-        // Form submission
-        document.getElementById("registerForm").addEventListener("submit", async function (e) {
-            e.preventDefault();
-            
-            if (!validateForm()) {
-                return;
-            }
-
-            const submitBtn = document.getElementById('registerBtn');
-            submitBtn.classList.add('loading');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
-
-            const data = {
-                first_name: document.getElementById("first_name").value,
-                last_name: document.getElementById("last_name").value,
-                email: document.getElementById("email").value,
-                password: document.getElementById("password").value,
-                confirm_password: document.getElementById("confirm_password").value,
-                role: document.querySelector('input[name="role"]:checked')?.value
-            };
-
-            try {
-                const response = await axios.post('/auth/register', data);
-
-                if (response.data.success) {
-                    showAlert(response.data.message, 'success');
-                    setTimeout(() => {
-                        window.location.href = "/login";
-                    }, 2000);
-                } else {
-                    showAlert(response.data.message || 'Registration failed.');
-                }
-            } catch (err) {
-                if (err.response && err.response.data && err.response.data.message) {
-                    showAlert(err.response.data.message);
-                } else {
-                    showAlert("Something went wrong. Please try again.");
-                }
-            } finally {
-                submitBtn.classList.remove('loading');
-                submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
-            }
-        });
-
-        // Enhanced input interactions
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
-            });
-        });
-
-        // Initialize particles
-        createParticles();
-
-        // Real-time validation feedback
-        document.getElementById('email').addEventListener('blur', function() {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const existingError = this.parentElement.querySelector('.error');
-            if (existingError) existingError.remove();
-            
-            if (this.value && !emailRegex.test(this.value)) {
-                showFieldError('email', 'Please enter a valid email address');
-            }
-        });
-
-        document.getElementById('confirm_password').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const existingError = this.parentElement.querySelector('.error');
-            if (existingError) existingError.remove();
-            
-            if (this.value && this.value !== password) {
-                showFieldError('confirm_password', 'Passwords do not match');
-            }
-        });
-    </script>
+    
 </body>
 </html>
