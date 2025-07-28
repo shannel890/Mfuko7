@@ -76,7 +76,8 @@ def register():
                 email=email,
                 password=hashed_password,
                 fs_uniquifier=str(uuid.uuid4()),
-                active=True
+                active=True,
+                role=selected_role_name
             )
             new_user.roles.append(selected_role_obj)
 
