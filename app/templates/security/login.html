@@ -2,17 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login | MFUKO</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <meta name="description" content="Login to MFUKO to manage your account securely">
+    <meta name="robots" content="index, follow">
+    <title>Login | MFUKO</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
     <style>
-        body {
-            background: linear-gradient(135deg, #f0f4fa, #d9e6f2);
-            font-family: 'Roboto', sans-serif;
+        :root {
+            --primary: #2aa648;
+            --primary-dark: #238f3a;
+            --background: #f0f4fa;
+            --background-end: #d9e6f2;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text: #333;
+            --muted: #666;
+            --error: #dc2626;
+            --success: #059669;
         }
 
-        .auth-wrapper {
+        body {
+            background: linear-gradient(135deg, var(--background), var(--background-end));
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -20,85 +40,195 @@
         }
 
         .auth-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
-            max-width: 450px;
-            width: 100%;
-            padding: 2.5rem;
+            max-width: 90%;
+            width: 400px;
+            padding: 2rem;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .auth-card h2 {
-            color: #2aa648;
+            color: var(--primary);
             font-weight: 600;
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
         }
 
-        .form-floating {
-            margin-bottom: 1.2rem;
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: white;
+            text-align: center;
+        }
+
+        .alert-success {
+            background: var(--success);
+        }
+
+        .alert-danger {
+            background: var(--error);
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--card-bg);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(42, 166, 72, 0.1);
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 0.75rem;
+            left: 1rem;
+            font-size: 1rem;
+            color: var(--muted);
+            transition: all 0.2s;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label {
+            top: -0.75rem;
+            left: 0.75rem;
+            font-size: 0.75rem;
+            color: var(--primary);
+            background: var(--card-bg);
+            padding: 0 0.25rem;
+        }
+
+        .form-group .error {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-check input {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-check input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(42, 166, 72, 0.1);
+        }
+
+        .form-check label {
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
+            cursor: pointer;
         }
 
         .btn-login {
-            background-color: #2aa648;
+            background: var(--primary);
+            color: white;
             border: none;
-            padding: 12px;
-            font-weight: 600;
-            width: 100%;
             margin-bottom: 1rem;
-            transition: 0.3s;
         }
 
         .btn-login:hover {
-            background-color: #238f3a;
+            background: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
         .google-btn {
-            background-color: #fff;
+            background: white;
             border: 1px solid #ccc;
-            color: #444;
-            width: 100%;
-            padding: 10px;
-            font-weight: 500;
+            color: var(--text);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            border-radius: 8px;
-            transition: 0.3s;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .google-btn:hover {
-            background-color: #f5f5f5;
+            background: #f5f5f5;
+            transform: translateY(-2px);
         }
 
         .text-link {
             text-align: center;
-            font-size: 0.95rem;
-            margin-top: 1rem;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
         }
 
         .text-link a {
-            color: #2aa648;
+            color: var(--primary);
             text-decoration: none;
         }
 
         .text-link a:hover {
             text-decoration: underline;
         }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1.5rem;
+                width: 100%;
+            }
+
+            .auth-card h2 {
+                font-size: 1.5rem;
+            }
+
+            .form-group input,
+            .btn {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="auth-wrapper">
-        <div class="auth-card">
+    <main>
+        <section class="auth-card">
             <h2>Login to MFUKO</h2>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}" role="alert">
                             {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     {% endfor %}
                 {% endif %}
@@ -106,30 +236,30 @@
 
             <form method="POST">
                 {{ form.hidden_tag() }}
-                <div class="form-floating">
-                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Email") }}
+                <div class="form-group">
+                    {{ form.email(id="email", class="form-input", placeholder=" ") }}
                     <label for="email">Email Address</label>
                     {% for error in form.email.errors %}
-                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        <span class="error">{{ error }}</span>
                     {% endfor %}
                 </div>
 
-                <div class="form-floating">
-                    {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Password") }}
+                <div class="form-group">
+                    {{ form.password(id="password", class="form-input", placeholder=" ") }}
                     <label for="password">Password</label>
                     {% for error in form.password.errors %}
-                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        <span class="error">{{ error }}</span>
                     {% endfor %}
                 </div>
 
-                <div class="form-check mb-3">
-                    {{ form.remember(class="form-check-input") }}
-                    <label class="form-check-label" for="remember">Remember Me</label>
+                <div class="form-check">
+                    {{ form.remember(id="remember", class="form-check-input") }}
+                    <label for="remember">Remember Me</label>
                 </div>
 
-                {{ form.submit(class="btn btn-login") }}
+                {{ form.submit(class="btn btn-login", aria_label="Log in") }}
 
-                <a href="{{ url_for('auth.google_login') }}" class="google-btn">
+                <a href="{{ url_for('auth.google_login') }}" class="btn google-btn" aria-label="Continue with Google">
                     <i class="fab fa-google"></i> Continue with Google
                 </a>
             </form>
@@ -138,7 +268,7 @@
                 <p><a href="{{ url_for('auth.forgot_password') }}">Forgot your password?</a></p>
                 <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 </body>
 </html>
