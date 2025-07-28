@@ -835,7 +835,7 @@
             };
 
             try {
-                const response = await axios.post('/api/users/register', data);
+                const response = await axios.post('/auth/register', data);
 
                 if (response.data.success) {
                     showAlert(response.data.message, 'success');
