@@ -3,8 +3,8 @@ from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 from app.extensions import db, mail
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm, AssignPropertyForm
-from app.models import Property, Tenant, Payment, Unit, Invoice
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm, AssignPropertyForm, TenantLandlordForm
+from app.models import Property, Tenant, Payment, Unit, Invoice, User
 from functools import wraps
 from datetime import datetime, timedelta
 import logging
@@ -261,14 +261,14 @@ def landlord_dashboard():
         return redirect(url_for('main.landing_page'))
 
 
-@main.route('/tenant/dashboard')
+@main.route('/tenant/dashboard', methods=['GET', 'POST'])
 @login_required
 @roles_required('tenant')
 def tenant_dashboard():
     try:
         tenant = Tenant.query.filter_by(user_id=current_user.id).first()
+        form = TenantLandlordForm()
 
-        # If no tenant profile exists, create one
         if not tenant:
             tenant = Tenant(
                 user_id=current_user.id,
@@ -282,7 +282,14 @@ def tenant_dashboard():
             db.session.commit()
             flash(_l('Tenant profile created automatically. Please contact landlord to assign a unit.'), 'info')
 
-        # Calculate rent due date for current month
+        if form.validate_on_submit():
+            tenant.landlord_id = form.landlord_id.data
+            db.session.commit()
+            flash('Landlord selected successfully!', 'success')
+            return redirect(url_for('main.tenant_dashboard'))
+
+        landlord = User.query.get(tenant.landlord_id) if tenant.landlord_id else None
+
         today = datetime.utcnow().date()
         current_month_start = today.replace(day=1)
         due_day = tenant.due_day_of_month or 1
@@ -290,19 +297,15 @@ def tenant_dashboard():
         try:
             due_date = current_month_start.replace(day=due_day)
         except ValueError:
-            # Handle months with fewer days (e.g., Feb 30)
             next_month = (current_month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
             due_date = next_month - timedelta(days=1)
 
-        # Fetch all VACANT units
         vacant_units = Unit.query.filter_by(status='vacant').all()
-
-        # Organize available properties with count of vacant units
         available_properties = {}
         for unit in vacant_units:
             property_obj = unit.property
             if not property_obj:
-                continue  # In case of orphaned units
+                continue
 
             prop_id = property_obj.id
             if prop_id not in available_properties:
@@ -315,7 +318,6 @@ def tenant_dashboard():
                 }
             available_properties[prop_id]['units_available'] += 1
 
-        # Convert dict to list for Jinja iteration
         available_properties_list = list(available_properties.values())
 
         return render_template(
@@ -325,7 +327,9 @@ def tenant_dashboard():
             rent_amount=tenant.rent_amount,
             lease_start_date=tenant.lease_start_date,
             lease_end_date=tenant.lease_end_date,
-            available_properties=available_properties_list
+            available_properties=available_properties_list,
+            form=form,
+            landlord=landlord
         )
 
     except Exception as e:
