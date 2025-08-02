@@ -150,7 +150,6 @@ class Tenant(db.Model):
     property_id = db.Column(db.Integer, db.ForeignKey('property.id', ondelete='CASCADE'), nullable=True, index=True)
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id', ondelete='CASCADE'), nullable=True, index=True)
     landlord_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    landlord = db.relationship('User', foreign_keys=[landlord_id])
     unit = db.relationship('Unit', foreign_keys=[unit_id], backref='tenant', uselist=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
