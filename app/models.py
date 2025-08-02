@@ -45,7 +45,8 @@ class User(db.Model, UserMixin):
     notification_preferences = db.Column(db.Text, default='{}')
     roles = db.relationship('Role', secondary='roles_users', backref=db.backref('users', lazy='dynamic'))
     properties = db.relationship('Property', backref='landlord', lazy=True)
-    tenant_profile = db.relationship('Tenant', uselist=False, backref='user', cascade="all, delete-orphan")
+    tenant_profile = db.relationship('Tenant', uselist=False, backref='user', cascade="all, delete-orphan", foreign_keys='Tenant.user_id')
+    tenants = db.relationship('Tenant', foreign_keys='Tenant.landlord_id', backref='landlord_user')
     payments_made = db.relationship('Payment', backref='payer', lazy=True)
     audit_logs = db.relationship('AuditLog', backref='user', lazy=True)
 
@@ -149,7 +150,7 @@ class Tenant(db.Model):
     property_id = db.Column(db.Integer, db.ForeignKey('property.id', ondelete='CASCADE'), nullable=True, index=True)
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id', ondelete='CASCADE'), nullable=True, index=True)
     landlord_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    landlord = db.relationship('User', backref='tenants', foreign_keys=[landlord_id])
+    landlord = db.relationship('User', foreign_keys=[landlord_id])
     unit = db.relationship('Unit', foreign_keys=[unit_id], backref='tenant', uselist=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
