@@ -552,41 +552,47 @@
             </div>
         </div>
 
-        <div class="row animate-fade-in">
+        {% if not tenant.landlord_id %}
+        <div class="row g-4 mb-4">
             <div class="col-12">
                 <div class="enhanced-card">
                     <div class="card-header-enhanced">
-                        <div class="card-icon" style="background: var(--info-color);">
-                            <i class="fas fa-building"></i>
-                        </div>
-                        <h3 class="card-title">{{ _('Available Properties for Leasing') }}</h3>
+                        <h3 class="card-title">{{ _('Choose Your Landlord') }}</h3>
                     </div>
-                    {% if available_properties %}
-                        <div class="property-grid">
-                            {% for prop in available_properties %}
-                                <div class="property-card">
-                                    <h3 class="property-title">{{ prop.name }}</h3>
-                                    <p class="text-sm text-muted">{{ prop.address }}</p>
-                                    <p class="text-sm text-muted mt-1">{{ _('Type') }}: {{ prop.property_type }}</p>
-                                    <p class="text-sm mt-1">{{ _('Units available') }}: <strong>{{ prop.units_available }}</strong></p>
-                                    <a href="{{ url_for('main.property_edit', id=prop.id) }}" class="btn-enhanced btn-primary-enhanced mt-3">
-                                        {{ _('View Property') }}
-                                    </a>
-                                </div>
-                            {% endfor %}
+                    <form method="POST" action="{{ url_for('main.tenant_dashboard') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.landlord_id.label(class="form-label") }}
+                            {{ form.landlord_id(class="form-select") }}
                         </div>
-                    {% else %}
-                        <div class="empty-state">
-                            <div class="empty-state-icon"><i class="fas fa-building"></i></div>
-                            <div class="empty-state-title">{{ _('No Available Properties') }}</div>
-                            <div class="empty-state-description">
-                                {{ _('No properties are available for leasing at the moment.') }}
-                            </div>
-                        </div>
-                    {% endif %}
+                        {{ form.submit(class="btn btn-primary") }}
+                    </form>
                 </div>
             </div>
         </div>
+        {% else %}
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6 animate-fade-in">
+                <div class="enhanced-card">
+                    <div class="card-header-enhanced">
+                        <h3 class="card-title">{{ _('My Landlord') }}</h3>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">{{ _('Name') }}</span>
+                        <span class="info-value">{{ landlord.first_name }} {{ landlord.last_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">{{ _('Email') }}</span>
+                        <span class="info-value">{{ landlord.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">{{ _('Phone Number') }}</span>
+                        <span class="info-value">{{ landlord.phone_number }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <div class="action-buttons animate-fade-in">
             <a href="{{ url_for('main.tenant_make_payment') }}" class="btn-enhanced btn-primary-enhanced">

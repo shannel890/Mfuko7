@@ -416,3 +416,15 @@ class AssignPropertyForm(FlaskForm):
 
 class DeleteTenantForm(FlaskForm):
     submit = SubmitField('Delete')
+
+class TenantLandlordForm(FlaskForm):
+    landlord_id = SelectField(_l('Choose Your Landlord'), coerce=int, validators=[DataRequired()])
+    submit = SubmitField(_l('Select Landlord'))
+
+    def __init__(self, *args, **kwargs):
+        super(TenantLandlordForm, self).__init__(*args, **kwargs)
+        from app.models import User
+        self.landlord_id.choices = [
+            (u.id, f"{u.first_name} {u.last_name}")
+            for u in User.query.join(User.roles).filter_by(name='landlord').all()
+        ]
