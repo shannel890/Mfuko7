@@ -45,7 +45,7 @@ class User(db.Model, UserMixin):
     notification_preferences = db.Column(db.Text, default='{}')
     roles = db.relationship('Role', secondary='roles_users', backref=db.backref('users', lazy='dynamic'))
     properties = db.relationship('Property', backref='landlord', lazy=True)
-    tenant_profile = db.relationship('Tenant', uselist=False, backref='user', cascade="all, delete-orphan")
+    tenant_profile = db.relationship('Tenant', uselist=False, backref='user', cascade="all, delete-orphan", foreign_keys='Tenant.user_id')
     payments_made = db.relationship('Payment', backref='payer', lazy=True)
     audit_logs = db.relationship('AuditLog', backref='user', lazy=True)
 
