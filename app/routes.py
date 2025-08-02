@@ -267,7 +267,6 @@ def landlord_dashboard():
 def tenant_dashboard():
     try:
         tenant = Tenant.query.filter_by(user_id=current_user.id).first()
-        form = TenantLandlordForm()
 
         if not tenant:
             tenant = Tenant(
@@ -280,8 +279,9 @@ def tenant_dashboard():
             )
             db.session.add(tenant)
             db.session.commit()
-            flash(_l('Tenant profile created automatically. Please contact landlord to assign a unit.'), 'info')
+            flash(_l('Tenant profile created automatically. Please select a landlord to get started.'), 'info')
 
+        form = TenantLandlordForm()
         if form.validate_on_submit():
             tenant.landlord_id = form.landlord_id.data
             db.session.commit()
