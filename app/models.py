@@ -50,6 +50,11 @@ class User(db.Model, UserMixin):
     payments_made = db.relationship('Payment', backref='payer', lazy=True)
     audit_logs = db.relationship('AuditLog', backref='user', lazy=True)
 
+     # Relationships for communication wall
+    issues_submitted = db.relationship('Issue', foreign_keys='Issue.tenant_id', backref='tenant_user', lazy='dynamic')
+    issues_received = db.relationship('Issue', foreign_keys='Issue.landlord_id', backref='landlord_user_issue', lazy='dynamic')
+    messages_sent = db.relationship('Message', backref='sender', lazy='dynamic')
+
     @property
     def prefs(self):
         try:
