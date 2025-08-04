@@ -3,8 +3,10 @@ from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 from app.extensions import db, mail
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm, AssignPropertyForm, TenantLandlordForm
-from app.models import Property, Tenant, Payment, Unit, Invoice, User
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm, AssignPropertyForm, TenantLandlordForm, CreateIssueForm, SendMessageForm
+from app.models import Property, Tenant, Payment, Unit, Invoice, User, Issue, Message
+from werkzeug.utils import secure_filename
+import os
 from functools import wraps
 from datetime import datetime, timedelta
 import logging
@@ -810,3 +812,62 @@ def delete_property(property_id):
     db.session.commit()
     flash('Property deleted successfully', 'success')
     return redirect(url_for('main.properties_list'))
+
+@main.route('/dashboard')
+@login_required
+def dashboard():
+    if current_user.has_role('landlord'):
+        return redirect(url_for('main.landlord_dashboard'))
+    elif current_user.has_role('tenant'):
+        return redirect(url_for('main.tenant_dashboard'))
+    else:
+        return redirect(url_for('main.index'))
+
+@main.route('/issue/new', methods=['GET', 'POST'])
+@login_required
+@roles_required('tenant')
+def create_issue():
+    form = CreateIssueForm()
+    if form.validate_on_submit():
+        filename = None
+        if form.image.data:
+            filename = secure_filename(form.image.data.filename)
+            form.image.data.save(os.path.join(current_app.root_path, '..', current_app.config['UPLOAD_FOLDER'], filename))
+
+        tenant = Tenant.query.filter_by(user_id=current_user.id).first()
+        issue = Issue(
+            title=form.title.data,
+            description=form.description.data,
+            image=filename,
+            tenant_id=current_user.id,
+            landlord_id=tenant.landlord_id
+        )
+        db.session.add(issue)
+        db.session.commit()
+        flash(_l('Your issue has been submitted.'), 'success')
+        return redirect(url_for('main.tenant_dashboard'))
+    return render_template('create_issue.html', title=_l('New Issue'), form=form)
+
+@main.route('/issue/<int:issue_id>', methods=['GET', 'POST'])
+@login_required
+def view_issue(issue_id):
+    issue = Issue.query.get_or_404(issue_id)
+    # Add authorization check here to ensure only tenant and landlord of the issue can see it
+    if not (current_user.id == issue.tenant_id or current_user.id == issue.landlord_id):
+        flash(_l('You are not authorized to view this page.'), 'danger')
+        return redirect(url_for('main.index'))
+
+    form = SendMessageForm()
+    if form.validate_on_submit():
+        message = Message(
+            content=form.content.data,
+            issue_id=issue.id,
+            sender_id=current_user.id
+        )
+        db.session.add(message)
+        db.session.commit()
+        flash(_l('Your message has been sent.'), 'success')
+        return redirect(url_for('main.view_issue', issue_id=issue.id))
+
+    messages = issue.messages.order_by(Message.timestamp.asc()).all()
+    return render_template('view_issue.html', title=issue.title, issue=issue, messages=messages, form=form)

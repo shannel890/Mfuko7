@@ -2,6 +2,7 @@ from wtforms import StringField, SubmitField, BooleanField, SelectField, TelFiel
 from flask_babel import lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Email, Length, Optional, ValidationError, NumberRange, EqualTo
+from flask_wtf.file import FileField, FileAllowed
 from app.models import Property, Tenant, Role
 from flask import current_app
 from app.utils.constrants import UserRoles
@@ -428,3 +429,13 @@ class TenantLandlordForm(FlaskForm):
             (u.id, f"{u.first_name} {u.last_name}")
             for u in User.query.join(User.roles).filter_by(name='landlord').all()
         ]
+
+class CreateIssueForm(FlaskForm):
+    title = StringField(_l('Title'), validators=[DataRequired(), Length(min=5, max=120)])
+    description = TextAreaField(_l('Description'), validators=[DataRequired(), Length(min=10)])
+    image = FileField(_l('Image (Optional)'), validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    submit = SubmitField(_l('Submit Issue'))
+
+class SendMessageForm(FlaskForm):
+    content = TextAreaField(_l('Message'), validators=[DataRequired(), Length(min=1)])
+    submit = SubmitField(_l('Send'))

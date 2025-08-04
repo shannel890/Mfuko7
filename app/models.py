@@ -243,3 +243,32 @@ class AuditLog(db.Model):
 
     def __repr__(self):
         return f'<AuditLog {self.action} by User {self.user_id} at {self.timestamp}>'
+
+class Issue(db.Model):
+    __tablename__ = 'issue'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(120), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    image = db.Column(db.String(255), nullable=True)  # Path to the image
+    status = db.Column(db.String(50), default='open')  # e.g., open, in_progress, closed
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    tenant_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    landlord_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    messages = db.relationship('Message', backref='issue', lazy='dynamic', cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f'<Issue {self.title}>'
+
+class Message(db.Model):
+    __tablename__ = 'message'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f'<Message {self.id}>'
