@@ -8,7 +8,7 @@ from datetime import datetime
 from twilio.rest import Client
 from werkzeug.security import generate_password_hash
 
-from app.extensions import db, babel, mail, csrf, scheduler, oauth, login_manager, migrate
+from app.extensions import db, babel, mail, csrf, scheduler, oauth, login_manager, migrate, init_db_manager
 from app.models import User, Role
 from app.routes import main
 from app.auth.routes import auth
@@ -126,6 +126,9 @@ def create_app():
         app.mpesa_api = MpesaAPI()
 
         db.create_all()
+        
+        # Initialize database manager for read/write separation
+        init_db_manager(app)
 
         # Create landlord role if missing
         landlord_role = Role.query.filter_by(name='landlord').first()

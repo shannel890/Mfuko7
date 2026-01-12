@@ -19,4 +19,15 @@ migrate = Migrate()
 csrf = CSRFProtect()
 twilio_client = Client()
 
+# Database manager for read/write separation (imported after to avoid circular dependency)
+db_manager = None
+
+def init_db_manager(app):
+    """Initialize database manager for read/write separation."""
+    global db_manager
+    from app.db_utils import DatabaseManager
+    db_manager = DatabaseManager(app)
+    app.extensions['db_manager'] = db_manager
+    return db_manager
+
 

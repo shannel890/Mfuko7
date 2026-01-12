@@ -518,14 +518,24 @@
                                 Please select a payment method.
                             </div>
                         </div>
+                        <!-- Phone Number Field (for M-Pesa) -->
+                        <div class="floating-label" id="phoneNumberField" style="display: none;">
+                            <div class="input-group-modern">
+                            <span class="input-group-text"><i class="fas fa-phone" aria-hidden="true"></i></span>
+                            <input type="tel" class="form-control-modern" id="phone_number" name="phone_number" 
+                                    placeholder=" " pattern="(\+254|0)[7][0-9]{8}" aria-describedby="phoneError">
+                            <label for="phone_number">Phone Number (M-Pesa)</label>
+                            </div>
+                            <div class="error-message" id="phoneError">Please enter a valid Kenyan phone number (e.g., +2547XXXXXXXX or 07XXXXXXXX)</div>
+                        </div>
 
                         <!-- Offline Payment Toggle -->
                         <div class="form-check mb-4">
                             <input class="form-check-input" type="checkbox" id="is_offline" name="is_offline">
-                            <label class="form-check-label fw-semibold" for="is_offline">
+                            <label class="form-check-label fw-bold" for="is_offline">
                                 This is an offline payment
                             </label>
-                            <small class="form-text text-muted d-block">
+                            <small class="form-text d-block">
                                 Check this if you've already made the payment and want to record it
                             </small>
                         </div>
