@@ -1,7 +1,7 @@
 import os
 import uuid
 import logging
-from flask import Flask
+from flask import Flask, app
 from decouple import config
 from dotenv import load_dotenv
 from datetime import datetime
@@ -15,7 +15,10 @@ from app.auth.routes import auth
 from app.job import rent_due_reminders, overdue_notifications
 from app.mpesa.mpesa_api import MpesaAPI
 
-load_dotenv()
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 # Configure logging
 logging.basicConfig(
@@ -27,10 +30,18 @@ def create_app():
     app = Flask(__name__)
     # --- Basic config
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
-    db_url = os.getenv('DATABASE_URL')
-    if db_url and 'sslmode=' not in db_url:
-        db_url += '?sslmode=require'
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    db_url = os.getenv("DATABASE_URL")
+
+    if not db_url:
+        raise RuntimeError(
+            "DATABASE_URL is missing from the project .env file"
+        )
+
+    if "sslmode=" not in db_url:
+        separator = "&" if "?" in db_url else "?"
+        db_url += f"{separator}sslmode=require"
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # --- Flask-Security config

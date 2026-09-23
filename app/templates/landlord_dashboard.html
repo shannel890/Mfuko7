@@ -598,6 +598,16 @@
                 display: flex;
             }
         }
+        /* Simple, low-distraction presentation */
+        body { background: #f8fafc; color: #1f2937; }
+        nav { background: #fff !important; backdrop-filter: none !important; box-shadow: none !important; }
+        .dashboard-container { max-width: 1200px; padding: 2rem 1rem; opacity: 1; animation: none; }
+        .header-section { background: #fff; color: #1f2937; border: 1px solid #e5e7eb; border-radius: .5rem; padding: 1.5rem; transform: none; opacity: 1; animation: none; }
+        .header-text h1 { font-size: 1.75rem; margin-bottom: .25rem; }
+        .stats-grid { gap: 1rem; }
+        .stat-card, .card { background: #fff; border: 1px solid #e5e7eb; border-radius: .5rem; box-shadow: none; transform: none; opacity: 1; animation: none; }
+        .stat-card:hover { transform: none; box-shadow: none; }
+        .stat-card::before { display: none; }
     </style>
 </head>
 <body>
@@ -613,33 +623,13 @@
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-6">
-                    <div class="search-container">
-                        <i data-lucide="search" class="lucide-icon-sm search-icon"></i>
-                        <input type="text" class="search-input" placeholder="Search properties, tenants...">
-                    </div>
                     <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link-custom">Dashboard</a>
                     <a href="{{ url_for('main.properties_list') }}" class="nav-link-custom">Properties</a>
                     <a href="{{ url_for('main.tenants_list') }}" class="nav-link-custom">Tenants</a>
                     <a href="{{ url_for('main.payments_history') }}" class="nav-link-custom">Payments</a>
-                    <a href="{{ url_for('main.assign_property') }}" class="nav-link-custom">Assign property</a>
                     <a href="{{ url_for('auth.profile') }}" class="nav-link-custom">Profile</a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="notification-container">
-                        <div class="notification-bell">
-                            <i data-lucide="bell" class="lucide-icon"></i>
-                            <span class="notification-count">3</span>
-                        </div>
-                        <div class="notification-dropdown">
-                            <div class="notification-item">New payment from Sarah Wanjiku received</div>
-                            <div class="notification-item">Overdue payment reminder sent to Grace Achieng</div>
-                            <div class="notification-item">Property inspection scheduled for Dec 5</div>
-                        </div>
-                    </div>
-                    <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <i data-lucide="moon" class="lucide-icon hidden dark:block"></i>
-                        <i data-lucide="sun" class="lucide-icon block dark:hidden"></i>
-                    </button>
                     <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block logout-btn-custom">Logout</a>
                     <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
                         <i data-lucide="menu" class="lucide-icon"></i>
@@ -648,15 +638,10 @@
             </div>
         </div>
         <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-            <div class="search-container">
-                <i data-lucide="search" class="lucide-icon-sm search-icon"></i>
-                <input type="text" class="search-input" placeholder="Search properties, tenants...">
-            </div>
             <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
             <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
             <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
             <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-            <a href="{{ url_for('main.assign_property') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Assign property</a>
             <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
             <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
         </div>
@@ -669,17 +654,7 @@
                         <h1>Welcome to MFUKO</h1>
                         <p>Manage your properties, tenants, and payments efficiently with modern tools</p>
                     </div>
-                    <div class="hidden-mobile">
-                        <a href="{{url_for('main.export_report')}}">
-                            <button class="header-button" aria-label="View Analytics">
-                                <i data-lucide="activity" class="lucide-icon"></i>
-                                View Analytics
-                            </button>
-                        </a>
-                    </div>
                 </div>
-                <div class="header-decoration-1"></div>
-                <div class="header-decoration-2"></div>
             </div>
             <div class="stats-grid">
                 <div class="stat-card" style="--i: 1">
