@@ -69,6 +69,15 @@
             background: linear-gradient(135deg, #1f2937 0%, #4b5563 50%, #374151 100%);
         }
 
+        /* Keep the tenant profile calm and easy to read. */
+        body.tenant-profile {
+            background: #ffffff;
+        }
+
+        body.tenant-profile .bg-particles {
+            display: none;
+        }
+
         /* Animated Background Particles */
         .bg-particles {
             position: fixed;
@@ -567,7 +576,7 @@
         }
     </style>
 </head>
-<body>
+<body{% if user.is_tenant %} class="tenant-profile"{% endif %}>
     <div class="loading">
         <div class="spinner"></div>
     </div>
