@@ -1,58 +1,101 @@
 {% extends "base.html" %}
 
-{% block head_content %}
-    <meta charset="UTF-8">
-    <title>Contact Us - MFUKO</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block title %}Contact Us | PropertyPayTrack{% endblock %}
+
+{% block styles %}
+<style>
+    body, body.dark { background: #fff; color: #172033; }
+    .contact-nav { position: sticky; top: 0; z-index: 1000; background: #fff; border-bottom: 1px solid #e7eaf0; }
+    .contact-nav-inner { max-width: 1120px; min-height: 76px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .contact-brand { color: #172033; font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; text-decoration: none; }
+    .contact-nav-links { display: flex; align-items: center; gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
+    .contact-nav-links a, .contact-nav-current { color: #667085; font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+    .contact-nav-links a:hover, .contact-nav-current { color: #18864a; }
+    .contact-sign-in { color: #18864a !important; border: 1px solid #b7ddc5; border-radius: 7px; padding: 0.5rem 0.8rem; }
+    .main-container { max-width: none; min-height: 0; padding: 0; }
+    .contact-page { max-width: 1120px; margin: 0 auto; padding: 5.5rem 1.5rem; }
+    .contact-heading { max-width: 590px; margin-bottom: 3.5rem; }
+    .contact-eyebrow { color: #18864a; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .contact-heading h1 { margin: 0.75rem 0 1rem; color: #172033; font-family: 'Playfair Display', serif; font-size: clamp(2.35rem, 5vw, 4rem); line-height: 1.05; }
+    .contact-heading p { color: #667085; font-size: 1.08rem; margin: 0; }
+    .contact-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(240px, 0.8fr); border: 1px solid #e7eaf0; border-radius: 14px; overflow: hidden; }
+    .contact-form-panel, .contact-details { padding: clamp(1.5rem, 4vw, 3rem); background: #fff; }
+    .contact-details { border-left: 1px solid #e7eaf0; }
+    .contact-form-panel h2, .contact-details h2 { color: #172033; font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; }
+    .contact-form-panel label { color: #344054; display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.45rem; }
+    .contact-form-panel .form-control { border: 1px solid #d0d5dd; border-radius: 7px; box-shadow: none; color: #172033; font-size: 0.95rem; padding: 0.7rem 0.8rem; }
+    .contact-form-panel .form-control:focus { border-color: #2ca65d; box-shadow: 0 0 0 3px rgba(44, 166, 93, 0.12); }
+    .contact-submit { background: #18864a; border: 1px solid #18864a; border-radius: 7px; font-size: 0.92rem; font-weight: 600; padding: 0.72rem 1rem; }
+    .contact-submit:hover { background: #116d3a; border-color: #116d3a; }
+    .contact-details p { color: #667085; font-size: 0.93rem; line-height: 1.65; margin-bottom: 2rem; }
+    .contact-detail-list { display: grid; gap: 1.25rem; }
+    .contact-detail-label { color: #98a2b3; display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.07em; margin-bottom: 0.25rem; text-transform: uppercase; }
+    .contact-detail-list a, .contact-detail-list span:last-child { color: #344054; font-size: 0.92rem; text-decoration: none; }
+    .contact-detail-list a:hover { color: #18864a; }
+    @media (max-width: 720px) { .contact-page { padding: 3.5rem 1rem; } .contact-layout { grid-template-columns: 1fr; } .contact-details { border-top: 1px solid #e7eaf0; border-left: 0; } }
+    @media (max-width: 480px) { .contact-nav-inner { min-height: 66px; padding: 0 1rem; } .contact-nav-links { gap: 0.8rem; } .contact-nav-current { display: none; } }
+</style>
+{% endblock %}
+
+{% block navigation %}
+<nav class="contact-nav" aria-label="Primary navigation">
+    <div class="contact-nav-inner">
+        <a href="{{ url_for('main.landing_page') }}" class="contact-brand">PropertyPayTrack</a>
+        <ul class="contact-nav-links">
+            <li><a href="{{ url_for('main.landing_page') }}">Home</a></li>
+            <li><span class="contact-nav-current" aria-current="page">Contact</span></li>
+            <li><a href="{{ url_for('auth.login') }}" class="contact-sign-in">Sign in</a></li>
+        </ul>
+    </div>
+</nav>
 {% endblock %}
 
 {% block content %}
-<div style="min-height: 100vh; background: linear-gradient(to right, #e0ffef, #f1faff); display: flex; align-items: center; justify-content: center; padding: 50px 20px; font-family: 'Roboto', sans-serif;">
-    <div style="background-color: #ffffffee; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-width: 800px; width: 100%; padding: 40px;">
-        <h2 style="color: #00b87a; font-weight: bold; text-align: center; margin-bottom: 30px;">Contact Us</h2>
+<section class="contact-page" aria-labelledby="contact-title">
+    <header class="contact-heading">
+        <span class="contact-eyebrow">Contact</span>
+        <h1 id="contact-title">We would love to hear from you.</h1>
+        <p>Have a question about PropertyPayTrack or need help getting started? Send us a message and our team will get back to you.</p>
+    </header>
 
-        <form method="POST">
-            {{ form.hidden_tag() }}
-
-            <div class="mb-3">
-                <label for="name" class="form-label fw-bold">Full Name</label>
-                {{ form.name(class="form-control", placeholder="Enter your full name") }}
-                {% for error in form.name.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label fw-bold">Email Address</label>
-                {{ form.email(class="form-control", placeholder="Enter your email") }}
-                {% for error in form.email.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="mb-3">
-                <label for="message" class="form-label fw-bold">Message</label>
-                {{ form.message(class="form-control", placeholder="Write your message", rows=5) }}
-                {% for error in form.message.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="d-grid">
-                {{ form.submit(class="btn btn-success", style="background-color:#00b87a; border: none; font-weight: 600; padding: 12px;") }}
-            </div>
-        </form>
-
-        <hr class="my-4">
-
-        <div class="text-center">
-            <p class="mb-1"><strong>Email:</strong> shannelkirui739@gmail.com</p>
-            <p class="mb-1"><strong>Phone:</strong> +254 706368540</p>
-            <p class="mb-0"><strong>Address:</strong> Nairobi, Kenya</p>
+    <div class="contact-layout">
+        <div class="contact-form-panel">
+            <h2>Send a message</h2>
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="mb-4">
+                    {{ form.name.label }}
+                    {{ form.name(class="form-control", placeholder="Your full name", autocomplete="name") }}
+                    {% for error in form.name.errors %}<div class="text-danger small mt-1" role="alert">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="mb-4">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control", placeholder="you@example.com", autocomplete="email") }}
+                    {% for error in form.email.errors %}<div class="text-danger small mt-1" role="alert">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="mb-4">
+                    {{ form.subject.label }}
+                    {{ form.subject(class="form-control", placeholder="What can we help with?") }}
+                    {% for error in form.subject.errors %}<div class="text-danger small mt-1" role="alert">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="mb-4">
+                    {{ form.message.label }}
+                    {{ form.message(class="form-control", placeholder="Tell us a little more…", rows=5) }}
+                    {% for error in form.message.errors %}<div class="text-danger small mt-1" role="alert">{{ error }}</div>{% endfor %}
+                </div>
+                {{ form.submit(class="btn btn-success contact-submit") }}
+            </form>
         </div>
+
+        <aside class="contact-details" aria-label="Contact details">
+            <h2>Contact details</h2>
+            <p>For general questions, account support, or partnership enquiries, reach us through any of the channels below.</p>
+            <div class="contact-detail-list">
+                <div><span class="contact-detail-label">Email</span><a href="mailto:shannelkirui739@gmail.com">shannelkirui739@gmail.com</a></div>
+                <div><span class="contact-detail-label">Phone</span><a href="tel:+254706368540">+254 706 368 540</a></div>
+                <div><span class="contact-detail-label">Location</span><span>Nairobi, Kenya</span></div>
+            </div>
+        </aside>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</section>
 {% endblock %}

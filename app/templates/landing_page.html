@@ -1,29 +1,12 @@
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-
-    <!-- Preload and font-display: swap for fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></noscript>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" media="print" onload="this.media='all'">
-    <script>
-      // Lazy load all images
-      document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('img').forEach(img => {
-          if (!img.hasAttribute('loading')) {
-            img.setAttribute('loading', 'lazy');
-          }
-        });
-      });
-    </script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PropertyPayTrack - Simplify Your Real Estate Finances</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
@@ -123,6 +106,17 @@
 
         .nav-links a:hover {
             color: var(--light-text-color);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            color: var(--light-text-color);
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 0.45rem 0.65rem;
+            font-size: 1.2rem;
+            cursor: pointer;
         }
 
         /* Hero Section */
@@ -280,6 +274,110 @@
             padding: 120px 0;
             position: relative;
             background: var(--background-color);
+        }
+
+        .role-section {
+            padding: 90px 0;
+            background: #111827;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .role-card {
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            text-align: left;
+        }
+
+        .role-card i {
+            color: var(--accent-color);
+            font-size: 2rem;
+            margin-bottom: 18px;
+        }
+
+        .role-card h3 {
+            color: var(--light-text-color);
+            margin-bottom: 10px;
+        }
+
+        .role-card p {
+            margin-bottom: 24px;
+        }
+
+        .role-action {
+            justify-content: space-between;
+            min-width: 13.5rem;
+            padding: 0.45rem 0.5rem 0.45rem 0.9rem;
+            border: 1px solid currentColor;
+            border-radius: 10px;
+            box-shadow: none;
+            font-size: 0.9rem;
+            line-height: 1.2;
+            letter-spacing: 0;
+            text-transform: none;
+            overflow: visible;
+        }
+
+        .role-action::before {
+            display: none;
+        }
+
+        .role-action:hover {
+            transform: translateY(-2px);
+            box-shadow: none;
+        }
+
+        .role-action i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.85em;
+            height: 1.85em;
+            font-size: 0.8em;
+            color: #111827;
+            border-radius: 6px;
+        }
+
+        .role-action-landlord {
+            color: #a5b4fc;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .role-action-tenant {
+            color: #fdba74;
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .role-action-landlord i {
+            background: #a5b4fc;
+        }
+
+        .role-action-tenant i {
+            background: #fdba74;
+        }
+
+        .role-action-landlord:hover {
+            color: #c7d2fe;
+            background: rgba(99, 102, 241, 0.18);
+        }
+
+        .role-action-tenant:hover {
+            color: #fed7aa;
+            background: rgba(249, 115, 22, 0.18);
+        }
+
+        @media (max-width: 700px) {
+            .role-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .container {
@@ -488,8 +586,29 @@
 
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
+            .nav-container {
+                flex-wrap: wrap;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
             .nav-links {
                 display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 0;
+                padding-top: 1rem;
+            }
+
+            .nav-links.is-open {
+                display: flex;
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 0.65rem 0;
             }
             
             .hero {
@@ -557,13 +676,14 @@
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="https://lh3.googleusercontent.com/gg-dl/AJfQ9KQyTHdMnjkQG_3OAlZaoyeXKQThacHM_vs-QKFvc3ykFDptftMW5ULECZl5kmvzdb00PiDErfgqRaOd9y-bi9dx5S6YjNNSTZ5oD7dhZTjwI2uSY0_6VTcPatR6MCbJttEiU2NtzNJe9YsgLFA-nU7rXyrLQrvBQnkDimk3OL1PnYRd=s1024" class="logo">PropertyPayTrack</a>
-            <button class="mobile-menu-toggle" aria-label="Toggle menu">
-                ☰
+            <a href="{{ url_for('main.landing_page') }}" class="logo">PropertyPayTrack</a>
+            <button class="mobile-menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="primary-navigation" aria-expanded="false">
+                <i class="fas fa-bars" aria-hidden="true"></i>
             </button>
-            <ul class="nav-links">
+            <ul class="nav-links" id="primary-navigation">
                 <li><a href="{{url_for('main.features')}}">Features</a></li>
                 <li><a href="{{url_for('main.testimonials')}}">Testimonials</a></li>
+                <li><a href="#join">Join</a></li>
                 <li><a href="{{url_for('auth.login')}}">Sign In</a></li>
             </ul>
         </div>
@@ -611,8 +731,8 @@
             <h1 data-aos="fade-down" data-aos-duration="1000">Effortless Real Estate Payment Tracking</h1>
             <p data-aos="fade-up" data-aos-delay="300" data-aos-duration="1000">Take control of your property finances with intuitive tools for income, expenses, and tenant management.</p>
             <div data-aos="fade-up" data-aos-delay="600" data-aos-duration="1000">
-                <a href="{{url_for('auth.register')}}" class="btn btn-secondary">
-                    Start Free Trial
+                <a href="#join" class="btn btn-secondary">
+                    Choose your account type
                     <i class="fas fa-rocket"></i>
                 </a>
             </div>
@@ -639,6 +759,27 @@
                     <h3 class="counter" data-target="24">0</h3>
                     <p>Hours Support</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration choices -->
+    <section class="role-section" id="join">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-down" data-aos-duration="1000">Choose Your PropertyPayTrack Experience</h2>
+            <div class="role-grid">
+                <article class="role-card" data-aos="fade-up" data-aos-duration="800">
+                    <i class="fas fa-building" aria-hidden="true"></i>
+                    <h3>Register as a Landlord</h3>
+                    <p>Manage properties, tenants, rent collection, reminders, and financial reports from one dashboard.</p>
+                    <a href="{{ url_for('auth.register', role='landlord') }}" class="btn role-action role-action-landlord">Create landlord account <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                </article>
+                <article class="role-card" data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
+                    <i class="fas fa-house-user" aria-hidden="true"></i>
+                    <h3>Register as a Tenant</h3>
+                    <p>View your rental details, keep track of payments, and stay connected with your landlord.</p>
+                    <a href="{{ url_for('auth.register', role='tenant') }}" class="btn role-action role-action-tenant">Create tenant account <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                </article>
             </div>
         </div>
     </section>
@@ -710,8 +851,8 @@
                 <h2 data-aos="fade-down" data-aos-duration="1000">Ready to Simplify Your Finances?</h2>
                 <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Join thousands of property owners optimizing their investments with PropertyPayTrack. Start your free trial today!</p>
                 <div data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000">
-                    <a href="{{url_for('auth.register')}}" class="btn btn-primary">
-                        Get Started Free
+                    <a href="#join" class="btn btn-primary">
+                        Get Started
                         <i class="fas fa-rocket"></i>
                     </a>
                 </div>
@@ -746,6 +887,15 @@
                 navbar.classList.remove('scrolled');
             }
         });
+
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        const primaryNavigation = document.getElementById('primary-navigation');
+        if (menuToggle && primaryNavigation) {
+            menuToggle.addEventListener('click', function() {
+                const isOpen = primaryNavigation.classList.toggle('is-open');
+                menuToggle.setAttribute('aria-expanded', String(isOpen));
+            });
+        }
 
         // Counter animation
         function animateCounter(element, target, duration = 2000) {

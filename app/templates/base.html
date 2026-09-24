@@ -540,10 +540,11 @@
     <!-- Notification Container -->
     <div id="notificationContainer"></div>
 
+    {% block navigation %}
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
         <div class="container-fluid">
-            <a href="{{ url_for('main.index') }}" class="navbar-brand-custom">
+            <a href="{{ url_for('main.landing_page') }}" class="navbar-brand-custom">
                 <span style="color: hsl(var(--success));">Property</span><span style="color: hsl(var(--warning));">Pay</span><span style="color: hsl(var(--primary));">Track</span>
             </a>
 
@@ -592,6 +593,7 @@
             </div>
         </div>
     </nav>
+    {% endblock %}
 
     <!-- Loading Spinner -->
     <div class="loading-spinner hidden" id="loadingSpinner">
@@ -684,14 +686,16 @@
             // Mobile menu toggle
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const mobileMenu = document.getElementById('mobileMenu');
-            mobileMenuToggle.addEventListener('click', () => {
-                mobileMenu.classList.toggle('show');
-                mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
-                mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
-                if (mobileMenu.classList.contains('show')) {
-                    mobileMenu.querySelector('a').focus();
-                }
-            });
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('show');
+                    mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
+                    mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
+                    if (mobileMenu.classList.contains('show')) {
+                        mobileMenu.querySelector('a').focus();
+                    }
+                });
+            }
 
             // Language switcher
             const languageSwitchers = [document.getElementById('languageSwitcher'), document.getElementById('mobileLanguageSwitcher')];
@@ -769,25 +773,27 @@
             });
 
             // Keyboard navigation for mobile menu
-            const mobileLinks = mobileMenu.querySelectorAll('a, button, select');
-            mobileLinks.forEach((link, index) => {
-                link.addEventListener('keydown', (e) => {
-                    if (e.key === 'ArrowDown') {
-                        e.preventDefault();
-                        const nextIndex = (index + 1) % mobileLinks.length;
-                        mobileLinks[nextIndex].focus();
-                    } else if (e.key === 'ArrowUp') {
-                        e.preventDefault();
-                        const prevIndex = (index - 1 + mobileLinks.length) % mobileLinks.length;
-                        mobileLinks[prevIndex].focus();
-                    } else if (e.key === 'Escape') {
-                        mobileMenu.classList.remove('show');
-                        mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-                        mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-                        mobileMenuToggle.focus();
-                    }
+            if (mobileMenu && mobileMenuToggle) {
+                const mobileLinks = mobileMenu.querySelectorAll('a, button, select');
+                mobileLinks.forEach((link, index) => {
+                    link.addEventListener('keydown', (e) => {
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            const nextIndex = (index + 1) % mobileLinks.length;
+                            mobileLinks[nextIndex].focus();
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            const prevIndex = (index - 1 + mobileLinks.length) % mobileLinks.length;
+                            mobileLinks[prevIndex].focus();
+                        } else if (e.key === 'Escape') {
+                            mobileMenu.classList.remove('show');
+                            mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+                            mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+                            mobileMenuToggle.focus();
+                        }
+                    });
                 });
-            });
+            }
 
             // Lazy load images
             const images = document.querySelectorAll('img[loading="lazy"]');

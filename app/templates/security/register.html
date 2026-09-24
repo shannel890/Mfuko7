@@ -14,7 +14,7 @@
             --primary: #2aa648;
             --primary-dark: #1e7e34;
             --primary-light: #34d058;
-            --background: #0f172a;
+            --background: #00020af1;
             --background-light: #1e293b;
             --card-bg: rgba(30, 41, 59, 0.8);
             --card-border: rgba(148, 163, 184, 0.1);
@@ -168,7 +168,7 @@
 
         .auth-form {
             flex: 1;
-            padding: 3rem;
+            padding: 3.5rem 3rem 3rem;
             max-width: 500px;
             overflow-y: auto;
         }
@@ -179,6 +179,33 @@
             text-align: center;
             margin-bottom: 0.5rem;
             font-size: 2rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            margin: -0.5rem 0 1.5rem -0.75rem;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s, border-color 0.2s, transform 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--text);
+            background: rgba(42, 166, 72, 0.12);
+            border-color: rgba(42, 166, 72, 0.35);
+            transform: translateX(-2px);
+        }
+
+        .back-link:focus-visible {
+            outline: 2px solid var(--primary-light);
+            outline-offset: 3px;
         }
 
         .auth-subtitle {
@@ -226,6 +253,10 @@
         .form-group {
             position: relative;
             margin-bottom: 1.5rem;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
         }
 
         .form-group input,
@@ -341,52 +372,109 @@
 
         .role-selector {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
+            align-items: stretch;
         }
 
         .role-option {
             position: relative;
+            display: flex;
         }
 
         .role-option input {
             position: absolute;
-            opacity: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
+            margin: 0;
+            opacity: 0;
             cursor: pointer;
+            z-index: 2;
         }
 
         .role-card {
-            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            width: 100%;
+            min-height: 150px;
+            padding: 1.5rem 1rem;
             border: 2px solid var(--input-border);
-            border-radius: 12px;
+            border-radius: 16px;
             background: var(--input-bg);
             text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
+        }
+
+        .role-option:hover .role-card {
+            border-color: rgba(42, 166, 72, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .role-option input:focus-visible + .role-card {
+            outline: 2px solid var(--primary-light);
+            outline-offset: 3px;
         }
 
         .role-option input:checked + .role-card {
             border-color: var(--primary);
-            background: rgba(42, 166, 72, 0.1);
+            background: rgba(42, 166, 72, 0.12);
+            box-shadow: 0 0 0 4px rgba(42, 166, 72, 0.12);
+        }
+
+        .role-card::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            width: 1.4rem;
+            height: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s;
+        }
+
+        .role-option input:checked + .role-card::after {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .role-icon {
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--primary-light);
+            background: rgba(42, 166, 72, 0.12);
+            border-radius: 50%;
+            margin-bottom: 0.25rem;
         }
 
         .role-title {
             font-weight: 600;
             color: var(--text);
-            margin-bottom: 0.25rem;
         }
 
         .role-description {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            line-height: 1.4;
             color: var(--text-muted);
         }
 
@@ -515,7 +603,7 @@
             }
 
             .auth-form {
-                padding: 2rem;
+                padding: 3.5rem 2rem 2rem;
             }
 
             .auth-form h2 {
@@ -526,8 +614,15 @@
                 grid-template-columns: 1fr;
             }
 
+        }
+
+        @media (max-width: 380px) {
             .role-selector {
                 grid-template-columns: 1fr;
+            }
+
+            .role-card {
+                min-height: 0;
             }
         }
 
@@ -541,7 +636,7 @@
             }
 
             .auth-form {
-                padding: 1.5rem;
+                padding: 3.5rem 1.5rem 1.5rem;
             }
 
             .form-group input,
@@ -554,7 +649,6 @@
 </head>
 <body>
     <div class="bg-animation"></div>
-    
     <main>
         <div class="auth-container">
             <div class="auth-visual">
@@ -588,10 +682,25 @@
             </div>
             
             <section class="auth-form">
+                <a href="{{ url_for('main.landing_page') }}" class="back-link" aria-label="Back to home page">
+                    <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                    Back to home
+                </a>
                 <h2>Create Account</h2>
                 <p class="auth-subtitle">Get started with your MFUKO account</p>
                 
-                <div id="flash-messages"></div>
+                <div id="flash-messages" aria-live="polite">
+                    {% for category, message in get_flashed_messages(with_categories=true) %}
+                    <div class="alert {{ 'alert-success' if category == 'success' else 'alert-danger' }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                    {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for field_errors in form.errors.values() %}
+                            {% for error in field_errors %}<div>{{ error }}</div>{% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
 
                 <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
                     {{ form.hidden_tag() }}
@@ -624,7 +733,7 @@
 
                     <div class="role-selector">
                         <div class="role-option">
-                            <input type="radio" id="tenant" name="role" value="tenant" required>
+                            <input type="radio" id="tenant" name="role" value="tenant" {% if form.role.data == 'tenant' %}checked{% endif %} required>
                             <label for="tenant" class="role-card">
                                 <div class="role-icon"><i class="fas fa-home"></i></div>
                                 <div class="role-title">Tenant</div>
@@ -632,7 +741,7 @@
                             </label>
                         </div>
                         <div class="role-option">
-                            <input type="radio" id="landlord" name="role" value="landlord" required>
+                            <input type="radio" id="landlord" name="role" value="landlord" {% if form.role.data == 'landlord' %}checked{% endif %} required>
                             <label for="landlord" class="role-card">
                                 <div class="role-icon"><i class="fas fa-building"></i></div>
                                 <div class="role-title">Landlord</div>

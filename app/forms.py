@@ -11,7 +11,11 @@ class RegistrationForm(FlaskForm):
     email = StringField(_l('Email'), validators=[DataRequired(), Email()])
     password = PasswordField(_l('Password'), validators=[DataRequired()])
     confirm_password = PasswordField(_l('Confirm Password'), validators=[DataRequired(), EqualTo('password')])
-    role = SelectField(_l('Role'), choices=[('tenant', _l('Tenant')), ('landlord', _l('Landlord'))], validators=[Optional()])
+    role = SelectField(
+        _l('Role'),
+        choices=[('tenant', _l('Tenant')), ('landlord', _l('Landlord'))],
+        validators=[DataRequired()],
+    )
     submit = SubmitField(_l('Register'))
 
 class LoginForm(FlaskForm):
@@ -46,6 +50,13 @@ class TenantForm(FlaskForm):
         validators=[DataRequired(_l('Property assignment is required.'))],
         coerce=int,
         choices=[],
+        render_kw={"class": "form-select"}
+    )
+    unit_id = SelectField(
+        _l('Available Unit'),
+        coerce=int,
+        validators=[Optional()],
+        choices=[(0, _l('Select a unit...'))],
         render_kw={"class": "form-select"}
     )
     first_name = StringField(
@@ -326,6 +337,26 @@ class RecordPaymentForm(FlaskForm):
         if self.is_offline.data and not field.data:
             raise ValidationError(_l('Offline reference is required for offline payments.'))
 
+class ProfileUpdateForm(FlaskForm):
+    first_name = StringField(
+        _l('First Name'),
+        validators=[DataRequired(_l('First name is required.')), Length(min=2, max=100)]
+    )
+    last_name = StringField(
+        _l('Last Name'),
+        validators=[DataRequired(_l('Last name is required.')), Length(min=2, max=100)]
+    )
+    email = StringField(
+        _l('Email'),
+        validators=[DataRequired(_l('Email is required.')), Email(), Length(max=120)]
+    )
+    phone_number = TelField(
+        _l('Phone Number'),
+        validators=[Optional(), Length(min=9, max=20, message=_l('Enter a valid phone number.'))]
+    )
+    submit = SubmitField(_l('Save profile'))
+
+
 class ExtendedEditProfileForm(FlaskForm):
     username = StringField(
         _l('Username'),
@@ -416,15 +447,3 @@ class AssignPropertyForm(FlaskForm):
 
 class DeleteTenantForm(FlaskForm):
     submit = SubmitField('Delete')
-
-class TenantLandlordForm(FlaskForm):
-    landlord_id = SelectField(_l('Choose Your Landlord'), coerce=int, validators=[DataRequired()])
-    submit = SubmitField(_l('Select Landlord'))
-
-    def __init__(self, *args, **kwargs):
-        super(TenantLandlordForm, self).__init__(*args, **kwargs)
-        from app.models import User
-        self.landlord_id.choices = [
-            (u.id, f"{u.first_name} {u.last_name}")
-            for u in User.query.join(User.roles).filter_by(name='landlord').all()
-        ]

@@ -13,7 +13,7 @@
     <title>{{ _('Tenant Dashboard') }} - PropertyPayTrack</title>
 
     <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
@@ -77,7 +77,7 @@
         }
 
         .brand-logo {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary-color);
@@ -168,7 +168,7 @@
         }
 
         .welcome-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Inter', sans-serif;
             font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 700;
             color: var(--primary-color);
@@ -404,6 +404,37 @@
         .animate-fade-in {
             animation: fadeIn 0.5s ease-out;
         }
+
+        /* Match the calm landlord workspace style. */
+        :root {
+            --primary-color: #176b49;
+            --primary-dark: #12583b;
+            --secondary-color: #5f7167;
+            --background-color: #f7f8fa;
+            --text-color: #17211c;
+            --muted-text: #6f7b73;
+            --card-shadow: none;
+            --border-radius: 12px;
+        }
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        body { background: #f7f8fa; color: #17211c; }
+        nav { background: #fff; border-color: #e8ece9; box-shadow: none; backdrop-filter: none; }
+        .brand-logo { color: #20845b; font-size: 19px; letter-spacing: -.6px; }
+        .dashboard-container { max-width: 1120px; margin: 36px auto 56px; }
+        .dashboard-header, .stat-card, .enhanced-card, .property-card { background: #fff; border: 1px solid #e8ece9; border-radius: 12px; box-shadow: none; }
+        .dashboard-header { padding: 22px; margin-bottom: 18px; }
+        .welcome-title { color: #17211c; font-size: 23px; }
+        .welcome-subtitle { color: #6f7b73; font-size: 14px; }
+        .stat-card, .enhanced-card, .property-card { transition: none; }
+        .stat-card:hover, .enhanced-card:hover, .property-card:hover { transform: none; box-shadow: none; }
+        .stat-value { color: #176b49; }
+        .card-header-enhanced { border-color: #edf0ee; }
+        .card-title { font-size: 16px; }
+        .btn-primary-enhanced { background: #176b49; }
+        .btn-secondary-enhanced { background: #fff; border: 1px solid #dce5df; color: #34443a; }
+        .btn-secondary-enhanced:hover { background: #f2f6f3; color: #176b49; transform: none; }
+        .btn-enhanced { border-radius: 8px; }
+        @media (max-width: 768px) { .dashboard-container { width: calc(100% - 28px); margin: 24px auto 40px; padding: 0; } .dashboard-header { padding: 18px; } }
     </style>
 </head>
 <body>
@@ -417,7 +448,7 @@
                 <a href="{{ url_for('main.tenant_make_payment') }}" class="nav-link" aria-label="{{ _('Go to Payments') }}">{{ _('Payments') }}</a>
                 <a href="{{ url_for('auth.logout') }}" class="logout-btn" aria-label="{{ _('Logout') }}">{{ _('Logout') }}</a>
             </div>
-            <div class="hamburger" id="hamburger" role="button" aria-label="{{ _('Toggle navigation menu') }}">
+            <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-expanded="false" aria-label="{{ _('Toggle navigation menu') }}">
                 <span></span><span></span><span></span>
             </div>
         </div>
@@ -429,6 +460,9 @@
     </nav>
 
     <div class="dashboard-container">
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+        <div class="alert alert-{{ category if category in ['success', 'warning', 'info', 'danger'] else 'info' }}" role="alert">{{ message }}</div>
+        {% endfor %}
         <div class="dashboard-header animate-fade-in">
             <div class="welcome-title">
                 <i class="fas fa-user-check"></i>
@@ -443,9 +477,9 @@
             <div class="stat-card">
                 <div class="stat-value">
                     {% if tenant.rent_amount %}
-                        KSh {{ tenant.rent_amount|floatformat(0) }}
+                        KSh {{ '{:,.0f}'.format(tenant.rent_amount|float) }}
                     {% else %}
-                        KSh 10,000
+                        {{ _('Not configured') }}
                     {% endif %}
                 </div>
                 <div class="stat-label">{{ _('Monthly Rent') }}</div>
@@ -455,7 +489,7 @@
                     {% if tenant.due_day_of_month %}
                         {{ tenant.due_day_of_month }}
                     {% else %}
-                        30
+                        —
                     {% endif %}
                 </div>
                 <div class="stat-label">{{ _('Due Date') }}</div>
@@ -526,7 +560,7 @@
                         </div>
                         <div class="info-item">
                             <span class="info-label">{{ _('Monthly Amount') }}</span>
-                            <span class="info-value">KSh {{ tenant.rent_amount|floatformat(2) }}</span>
+                            <span class="info-value">KSh {{ '{:,.2f}'.format(tenant.rent_amount|float) if tenant.rent_amount else '—' }}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">{{ _('Due Date') }}</span>
@@ -552,25 +586,7 @@
             </div>
         </div>
 
-        {% if not tenant.landlord_id %}
-        <div class="row g-4 mb-4">
-            <div class="col-12">
-                <div class="enhanced-card">
-                    <div class="card-header-enhanced">
-                        <h3 class="card-title">{{ _('Choose Your Landlord') }}</h3>
-                    </div>
-                    <form method="POST" action="{{ url_for('main.tenant_dashboard') }}">
-                        {{ form.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ form.landlord_id.label(class="form-label") }}
-                            {{ form.landlord_id(class="form-select") }}
-                        </div>
-                        {{ form.submit(class="btn btn-primary") }}
-                    </form>
-                </div>
-            </div>
-        </div>
-        {% else %}
+        {% if landlord %}
         <div class="row g-4 mb-4">
             <div class="col-lg-6 animate-fade-in">
                 <div class="enhanced-card">
@@ -592,64 +608,45 @@
                 </div>
             </div>
         </div>
+        {% else %}
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="enhanced-card">
+                    <div class="card-header-enhanced">
+                        <h3 class="card-title">{{ _('Landlord Pending') }}</h3>
+                    </div>
+                    <div class="empty-state-description">
+                        {{ _('Your landlord will appear here after a property manager assigns your unit.') }}
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endif %}
 
         <div class="action-buttons animate-fade-in">
             <a href="{{ url_for('main.tenant_make_payment') }}" class="btn-enhanced btn-primary-enhanced">
                 <i class="fas fa-credit-card"></i> {{ _('Make Payment') }}
             </a>
-            <a href="{{ url_for('main.payments_history') }}" class="btn-enhanced btn-secondary-enhanced">
+            <a href="{{ url_for('main.tenant_make_payment') }}#recent-payments" class="btn-enhanced btn-secondary-enhanced">
                 <i class="fas fa-history"></i> {{ _('Payment History') }}
             </a>
-            <a href="{{ url_for('main.reports') }}" class="btn-enhanced btn-secondary-enhanced">
-                <i class="fas fa-file-invoice"></i> {{ _('Download Receipts') }}
+            <a href="{{ url_for('auth.profile') }}" class="btn-enhanced btn-secondary-enhanced">
+                <i class="fas fa-user"></i> {{ _('My Profile') }}
             </a>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const hamburger = document.getElementById('hamburger');
-            const mobileMenu = document.getElementById('mobileMenu');
-
-            // Mobile menu toggle
-            hamburger.addEventListener('click', () => {
-                hamburger.classList.toggle('active');
-                mobileMenu.classList.toggle('active');
-            });
-
-            // Card hover effects
-            document.querySelectorAll('.enhanced-card, .property-card, .stat-card').forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    card.style.transform = 'translateY(-4px)';
-                });
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'translateY(0)';
-                });
-            });
-
-            // Button click effect
-            document.querySelectorAll('.btn-enhanced').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const rect = button.getBoundingClientRect();
-                    const ripple = document.createElement('span');
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size / 2;
-                    const y = e.clientY - rect.top - size / 2;
-
-                    ripple.style.width = ripple.style.height = `${size}px`;
-                    ripple.style.left = `${x}px`;
-                    ripple.style.top = `${y}px`;
-                    ripple.style.position = 'absolute';
-                    ripple.style.borderRadius = '50%';
-                    ripple.style.background = 'rgba(255, 255, 255, 0.4)';
-                    ripple.style.animation = 'ripple-animation 0.6s ease-out';
-
-                    button.appendChild(ripple);
-                    setTimeout(() => ripple.remove(), 600);
-                });
-            });
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const toggleMenu = () => {
+            const open = mobileMenu.classList.toggle('active');
+            hamburger.classList.toggle('active', open);
+            hamburger.setAttribute('aria-expanded', String(open));
+        };
+        hamburger.addEventListener('click', toggleMenu);
+        hamburger.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleMenu(); }
         });
     </script>
 </body>

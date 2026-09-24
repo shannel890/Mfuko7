@@ -3,198 +3,473 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Tenant Details Management for PropertyPayTrack">
-  <title>{{ _('Tenant Details') }} | REPT</title>
-  <!-- Preconnect for performance -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+
+  <meta
+    name="description"
+    content="Tenant Details Management for PropertyPayTrack"
+  >
+
+  <title>{{ _('Tenant Details') }} | PropertyPayTrack</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
-  <!-- Preload and font-display: swap for fonts -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  >
 
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" media="print" onload="this.media='all'">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" media="print" onload="this.media='all'">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" async></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js" async></script>
-  <script>
-    // Lazy load all images
-    document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('img').forEach(img => {
-        if (!img.hasAttribute('loading')) {
-          img.setAttribute('loading', 'lazy');
-        }
-      });
-    });
-  </script>
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  >
+
   <style>
     :root {
-      --primary: 142 76% 36%;
-      --primary-foreground: 0 0% 98%;
-      --primary-dark: 142 76% 30%;
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 0 0% 100%;
-      --muted: 210 40% 96.1%;
-      --muted-foreground: 215.4 16.3% 46.9%;
-      --warning: 32 95% 44%;
-      --success: 134 61% 41%;
-      --background: 0 0% 100%;
-      --foreground: 222.2 47.4% 11.2%;
-      --border: 214.3 31.8% 91.4%;
-      --card: 0 0% 100%;
-      --radius: 0.5rem;
-      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
-      --shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.1);
-      --transition-smooth: all 0.3s ease;
+      --green: #176b49;
+      --green-dark: #12553a;
+      --green-soft: #edf7f2;
+      --green-border: #cfe8dc;
+
+      --orange: #e89024;
+      --orange-soft: #fff5e8;
+
+      --text: #17201b;
+      --text-soft: #66736c;
+      --muted: #87928c;
+
+      --background: #ffffff;
+      --surface: #ffffff;
+      --surface-soft: #f8faf9;
+
+      --border: #e5ebe7;
+      --border-dark: #d5ddd8;
+
+      --danger: #c73b3b;
+      --danger-soft: #fff1f1;
+
+      --success: #217a4d;
+      --success-soft: #edf8f1;
+
+      --shadow-sm: 0 1px 3px rgba(17, 31, 24, 0.05);
+      --shadow-md: 0 8px 30px rgba(17, 31, 24, 0.07);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+
+      --transition: 180ms ease;
     }
 
-    body.dark {
-      --background: 222 47% 11%;
-      --card: 222 47% 15%;
-      --muted: 210 40% 20%;
-      --muted-foreground: 215.4 16.3% 60%;
-      --border: 214.3 31.8% 30%;
-      --foreground: 0 0% 98%;
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
-      line-height: 1.6;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    .dashboard-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .header-section {
-      position: relative;
-      background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-dark)) 100%);
-      color: hsl(var(--primary-foreground));
-      padding: 2rem;
-      border-radius: var(--radius);
-      margin-bottom: 2rem;
-      overflow: hidden;
-      animation: slideIn 0.5s ease;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      z-index: 2;
-    }
-
-    .header-text h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .header-text p {
-      opacity: 0.9;
       margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
     }
 
-    .header-decoration-1,
-    .header-decoration-2 {
-      position: absolute;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
+    body.dark {
+      --background: #101714;
+      --surface: #17211c;
+      --surface-soft: #1d2923;
+
+      --text: #f3f7f4;
+      --text-soft: #aab8b0;
+      --muted: #89968f;
+
+      --border: #2c3a33;
+      --border-dark: #3a4a42;
+
+      --green-soft: #173a2a;
+      --green-border: #28583f;
+
+      --orange-soft: #3a2b19;
+
+      --danger-soft: #3b2020;
+      --success-soft: #193827;
     }
 
-    .header-decoration-1 {
-      width: 100px;
-      height: 100px;
-      top: -50px;
-      right: -50px;
+    a {
+      color: inherit;
     }
 
-    .header-decoration-2 {
-      width: 150px;
-      height: 150px;
-      bottom: -75px;
-      left: -75px;
+    button,
+    input,
+    select {
+      font: inherit;
     }
 
-    .row {
+    /* =========================
+       Navigation
+       ========================= */
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      height: 68px;
+
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid var(--border);
+
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    body.dark .site-nav {
+      background: rgba(16, 23, 20, 0.96);
+    }
+
+    .nav-inner {
+      width: min(1180px, calc(100% - 40px));
+      height: 100%;
+      margin: 0 auto;
+
       display: flex;
-      flex-wrap: wrap;
-      margin: -0.5rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
     }
 
-    .col-12 {
-      width: 100%;
-      padding: 0.5rem;
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      white-space: nowrap;
+
+      font-family: "Manrope", sans-serif;
+      font-size: 1.12rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
     }
 
-    .col-lg-8 {
-      width: 100%;
+    .brand-property {
+      color: var(--green);
     }
 
-    .col-xl-6 {
-      width: 100%;
+    .brand-pay {
+      color: var(--orange);
     }
 
-    .justify-content-center {
+    .brand-track {
+      color: #3b4650;
+    }
+
+    body.dark .brand-track {
+      color: #e7eee9;
+    }
+
+    .desktop-nav {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+
+    .nav-link {
+      position: relative;
+
+      color: var(--text-soft);
+      text-decoration: none;
+
+      font-size: 0.88rem;
+      font-weight: 500;
+
+      transition: color var(--transition);
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--green);
+    }
+
+    .nav-link.active::after {
+      content: "";
+
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -22px;
+
+      height: 2px;
+      border-radius: 999px;
+
+      background: var(--green);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-button,
+    .mobile-menu-button {
+      width: 38px;
+      height: 38px;
+
+      border: 1px solid var(--border);
+      border-radius: 50%;
+
+      background: var(--surface);
+      color: var(--text-soft);
+
+      display: inline-flex;
+      align-items: center;
       justify-content: center;
+
+      cursor: pointer;
+
+      transition:
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition);
     }
 
-    .card {
-      background: hsl(var(--card));
-      border: 1px solid hsl(var(--border));
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-card);
-      animation: fadeIn 0.5s ease;
+    .theme-button:hover,
+    .mobile-menu-button:hover {
+      background: var(--green-soft);
+      border-color: var(--green-border);
+      color: var(--green);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .mobile-menu-button {
+      display: none;
     }
 
-    .card-content {
-      padding: 2rem;
+    .mobile-menu {
+      display: none;
+
+      padding: 12px 20px 18px;
+
+      background: var(--surface);
+      border-top: 1px solid var(--border);
     }
+
+    .mobile-menu.open {
+      display: block;
+    }
+
+    .mobile-menu a {
+      display: block;
+      padding: 10px 0;
+
+      color: var(--text-soft);
+      text-decoration: none;
+
+      font-size: 0.92rem;
+      font-weight: 500;
+
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mobile-menu a:last-child {
+      border-bottom: 0;
+    }
+
+    /* =========================
+       Page
+       ========================= */
+
+    .page {
+      width: min(1040px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 46px 0 70px;
+    }
+
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      margin-bottom: 10px;
+
+      color: var(--green);
+
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .page-header h1 {
+      margin: 0;
+
+      color: var(--text);
+
+      font-family: "Manrope", sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.35rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .page-header p {
+      max-width: 650px;
+      margin: 10px 0 0;
+
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    /* =========================
+       Main Card
+       ========================= */
+
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .form-card-header {
+      padding: 20px 28px;
+
+      background: var(--surface-soft);
+      border-bottom: 1px solid var(--border);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .form-card-header-content {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .header-icon {
+      width: 42px;
+      height: 42px;
+
+      border-radius: 11px;
+
+      background: var(--green-soft);
+      color: var(--green);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 1rem;
+    }
+
+    .form-card-header h2 {
+      margin: 0;
+
+      font-family: "Manrope", sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .form-card-header p {
+      margin: 2px 0 0;
+
+      color: var(--text-soft);
+      font-size: 0.8rem;
+    }
+
+    .form-card-body {
+      padding: 30px;
+    }
+
+    /* =========================
+       Form Sections
+       ========================= */
 
     .form-section {
-      margin-bottom: 2rem;
-      opacity: 0;
-      animation: slideIn 0.5s ease forwards;
-      animation-delay: calc(var(--delay) * 0.2s);
+      padding-bottom: 30px;
+      margin-bottom: 30px;
+
+      border-bottom: 1px solid var(--border);
     }
 
-    .section-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: hsl(var(--primary));
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid hsl(var(--primary) / 0.1);
+    .form-section:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+
+      margin-bottom: 22px;
+    }
+
+    .section-number {
+      flex: 0 0 auto;
+
+      width: 30px;
+      height: 30px;
+
+      border-radius: 9px;
+
+      background: var(--green-soft);
+      color: var(--green);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .section-heading h3 {
+      margin: 0;
+
+      color: var(--text);
+
+      font-family: "Manrope", sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .section-heading p {
+      margin: 2px 0 0;
+
+      color: var(--text-soft);
+      font-size: 0.8rem;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
     }
 
     .form-group {
-      display: flex;
-      flex-direction: column;
-      position: relative;
+      min-width: 0;
     }
 
     .form-group.full-width {
@@ -202,689 +477,1958 @@
     }
 
     .form-label {
-      font-weight: 500;
-      color: hsl(var(--foreground));
-      margin-bottom: 0.5rem;
       display: block;
+
+      margin-bottom: 7px;
+
+      color: var(--text);
+
+      font-size: 0.82rem;
+      font-weight: 600;
     }
 
-    .form-input,
-    .form-select {
-      padding: 0.75rem 1rem;
-      border: 1px solid hsl(var(--border));
-      border-radius: var(--radius);
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
-      font-size: 1rem;
-      transition: var(--transition-smooth);
-      outline: none;
+    .required-mark {
+      color: var(--danger);
+      margin-left: 2px;
     }
 
-    .form-input:focus,
-    .form-select:focus {
-      border-color: hsl(var(--primary));
-      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
-    }
-
-    .form-input.error,
-    .form-select.error {
-      border-color: hsl(var(--destructive));
-    }
-
-    .input-with-icon {
+    .input-wrapper {
       position: relative;
-      display: flex;
-      align-items: center;
     }
 
     .input-icon {
       position: absolute;
-      left: 1rem;
-      color: hsl(var(--muted-foreground));
-      font-weight: 500;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+
+      color: var(--muted);
+
+      font-size: 0.83rem;
+
+      pointer-events: none;
       z-index: 1;
     }
 
-    .form-input.with-icon {
-      padding-left: 3rem;
+    .input-icon.currency {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--green);
     }
 
-    .form-error {
-      color: hsl(var(--destructive));
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-      animation: fadeIn 0.3s ease;
+    .form-input,
+    .form-select {
+      width: 100%;
+      min-height: 46px;
+
+      padding: 10px 13px;
+
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius-sm);
+
+      background: var(--surface);
+      color: var(--text);
+
+      font-size: 0.88rem;
+
+      outline: none;
+
+      transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        background var(--transition);
+    }
+
+    .form-input.with-icon {
+      padding-left: 39px;
+    }
+
+    .form-input::placeholder {
+      color: var(--muted);
+    }
+
+    .form-input:hover,
+    .form-select:hover {
+      border-color: #b9c7bf;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23, 107, 73, 0.10);
+    }
+
+    .form-input.error,
+    .form-select.error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(199, 59, 59, 0.08);
+    }
+
+    .form-help {
+      margin-top: 6px;
+
+      color: var(--muted);
+      font-size: 0.74rem;
     }
 
     .char-counter {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: hsl(var(--muted-foreground));
-      font-size: 0.75rem;
+      margin-top: 5px;
+
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-align: right;
     }
+
+    .form-error {
+      margin-top: 6px;
+
+      color: var(--danger);
+      font-size: 0.76rem;
+      font-weight: 500;
+    }
+
+    /* =========================
+       Actions
+       ========================= */
 
     .form-actions {
-      padding-top: 1rem;
-      border-top: 1px solid hsl(var(--border));
       display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+
+      padding-top: 24px;
     }
 
-    .btn-primary-custom,
-    .btn-secondary-custom {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition-smooth);
+    .actions-left {
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .actions-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 44px;
+
+      padding: 0 18px;
+
+      border-radius: var(--radius-sm);
+
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 8px;
+
+      font-size: 0.84rem;
+      font-weight: 600;
+
       text-decoration: none;
+
+      cursor: pointer;
+
+      transition:
+        transform var(--transition),
+        background var(--transition),
+        border-color var(--transition),
+        color var(--transition),
+        box-shadow var(--transition);
     }
 
-    .btn-primary-custom {
-      background: hsl(var(--primary));
-      color: hsl(var(--primary-foreground));
+    .btn-primary {
+      border: 1px solid var(--green);
+      background: var(--green);
+      color: #ffffff;
+
+      box-shadow: 0 3px 8px rgba(23, 107, 73, 0.14);
     }
 
-    .btn-primary-custom:hover {
-      background: hsl(var(--primary-dark));
+    .btn-primary:hover {
+      background: var(--green-dark);
+      border-color: var(--green-dark);
       transform: translateY(-1px);
-      box-shadow: var(--shadow-hover);
+      box-shadow: 0 6px 14px rgba(23, 107, 73, 0.18);
     }
 
-    .btn-secondary-custom {
-      background: hsl(var(--muted));
-      color: hsl(var(--foreground));
-      border: 1px solid hsl(var(--border));
+    .btn-secondary {
+      border: 1px solid var(--border-dark);
+      background: var(--surface);
+      color: var(--text-soft);
     }
 
-    .btn-secondary-custom:hover {
-      background: hsl(var(--muted) / 0.8);
-      transform: translateY(-1px);
+    .btn-secondary:hover {
+      border-color: var(--green-border);
+      background: var(--green-soft);
+      color: var(--green);
     }
+
+    /* =========================
+       Notifications
+       ========================= */
 
     .notification {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: 0.5rem;
-      color: hsl(var(--primary-foreground));
+      top: 82px;
+      right: 22px;
+
+      max-width: 360px;
+
+      padding: 12px 16px;
+
+      border: 1px solid transparent;
+      border-radius: 10px;
+
+      box-shadow: var(--shadow-md);
+
+      font-size: 0.82rem;
+      font-weight: 500;
+
       z-index: 1000;
-      animation: slideIn 0.3s ease forwards, slideOut 0.3s ease 2.7s forwards;
+
+      animation: notificationIn 220ms ease forwards;
     }
 
     .notification.success {
-      background: hsl(var(--success));
+      background: var(--success-soft);
+      border-color: #c7e6d2;
+      color: var(--success);
     }
 
     .notification.error {
-      background: hsl(var(--destructive));
+      background: var(--danger-soft);
+      border-color: #f0caca;
+      color: var(--danger);
     }
 
-    @keyframes slideOut {
-      from { transform: translateX(0); opacity: 1; }
-      to { transform: translateX(100%); opacity: 0; }
+    @keyframes notificationIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
+    /* =========================
+       Loading
+       ========================= */
 
     .loading {
       position: fixed;
       inset: 0;
-      background: hsl(var(--background) / 0.8);
+
+      background: rgba(255, 255, 255, 0.72);
+
       display: flex;
       align-items: center;
       justify-content: center;
+
       z-index: 2000;
-      transition: opacity 0.3s ease;
+
+      backdrop-filter: blur(3px);
+    }
+
+    body.dark .loading {
+      background: rgba(16, 23, 20, 0.72);
     }
 
     .loading.hidden {
-      opacity: 0;
-      pointer-events: none;
+      display: none;
+    }
+
+    .loading-card {
+      padding: 20px 24px;
+
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+
+      box-shadow: var(--shadow-md);
+
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      color: var(--text);
+      font-size: 0.84rem;
+      font-weight: 600;
     }
 
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid hsl(var(--primary));
-      border-top: 4px solid transparent;
+      width: 22px;
+      height: 22px;
+
+      border: 2px solid var(--green-border);
+      border-top-color: var(--green);
+
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+
+      animation: spin 700ms linear infinite;
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    nav {
-      background: hsl(var(--card) / 0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid hsl(var(--border));
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .dark nav {
-      background: hsl(222 47% 15% / 0.8);
-    }
-
-    .nav-link {
-      color: hsl(var(--foreground));
-      transition: color 0.3s ease;
-    }
-
-    .nav-link:hover {
-      color: hsl(var(--primary));
-    }
-
-    .dark .nav-link {
-      color: hsl(0 0% 98%);
-    }
-
-    .dark .nav-link:hover {
-      color: hsl(var(--primary) / 0.9);
-    }
-
-    @media (min-width: 992px) {
-      .col-lg-8 {
-        width: 66.666667%;
+      to {
+        transform: rotate(360deg);
       }
     }
 
-    @media (min-width: 1200px) {
-      .col-xl-6 {
-        width: 50%;
+    /* =========================
+       Responsive
+       ========================= */
+
+    @media (max-width: 900px) {
+      .desktop-nav {
+        display: none;
+      }
+
+      .mobile-menu-button {
+        display: inline-flex;
+      }
+
+      .nav-inner {
+        width: min(100% - 28px, 1180px);
+      }
+
+      .page {
+        width: min(100% - 28px, 1040px);
+        padding-top: 34px;
       }
     }
 
-    @media (max-width: 768px) {
-      .dashboard-container {
-        padding: 1rem;
+    @media (max-width: 680px) {
+      .site-nav {
+        height: 62px;
       }
 
-      .header-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
+      .page {
+        width: calc(100% - 24px);
+        padding: 28px 0 45px;
       }
 
-      .card-content {
-        padding: 1.5rem;
+      .page-header {
+        margin-bottom: 22px;
+      }
+
+      .page-header h1 {
+        font-size: 1.75rem;
+      }
+
+      .form-card-header {
+        padding: 17px 18px;
+      }
+
+      .form-card-body {
+        padding: 20px 18px;
       }
 
       .form-grid {
         grid-template-columns: 1fr;
+        gap: 17px;
+      }
+
+      .form-group.full-width {
+        grid-column: auto;
+      }
+
+      .form-section {
+        padding-bottom: 24px;
+        margin-bottom: 24px;
+      }
+
+      .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions-left {
+        order: 2;
+        text-align: center;
+      }
+
+      .actions-right {
+        order: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .notification {
+        left: 14px;
+        right: 14px;
+        max-width: none;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      * {
+      *,
+      *::before,
+      *::after {
         animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
       }
     }
   </style>
 </head>
+
 <body>
-  <div class="loading hidden">
-    <div class="spinner"></div>
+
+  <!-- Loading overlay -->
+  <div class="loading hidden" id="loadingOverlay">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <span>{{ _('Saving tenant details...') }}</span>
+    </div>
   </div>
 
-  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-        <div class="flex items-center space-x-4">
-          <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
-            <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
-          </a>
-        </div>
+  <!-- Navigation -->
+  <nav class="site-nav">
+    <div class="nav-inner">
 
-        <div class="hidden md:flex items-center space-x-6">
-          <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
-          <a href="{{ url_for('main.properties_list') }}" class="nav-link" aria-label="View Properties">Properties</a>
-          <a href="{{ url_for('main.tenants_list') }}" class="nav-link" aria-label="View Tenants">Tenants</a>
-          <a href="{{ url_for('main.payments_history') }}" class="nav-link" aria-label="View Payments">Payments</a>
-          <a href="{{ url_for('main.assign_property') }}" class="nav-link" aria-label="Assign Property">Assign property</a>
-          <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="View Profile">Profile</a>
-          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle dark mode">
-            <i class="fas fa-moon hidden dark:block"></i>
-            <i class="fas fa-sun block dark:hidden"></i>
-          </button>
-        </div>
+      <a
+        href="{{ url_for('main.landlord_dashboard') }}"
+        class="brand"
+        aria-label="PropertyPayTrack Dashboard"
+      >
+        <span class="brand-property">Property</span><span class="brand-pay">Pay</span><span class="brand-track">Track</span>
+      </a>
 
-        <div class="flex items-center space-x-4">
-          <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block nav-link" aria-label="Logout">Logout</a>
-          <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none" aria-label="Toggle mobile menu">
-            <i class="fas fa-bars"></i>
-          </button>
-        </div>
+      <div class="desktop-nav">
+
+        <a
+          href="{{ url_for('main.landlord_dashboard') }}"
+          class="nav-link"
+        >
+          Dashboard
+        </a>
+
+        <a
+          href="{{ url_for('main.properties_list') }}"
+          class="nav-link"
+        >
+          Properties
+        </a>
+
+        <a
+          href="{{ url_for('main.tenants_list') }}"
+          class="nav-link active"
+          aria-current="page"
+        >
+          Tenants
+        </a>
+
+        <a
+          href="{{ url_for('main.payments_history') }}"
+          class="nav-link"
+        >
+          Payments
+        </a>
+
+        <a
+          href="{{ url_for('main.assign_property') }}"
+          class="nav-link"
+        >
+          Assign property
+        </a>
+
+        <a
+          href="{{ url_for('auth.profile') }}"
+          class="nav-link"
+        >
+          Profile
+        </a>
+
       </div>
+
+      <div class="nav-actions">
+
+        <button
+          type="button"
+          id="themeToggle"
+          class="theme-button"
+          aria-label="Toggle dark mode"
+          title="Toggle theme"
+        >
+          <i class="fas fa-sun"></i>
+        </button>
+
+        <a
+          href="{{ url_for('auth.logout') }}"
+          class="nav-link"
+        >
+          Logout
+        </a>
+
+        <button
+          type="button"
+          id="mobileMenuToggle"
+          class="mobile-menu-button"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+        >
+          <i class="fas fa-bars"></i>
+        </button>
+
+      </div>
+
     </div>
 
-    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-      <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 nav-link">Dashboard</a>
-      <a href="{{ url_for('main.properties_list') }}" class="block py-2 nav-link">Properties</a>
-      <a href="{{ url_for('main.tenants_list') }}" class="block py-2 nav-link">Tenants</a>
-      <a href="{{ url_for('main.payments_history') }}" class="block py-2 nav-link">Payments</a>
-      <a href="{{ url_for('main.assign_property') }}" class="block py-2 nav-link">Assign property</a>
-      <a href="{{ url_for('auth.profile') }}" class="block py-2 nav-link">Profile</a>
-      <a href="{{ url_for('auth.logout') }}" class="block py-2 nav-link">Logout</a>
-      <button id="mobileThemeToggle" class="block py-2 nav-link" aria-label="Toggle dark mode">Toggle Theme</button>
+    <!-- Mobile navigation -->
+    <div id="mobileMenu" class="mobile-menu">
+
+      <a href="{{ url_for('main.landlord_dashboard') }}">
+        Dashboard
+      </a>
+
+      <a href="{{ url_for('main.properties_list') }}">
+        Properties
+      </a>
+
+      <a href="{{ url_for('main.tenants_list') }}">
+        Tenants
+      </a>
+
+      <a href="{{ url_for('main.payments_history') }}">
+        Payments
+      </a>
+
+      <a href="{{ url_for('main.assign_property') }}">
+        Assign property
+      </a>
+
+      <a href="{{ url_for('auth.profile') }}">
+        Profile
+      </a>
+
+      <a href="{{ url_for('auth.logout') }}">
+        Logout
+      </a>
+
     </div>
   </nav>
 
-  <div class="dashboard-container">
-    <div class="header-section mb-4">
-      <div class="header-content">
-        <div class="header-text">
-          <h1>{{ _('Tenant Details') }}</h1>
-          <p>{{ _('Add or edit tenant information and lease details') }}</p>
-        </div>
-        <div class="header-decoration-1"></div>
-        <div class="header-decoration-2"></div>
+
+  <!-- Main page -->
+  <main class="page">
+
+    <!-- Page heading -->
+    <header class="page-header">
+
+      <div class="eyebrow">
+        Tenant management
       </div>
-    </div>
 
-    <div class="row justify-content-center">
-      <div class="col-12 col-lg-8 col-xl-6">
-        <div class="card">
-          <div class="card-content">
-            <form method="POST" novalidate class="space-y-6" id="tenantForm">
-              {{ form.hidden_tag() }}
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <h1>
+        {{ _('Tenant Details') }}
+      </h1>
 
-              <div class="form-section" style="--delay: 1">
-                <h3 class="section-title">{{ _('Personal Information') }}</h3>
-                <div class="form-grid">
-                  <div class="form-group">
-                    <label class="form-label" for="first_name">{{ _('First Name') }}</label>
-                    <div class="input-with-icon">
-                      <span class="input-icon"><i class="fas fa-user"></i></span>
-                      {{ form.first_name(class="form-input with-icon", **{'aria-required': 'true', 'maxlength': '50'}) }}
-                      <span class="char-counter" data-for="first_name">0/50</span>
-                    </div>
-                    {% if form.first_name.errors %}
-                      {% for error in form.first_name.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
+      <p>
+        {{ _('Add or edit tenant information, property allocation, rent settings, and lease details.') }}
+      </p>
 
-                  <div class="form-group">
-                    <label class="form-label" for="last_name">{{ _('Last Name') }}</label>
-                    <div class="input-with-icon">
-                      <span class="input-icon"><i class="fas fa-user"></i></span>
-                      {{ form.last_name(class="form-input with-icon", **{'aria-required': 'true', 'maxlength': '50'}) }}
-                      <span class="char-counter" data-for="last_name">0/50</span>
-                    </div>
-                    {% if form.last_name.errors %}
-                      {% for error in form.last_name.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
+    </header>
 
-                  <div class="form-group">
-                    <label class="form-label" for="email">{{ _('Email') }}</label>
-                    <div class="input-with-icon">
-                      <span class="input-icon"><i class="fas fa-envelope"></i></span>
-                      {{ form.email(class="form-input with-icon", **{'maxlength': '100'}) }}
-                      <span class="char-counter" data-for="email">0/100</span>
-                    </div>
-                    {% if form.email.errors %}
-                      {% for error in form.email.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
 
-                  <div class="form-group">
-                    <label class="form-label" for="phone_number">{{ _('Phone Number') }}</label>
-                    <div class="input-with-icon">
-                      <span class="input-icon"><i class="fas fa-phone"></i></span>
-                      {{ form.phone_number(class="form-input with-icon", **{'aria-required': 'true'}) }}
-                    </div>
-                    {% if form.phone_number.errors %}
-                      {% for error in form.phone_number.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
+    <!-- Form card -->
+    <section class="form-card">
 
-                  <div class="form-group full-width">
-                    <label class="form-label" for="national_id">{{ _('National ID') }}</label>
-                    <div class="input-with-icon">
-                      <span class="input-icon"><i class="fas fa-id-card"></i></span>
-                      {{ form.national_id(class="form-input with-icon", **{'maxlength': '20'}) }}
-                      <span class="char-counter" data-for="national_id">0/20</span>
-                    </div>
-                    {% if form.national_id.errors %}
-                      {% for error in form.national_id.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
+      <div class="form-card-header">
 
-              <div class="form-section" style="--delay: 2">
-                <h3 class="section-title">{{ _('Property & Rent Information') }}</h3>
-                <div class="form-grid">
-                  <div class="form-group full-width">
-                    {{ form.property_id.label(class="form-label") }}
-                    {{ form.property_id(class="form-select", **{'aria-required': 'true'}) }}
-                    {% if form.property_id.errors %}
-                      {% for error in form.property_id.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
+        <div class="form-card-header-content">
 
-                  <div class="form-group">
-                    <label class="form-label" for="rent_amount">{{ _('Rent Amount') }}</label>
-                    <div class="input-with-icon">
-                      <span class="input-icon">KSh</span>
-                      {{ form.rent_amount(class="form-input with-icon", **{'aria-required': 'true', 'step': '0.01', 'min': '0.01'}) }}
-                    </div>
-                    {% if form.rent_amount.errors %}
-                      {% for error in form.rent_amount.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="due_day_of_month">{{ _('Due Day of Month') }}</label>
-                    {{ form.due_day_of_month(class="form-input", **{'aria-required': 'true', 'min': '1', 'max': '31'}) }}
-                    {% if form.due_day_of_month.errors %}
-                      {% for error in form.due_day_of_month.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="grace_period_days">{{ _('Grace Period (Days)') }}</label>
-                    {{ form.grace_period_days(class="form-input", **{'min': '0'}) }}
-                    {% if form.grace_period_days.errors %}
-                      {% for error in form.grace_period_days.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-section" style="--delay: 3">
-                <h3 class="section-title">{{ _('Lease Information') }}</h3>
-                <div class="form-grid">
-                  <div class="form-group">
-                    <label class="form-label" for="lease_start_date">{{ _('Lease Start Date') }}</label>
-                    {{ form.lease_start_date(class="form-input", **{'aria-required': 'true'}) }}
-                    {% if form.lease_start_date.errors %}
-                      {% for error in form.lease_start_date.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="lease_end_date">{{ _('Lease End Date') }}</label>
-                    {{ form.lease_end_date(class="form-input") }}
-                    {% if form.lease_end_date.errors %}
-                      {% for error in form.lease_end_date.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label class="form-label" for="status">{{ _('Status') }}</label>
-                    {{ form.status(class="form-select", **{'aria-required': 'true'}) }}
-                    {% if form.status.errors %}
-                      {% for error in form.status.errors %}
-                        <div class="form-error">{{ error }}</div>
-                      {% endfor %}
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-primary-custom" aria-label="Save tenant details">
-                  <i class="fas fa-save me-2"></i>{{ _('Save Tenant') }}
-                </button>
-                <a href="{{ url_for('main.tenants_list') }}" class="btn-secondary-custom" id="cancelBtn" aria-label="Cancel and return to tenants list">
-                  <i class="fas fa-times me-2"></i>{{ _('Cancel') }}
-                </a>
-              </div>
-            </form>
+          <div class="header-icon">
+            <i class="fas fa-user"></i>
           </div>
+
+          <div>
+            <h2>
+              {{ _('Tenant Information') }}
+            </h2>
+
+            <p>
+              {{ _('Keep tenant and lease information accurate and up to date.') }}
+            </p>
+          </div>
+
         </div>
+
       </div>
-    </div>
-  </div>
+
+
+      <div class="form-card-body">
+
+        <form
+          method="POST"
+          novalidate
+          id="tenantForm"
+        >
+
+          {{ form.hidden_tag() }}
+
+
+          <!-- =========================
+               Personal Information
+          ========================== -->
+
+          <section class="form-section">
+
+            <div class="section-heading">
+
+              <div class="section-number">
+                01
+              </div>
+
+              <div>
+                <h3>
+                  {{ _('Personal Information') }}
+                </h3>
+
+                <p>
+                  {{ _('Basic information used to identify and contact the tenant.') }}
+                </p>
+              </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+              <!-- First name -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="first_name"
+                >
+                  {{ _('First Name') }}
+                  <span class="required-mark">*</span>
+                </label>
+
+                <div class="input-wrapper">
+
+                  <span class="input-icon">
+                    <i class="fas fa-user"></i>
+                  </span>
+
+                  {{ form.first_name(
+                    class="form-input with-icon",
+                    **{
+                      'aria-required': 'true',
+                      'maxlength': '50'
+                    }
+                  ) }}
+
+                </div>
+
+                <div
+                  class="char-counter"
+                  data-for="first_name"
+                >
+                  0/50
+                </div>
+
+                {% if form.first_name.errors %}
+                  {% for error in form.first_name.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- Last name -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="last_name"
+                >
+                  {{ _('Last Name') }}
+                  <span class="required-mark">*</span>
+                </label>
+
+                <div class="input-wrapper">
+
+                  <span class="input-icon">
+                    <i class="fas fa-user"></i>
+                  </span>
+
+                  {{ form.last_name(
+                    class="form-input with-icon",
+                    **{
+                      'aria-required': 'true',
+                      'maxlength': '50'
+                    }
+                  ) }}
+
+                </div>
+
+                <div
+                  class="char-counter"
+                  data-for="last_name"
+                >
+                  0/50
+                </div>
+
+                {% if form.last_name.errors %}
+                  {% for error in form.last_name.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- Email -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="email"
+                >
+                  {{ _('Email') }}
+                </label>
+
+                <div class="input-wrapper">
+
+                  <span class="input-icon">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+
+                  {{ form.email(
+                    class="form-input with-icon",
+                    **{
+                      'maxlength': '100'
+                    }
+                  ) }}
+
+                </div>
+
+                <div
+                  class="char-counter"
+                  data-for="email"
+                >
+                  0/100
+                </div>
+
+                {% if form.email.errors %}
+                  {% for error in form.email.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- Phone -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="phone_number"
+                >
+                  {{ _('Phone Number') }}
+                  <span class="required-mark">*</span>
+                </label>
+
+                <div class="input-wrapper">
+
+                  <span class="input-icon">
+                    <i class="fas fa-phone"></i>
+                  </span>
+
+                  {{ form.phone_number(
+                    class="form-input with-icon",
+                    **{
+                      'aria-required': 'true'
+                    }
+                  ) }}
+
+                </div>
+
+                {% if form.phone_number.errors %}
+                  {% for error in form.phone_number.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- National ID -->
+              <div class="form-group full-width">
+
+                <label
+                  class="form-label"
+                  for="national_id"
+                >
+                  {{ _('National ID') }}
+                </label>
+
+                <div class="input-wrapper">
+
+                  <span class="input-icon">
+                    <i class="fas fa-id-card"></i>
+                  </span>
+
+                  {{ form.national_id(
+                    class="form-input with-icon",
+                    **{
+                      'maxlength': '20'
+                    }
+                  ) }}
+
+                </div>
+
+                <div
+                  class="char-counter"
+                  data-for="national_id"
+                >
+                  0/20
+                </div>
+
+                {% if form.national_id.errors %}
+                  {% for error in form.national_id.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================
+               Property & Rent
+          ========================== -->
+
+          <section class="form-section">
+
+            <div class="section-heading">
+
+              <div class="section-number">
+                02
+              </div>
+
+              <div>
+                <h3>
+                  {{ _('Property & Rent Information') }}
+                </h3>
+
+                <p>
+                  {{ _('Connect the tenant to a property and define their rent settings.') }}
+                </p>
+              </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+              <!-- Property -->
+              <div class="form-group full-width">
+
+                {{ form.property_id.label(class="form-label") }}
+
+                <div class="input-wrapper">
+
+                  {{ form.property_id(
+                    class="form-select",
+                    **{
+                      'aria-required': 'true'
+                    }
+                  ) }}
+
+                </div>
+
+                {% if form.property_id.errors %}
+                  {% for error in form.property_id.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- Unit -->
+              {% if not edit %}
+
+              <div class="form-group full-width">
+
+                {{ form.unit_id.label(class="form-label") }}
+
+                {{ form.unit_id(
+                  class="form-select",
+                  **{
+                    'aria-required': 'true',
+                    'required': true
+                  }
+                ) }}
+
+                {% if form.unit_id.errors %}
+                  {% for error in form.unit_id.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+              {% endif %}
+
+
+              <!-- Rent -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="rent_amount"
+                >
+                  {{ _('Rent Amount') }}
+                  <span class="required-mark">*</span>
+                </label>
+
+                <div class="input-wrapper">
+
+                  <span class="input-icon currency">
+                    KSh
+                  </span>
+
+                  {{ form.rent_amount(
+                    class="form-input with-icon",
+                    **{
+                      'aria-required': 'true',
+                      'step': '0.01',
+                      'min': '0.01'
+                    }
+                  ) }}
+
+                </div>
+
+                {% if form.rent_amount.errors %}
+                  {% for error in form.rent_amount.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- Due day -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="due_day_of_month"
+                >
+                  {{ _('Due Day of Month') }}
+                  <span class="required-mark">*</span>
+                </label>
+
+                {{ form.due_day_of_month(
+                  class="form-input",
+                  **{
+                    'aria-required': 'true',
+                    'min': '1',
+                    'max': '31'
+                  }
+                ) }}
+
+                <div class="form-help">
+                  Day of the month when rent is normally due.
+                </div>
+
+                {% if form.due_day_of_month.errors %}
+                  {% for error in form.due_day_of_month.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- Grace period -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="grace_period_days"
+                >
+                  {{ _('Grace Period (Days)') }}
+                </label>
+
+                {{ form.grace_period_days(
+                  class="form-input",
+                  **{
+                    'min': '0'
+                  }
+                ) }}
+
+                <div class="form-help">
+                  Number of additional days allowed after the due date.
+                </div>
+
+                {% if form.grace_period_days.errors %}
+                  {% for error in form.grace_period_days.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================
+               Lease Information
+          ========================== -->
+
+          <section class="form-section">
+
+            <div class="section-heading">
+
+              <div class="section-number">
+                03
+              </div>
+
+              <div>
+                <h3>
+                  {{ _('Lease Information') }}
+                </h3>
+
+                <p>
+                  {{ _('Define the tenant’s lease dates and current status.') }}
+                </p>
+              </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+              <!-- Start date -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="lease_start_date"
+                >
+                  {{ _('Lease Start Date') }}
+                  <span class="required-mark">*</span>
+                </label>
+
+                {{ form.lease_start_date(
+                  class="form-input",
+                  **{
+                    'aria-required': 'true'
+                  }
+                ) }}
+
+                {% if form.lease_start_date.errors %}
+                  {% for error in form.lease_start_date.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- End date -->
+              <div class="form-group">
+
+                <label
+                  class="form-label"
+                  for="lease_end_date"
+                >
+                  {{ _('Lease End Date') }}
+                </label>
+
+                {{ form.lease_end_date(
+                  class="form-input"
+                ) }}
+
+                <div class="form-help">
+                  Leave blank if there is no defined end date.
+                </div>
+
+                {% if form.lease_end_date.errors %}
+                  {% for error in form.lease_end_date.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+
+              <!-- Status -->
+              <div class="form-group full-width">
+
+                <label
+                  class="form-label"
+                  for="status"
+                >
+                  {{ _('Status') }}
+                  <span class="required-mark">*</span>
+                </label>
+
+                {{ form.status(
+                  class="form-select",
+                  **{
+                    'aria-required': 'true'
+                  }
+                ) }}
+
+                {% if form.status.errors %}
+                  {% for error in form.status.errors %}
+                    <div class="form-error">
+                      {{ error }}
+                    </div>
+                  {% endfor %}
+                {% endif %}
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================
+               Actions
+          ========================== -->
+
+          <div class="form-actions">
+
+            <div class="actions-left">
+              <i class="fas fa-shield-halved"></i>
+              Your tenant information is securely managed.
+            </div>
+
+            <div class="actions-right">
+
+              <a
+                href="{{ url_for('main.tenants_list') }}"
+                class="btn btn-secondary"
+                id="cancelBtn"
+                aria-label="Cancel and return to tenants list"
+              >
+                <i class="fas fa-arrow-left"></i>
+                {{ _('Cancel') }}
+              </a>
+
+              <button
+                type="submit"
+                class="btn btn-primary"
+                aria-label="Save tenant details"
+              >
+                <i class="fas fa-check"></i>
+                {{ _('Save Tenant') }}
+              </button>
+
+            </div>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </section>
+
+  </main>
+
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize theme
-      const theme = localStorage.getItem('theme') || 'light';
-      if (theme === 'dark') {
-        document.body.classList.add('dark');
+    document.addEventListener("DOMContentLoaded", function () {
+
+      /* =========================
+         Theme
+      ========================== */
+
+      const themeToggle = document.getElementById("themeToggle");
+      const savedTheme = localStorage.getItem("theme") || "light";
+
+      if (savedTheme === "dark") {
+        document.body.classList.add("dark");
       }
 
-      // Theme toggle
-      const themeToggles = [document.getElementById('themeToggle'), document.getElementById('mobileThemeToggle')];
-      themeToggles.forEach(toggle => {
-        if (toggle) {
-          toggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-            showNotification('Theme changed successfully', 'success');
-          });
+      function updateThemeIcon() {
+        const icon = themeToggle.querySelector("i");
+
+        if (document.body.classList.contains("dark")) {
+          icon.className = "fas fa-moon";
+        } else {
+          icon.className = "fas fa-sun";
         }
+      }
+
+      updateThemeIcon();
+
+      themeToggle.addEventListener("click", function () {
+
+        document.body.classList.toggle("dark");
+
+        const theme = document.body.classList.contains("dark")
+          ? "dark"
+          : "light";
+
+        localStorage.setItem("theme", theme);
+
+        updateThemeIcon();
+
       });
 
-      // Mobile menu
-      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-      const mobileMenu = document.getElementById('mobileMenu');
-      mobileMenuToggle.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-        mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
-        mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
+
+      /* =========================
+         Mobile menu
+      ========================== */
+
+      const mobileMenuToggle =
+        document.getElementById("mobileMenuToggle");
+
+      const mobileMenu =
+        document.getElementById("mobileMenu");
+
+      mobileMenuToggle.addEventListener("click", function () {
+
+        const isOpen =
+          mobileMenu.classList.toggle("open");
+
+        mobileMenuToggle.setAttribute(
+          "aria-expanded",
+          isOpen ? "true" : "false"
+        );
+
+        mobileMenuToggle.querySelector("i").className =
+          isOpen
+            ? "fas fa-times"
+            : "fas fa-bars";
+
       });
 
-      // Form handling
-      const form = document.getElementById('tenantForm');
-      const requiredFields = form.querySelectorAll('[required]');
-      const loading = document.querySelector('.loading');
+
+      /* =========================
+         Form state
+      ========================== */
+
+      const form =
+        document.getElementById("tenantForm");
+
+      const loading =
+        document.getElementById("loadingOverlay");
+
+      const cancelBtn =
+        document.getElementById("cancelBtn");
+
       let isFormDirty = false;
 
-      // Phone number masking
-      $('#phone_number').mask('+254 000 000 000');
 
-      // Character counters
-      const textInputs = form.querySelectorAll('input[maxlength]');
-      textInputs.forEach(input => {
-        const counter = form.querySelector(`.char-counter[data-for="${input.id}"]`);
-        if (counter) {
-          counter.textContent = `${input.value.length}/${input.maxLength}`;
-          input.addEventListener('input', () => {
-            counter.textContent = `${input.value.length}/${input.maxLength}`;
-            isFormDirty = true;
-          });
-        }
+      form.querySelectorAll("input, select").forEach(field => {
+
+        field.addEventListener("change", function () {
+          isFormDirty = true;
+        });
+
+        field.addEventListener("input", function () {
+          isFormDirty = true;
+        });
+
       });
 
-      // Real-time validation
+
+      /* =========================
+         Character counters
+      ========================== */
+
+      const textInputs =
+        form.querySelectorAll("input[maxlength]");
+
+      textInputs.forEach(input => {
+
+        const counter =
+          form.querySelector(
+            `.char-counter[data-for="${input.id}"]`
+          );
+
+        if (!counter) {
+          return;
+        }
+
+        const updateCounter = () => {
+
+          counter.textContent =
+            `${input.value.length}/${input.maxLength}`;
+
+        };
+
+        updateCounter();
+
+        input.addEventListener(
+          "input",
+          updateCounter
+        );
+
+      });
+
+
+      /* =========================
+         Validation helpers
+      ========================== */
+
+      function removeGeneratedError(field) {
+
+        const parent = field.parentNode;
+
+        if (!parent) {
+          return;
+        }
+
+        const error =
+          parent.querySelector(
+            ".generated-error"
+          );
+
+        if (error) {
+          error.remove();
+        }
+
+        field.classList.remove("error");
+      }
+
+
+      function showError(field, message) {
+
+        removeGeneratedError(field);
+
+        const error =
+          document.createElement("div");
+
+        error.className =
+          "form-error generated-error";
+
+        error.textContent = message;
+
+        field.parentNode.appendChild(error);
+
+        field.classList.add("error");
+
+      }
+
+
       function validateField(field) {
-        const existingError = field.parentNode.querySelector('.form-error');
-        if (existingError) existingError.remove();
-        field.classList.remove('error');
 
-        if (field.hasAttribute('required') && !field.value.trim()) {
-          showError(field, 'This field is required');
+        removeGeneratedError(field);
+
+        if (
+          field.hasAttribute("required") &&
+          !field.value.trim()
+        ) {
+
+          showError(
+            field,
+            "This field is required."
+          );
+
           return false;
         }
 
-        if (field.id === 'email' && field.value && !isValidEmail(field.value)) {
-          showError(field, 'Please enter a valid email address');
+
+        if (
+          field.id === "email" &&
+          field.value &&
+          !isValidEmail(field.value)
+        ) {
+
+          showError(
+            field,
+            "Please enter a valid email address."
+          );
+
           return false;
         }
 
-        if (field.id === 'rent_amount' && field.value && parseFloat(field.value) <= 0) {
-          showError(field, 'Rent amount must be greater than 0');
+
+        if (
+          field.id === "rent_amount" &&
+          field.value &&
+          parseFloat(field.value) <= 0
+        ) {
+
+          showError(
+            field,
+            "Rent amount must be greater than 0."
+          );
+
           return false;
         }
 
-        if (field.id === 'due_day_of_month' && field.value && (parseInt(field.value) < 1 || parseInt(field.value) > 31)) {
-          showError(field, 'Due day must be between 1 and 31');
+
+        if (
+          field.id === "due_day_of_month" &&
+          field.value &&
+          (
+            parseInt(field.value) < 1 ||
+            parseInt(field.value) > 31
+          )
+        ) {
+
+          showError(
+            field,
+            "Due day must be between 1 and 31."
+          );
+
           return false;
         }
 
-        if (field.id === 'grace_period_days' && field.value && parseInt(field.value) < 0) {
-          showError(field, 'Grace period cannot be negative');
+
+        if (
+          field.id === "grace_period_days" &&
+          field.value &&
+          parseInt(field.value) < 0
+        ) {
+
+          showError(
+            field,
+            "Grace period cannot be negative."
+          );
+
           return false;
         }
+
 
         return true;
       }
 
+
       function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        const emailRegex =
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
         return emailRegex.test(email);
+
       }
 
-      function showError(field, message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'form-error';
-        errorDiv.textContent = message;
-        field.parentNode.appendChild(errorDiv);
-        field.classList.add('error');
-      }
 
-      // Auto-calculate lease end date
-      const startDateField = document.getElementById('lease_start_date');
-      const endDateField = document.getElementById('lease_end_date');
-      startDateField.addEventListener('change', function() {
-        if (this.value && !endDateField.value) {
-          const startDate = new Date(this.value);
-          const endDate = new Date(startDate);
-          endDate.setFullYear(startDate.getFullYear() + 1);
-          endDateField.value = endDate.toISOString().split('T')[0];
-        }
-        isFormDirty = true;
-      });
+      /* =========================
+         Lease dates
+      ========================== */
 
-      // Validate date range
-      endDateField.addEventListener('change', function() {
-        if (startDateField.value && this.value && new Date(this.value) <= new Date(startDateField.value)) {
-          showError(this, 'End date must be after start date');
-        }
-        isFormDirty = true;
-      });
+      const startDateField =
+        document.getElementById(
+          "lease_start_date"
+        );
 
-      // Set default lease start date to today
-      const today = new Date().toISOString().split('T')[0];
-      startDateField.value = startDateField.value || today;
-      startDateField.dispatchEvent(new Event('change'));
+      const endDateField =
+        document.getElementById(
+          "lease_end_date"
+        );
 
-      // Form submission
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        let isValid = true;
 
-        requiredFields.forEach(field => {
-          if (!validateField(field)) isValid = false;
-        });
+      if (startDateField && endDateField) {
 
-        const emailField = document.getElementById('email');
-        const rentField = document.getElementById('rent_amount');
-        const dueDayField = document.getElementById('due_day_of_month');
-        const gracePeriodField = document.getElementById('grace_period_days');
+        startDateField.addEventListener(
+          "change",
+          function () {
 
-        if (!validateField(emailField)) isValid = false;
-        if (!validateField(rentField)) isValid = false;
-        if (!validateField(dueDayField)) isValid = false;
-        if (!validateField(gracePeriodField)) isValid = false;
+            if (
+              this.value &&
+              !endDateField.value
+            ) {
 
-        if (startDateField.value && endDateField.value && new Date(endDateField.value) <= new Date(startDateField.value)) {
-          showError(endDateField, 'End date must be after start date');
-          isValid = false;
-        }
+              const startDate =
+                new Date(this.value);
 
-        if (isValid) {
-          loading.classList.remove('hidden');
-          setTimeout(() => {
-            loading.classList.add('hidden');
-            showNotification('Tenant details saved successfully', 'success');
-            form.submit();
-          }, 1000);
-        } else {
-          showNotification('Please correct the errors in the form', 'error');
-        }
-      });
+              const endDate =
+                new Date(startDate);
 
-      // Track form changes
-      form.querySelectorAll('input, select').forEach(field => {
-        field.addEventListener('change', () => {
-          isFormDirty = true;
-        });
-      });
+              endDate.setFullYear(
+                startDate.getFullYear() + 1
+              );
 
-      // Cancel button confirmation
-      document.getElementById('cancelBtn').addEventListener('click', function(e) {
-        if (isFormDirty && !confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
-          e.preventDefault();
-        }
-      });
+              endDateField.value =
+                endDate.toISOString().split("T")[0];
 
-      // Notification system
-      function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
-      }
+            }
 
-      // Accessibility: Focus management
-      form.querySelectorAll('input, select, button').forEach(element => {
-        element.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && element.tagName !== 'BUTTON') {
-            e.preventDefault();
-            const formElements = Array.from(form.querySelectorAll('input, select, button'));
-            const currentIndex = formElements.indexOf(element);
-            const nextElement = formElements[currentIndex + 1];
-            if (nextElement) nextElement.focus();
+            isFormDirty = true;
+
           }
-        });
-      });
+        );
 
-      // Close mobile menu on link click
-      mobileMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-          mobileMenu.classList.add('hidden');
-          mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-          mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-        });
-      });
 
-      // Escape key handling
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          mobileMenu.classList.add('hidden');
-          mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-          mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+        endDateField.addEventListener(
+          "change",
+          function () {
+
+            removeGeneratedError(this);
+
+            if (
+              startDateField.value &&
+              this.value &&
+              new Date(this.value) <=
+                new Date(startDateField.value)
+            ) {
+
+              showError(
+                this,
+                "End date must be after start date."
+              );
+
+            }
+
+            isFormDirty = true;
+
+          }
+        );
+
+
+        /*
+         * Preserve the existing behavior:
+         * if no start date exists, default it
+         * to today's date.
+         */
+        if (!startDateField.value) {
+
+          const today =
+            new Date()
+              .toISOString()
+              .split("T")[0];
+
+          startDateField.value = today;
+
+          startDateField.dispatchEvent(
+            new Event("change")
+          );
+
         }
-      });
+
+      }
+
+
+      /* =========================
+         Property → Unit filtering
+      ========================== */
+
+      const propertySelect =
+        document.getElementById("property_id");
+
+      const unitSelect =
+        document.getElementById("unit_id");
+
+
+      if (propertySelect && unitSelect) {
+
+        const unitOptions =
+          Array.from(
+            unitSelect.options
+          ).map(option => ({
+            value: option.value,
+            label: option.textContent,
+            property: option.dataset.property
+          }));
+
+
+        const updateUnits = () => {
+
+          const selected =
+            propertySelect.value;
+
+          const current =
+            unitSelect.value;
+
+
+          unitSelect.replaceChildren();
+
+
+          unitOptions
+            .filter(option =>
+              !option.value ||
+              option.property === selected
+            )
+            .forEach(option => {
+
+              const element =
+                new Option(
+                  option.label,
+                  option.value
+                );
+
+              unitSelect.add(element);
+
+            });
+
+
+          if (
+            unitOptions.some(
+              option =>
+                option.value === current &&
+                option.property === selected
+            )
+          ) {
+
+            unitSelect.value = current;
+
+          }
+
+        };
+
+
+        propertySelect.addEventListener(
+          "change",
+          updateUnits
+        );
+
+        updateUnits();
+
+      }
+
+
+      /* =========================
+         Form submission
+      ========================== */
+
+      form.addEventListener(
+        "submit",
+        function (event) {
+
+          event.preventDefault();
+
+          let isValid = true;
+
+
+          /*
+           * Validate required fields.
+           */
+          form
+            .querySelectorAll("[required]")
+            .forEach(field => {
+
+              if (!validateField(field)) {
+                isValid = false;
+              }
+
+            });
+
+
+          /*
+           * Preserve the existing
+           * explicit validation rules.
+           */
+          const emailField =
+            document.getElementById("email");
+
+          const rentField =
+            document.getElementById("rent_amount");
+
+          const dueDayField =
+            document.getElementById(
+              "due_day_of_month"
+            );
+
+          const gracePeriodField =
+            document.getElementById(
+              "grace_period_days"
+            );
+
+
+          if (
+            emailField &&
+            !validateField(emailField)
+          ) {
+            isValid = false;
+          }
+
+          if (
+            rentField &&
+            !validateField(rentField)
+          ) {
+            isValid = false;
+          }
+
+          if (
+            dueDayField &&
+            !validateField(dueDayField)
+          ) {
+            isValid = false;
+          }
+
+          if (
+            gracePeriodField &&
+            !validateField(gracePeriodField)
+          ) {
+            isValid = false;
+          }
+
+
+          /*
+           * Validate lease dates.
+           */
+          if (
+            startDateField &&
+            endDateField &&
+            startDateField.value &&
+            endDateField.value &&
+            new Date(endDateField.value) <=
+              new Date(startDateField.value)
+          ) {
+
+            showError(
+              endDateField,
+              "End date must be after start date."
+            );
+
+            isValid = false;
+
+          }
+
+
+          if (!isValid) {
+
+            showNotification(
+              "Please correct the highlighted fields.",
+              "error"
+            );
+
+            return;
+
+          }
+
+
+          /*
+           * Show loading state.
+           */
+          loading.classList.remove("hidden");
+
+
+          /*
+           * Preserve the existing delayed
+           * submission behavior.
+           */
+          setTimeout(() => {
+
+            loading.classList.add("hidden");
+
+            form.submit();
+
+          }, 500);
+
+        }
+      );
+
+
+      /* =========================
+         Cancel confirmation
+      ========================== */
+
+      if (cancelBtn) {
+
+        cancelBtn.addEventListener(
+          "click",
+          function (event) {
+
+            if (
+              isFormDirty &&
+              !confirm(
+                "Are you sure you want to cancel? Unsaved changes will be lost."
+              )
+            ) {
+
+              event.preventDefault();
+
+            }
+
+          }
+        );
+
+      }
+
+
+      /* =========================
+         Notifications
+      ========================== */
+
+      function showNotification(
+        message,
+        type
+      ) {
+
+        const notification =
+          document.createElement("div");
+
+        notification.className =
+          `notification ${type}`;
+
+        notification.textContent =
+          message;
+
+        document.body.appendChild(
+          notification
+        );
+
+
+        setTimeout(() => {
+
+          notification.style.opacity = "0";
+          notification.style.transform =
+            "translateY(-8px)";
+
+          setTimeout(
+            () => notification.remove(),
+            200
+          );
+
+        }, 2800);
+
+      }
+
+
+      /* =========================
+         Keyboard accessibility
+      ========================== */
+
+      form
+        .querySelectorAll(
+          "input, select, button"
+        )
+        .forEach(element => {
+
+          element.addEventListener(
+            "keydown",
+            function (event) {
+
+              if (
+                event.key === "Enter" &&
+                element.tagName !== "BUTTON"
+              ) {
+
+                event.preventDefault();
+
+                const elements =
+                  Array.from(
+                    form.querySelectorAll(
+                      "input, select, button"
+                    )
+                  );
+
+                const currentIndex =
+                  elements.indexOf(element);
+
+                const nextElement =
+                  elements[currentIndex + 1];
+
+                if (nextElement) {
+                  nextElement.focus();
+                }
+
+              }
+
+            }
+          );
+
+        });
+
+
+      /* =========================
+         Close mobile menu
+      ========================== */
+
+      mobileMenu
+        .querySelectorAll("a")
+        .forEach(link => {
+
+          link.addEventListener(
+            "click",
+            () => {
+
+              mobileMenu.classList.remove(
+                "open"
+              );
+
+              mobileMenuToggle.setAttribute(
+                "aria-expanded",
+                "false"
+              );
+
+              mobileMenuToggle
+                .querySelector("i")
+                .className =
+                "fas fa-bars";
+
+            }
+          );
+
+        });
+
+
+      /* =========================
+         Escape key
+      ========================== */
+
+      document.addEventListener(
+        "keydown",
+        function (event) {
+
+          if (event.key === "Escape") {
+
+            mobileMenu.classList.remove(
+              "open"
+            );
+
+            mobileMenuToggle.setAttribute(
+              "aria-expanded",
+              "false"
+            );
+
+            mobileMenuToggle
+              .querySelector("i")
+              .className =
+              "fas fa-bars";
+
+          }
+
+        }
+      );
+
     });
   </script>
+
 </body>
 </html>

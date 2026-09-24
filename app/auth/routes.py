@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, current_app, url_for, flash, redir
 from flask_login import login_required,login_user, logout_user, current_user
 from app.models import User, Role, Tenant,County
 from app.extensions import db, oauth
-from app.forms import RegistrationForm, LoginForm, ForgotPasswordRequestForm, ResetPasswordForm, ExtendedEditProfileForm
+from app.forms import RegistrationForm, LoginForm, ForgotPasswordRequestForm, ResetPasswordForm, ExtendedEditProfileForm, ProfileUpdateForm
 import uuid
 import logging
 from functools import wraps
@@ -13,7 +13,6 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import traceback
 import uuid
-from app.utils.constrants import UserRoles
 from sqlalchemy.exc import SQLAlchemyError
 
 def generate_uniquifier():
@@ -40,7 +39,7 @@ def roles_required(*required_roles):
             user_roles = {role.name for role in current_user.roles}
             if not set(required_roles).issubset(user_roles):
                 flash(_l('You do not have the required permissions to access this page.'), 'danger')
-                return redirect(url_for('main.index'))
+                return redirect(url_for('main.landing_page'))
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -50,17 +49,33 @@ def roles_required(*required_roles):
 def register():
     form = RegistrationForm()
 
+    if request.method == 'POST' and form.email.data:
+        form.email.data = form.email.data.strip().lower()
+
+    if request.method == 'GET':
+        requested_role = request.args.get('role', '').lower()
+        if requested_role in {'tenant', 'landlord'}:
+            form.role.data = requested_role
+
     if form.validate_on_submit():
         email = form.email.data.lower().strip()
-        existing_user = User.query.filter_by(email=email).first()
+        existing_user = User.query.filter(db.func.lower(User.email) == email).first()
 
         if existing_user:
             flash("This email is already registered. Please log in or use a different email.", "danger")
             return redirect(url_for('auth.register'))
 
+        if form.role.data.lower() == 'tenant':
+            linked_tenant = Tenant.query.filter(
+                db.func.lower(db.func.trim(Tenant.email)) == email,
+                Tenant.user_id.isnot(None)
+            ).first()
+            if linked_tenant:
+                flash("This tenant allocation is linked to an existing account. Please log in or contact your landlord.", "danger")
+                return redirect(url_for('auth.login'))
+
         # Role logic
-        selected_role_name = form.role.data.lower() if form.role.data else UserRoles.TENANT
-        selected_enum_role = getattr(UserRoles, selected_role_name.upper(), UserRoles.TENANT)
+        selected_role_name = form.role.data.lower()
 
         selected_role_obj = Role.query.filter_by(name=selected_role_name).first()
         if not selected_role_obj:
@@ -86,15 +101,29 @@ def register():
 
             # If user is a tenant, create a Tenant record
             if selected_role_name == 'tenant':
-                tenant = Tenant(
-                    user_id=new_user.id,
-                    first_name=new_user.first_name,
-                    last_name=new_user.last_name,
-                    email=new_user.email,
-                    status='active',
-                    grace_period_days=5
-                )
-                db.session.add(tenant)
+                tenant = Tenant.query.filter(
+                    db.func.lower(db.func.trim(Tenant.email)) == email,
+                    Tenant.user_id.is_(None)
+                ).order_by(
+                    Tenant.unit_id.isnot(None).desc(),
+                    Tenant.property_id.isnot(None).desc(),
+                    Tenant.id.asc()
+                ).first()
+                if tenant:
+                    tenant.user_id = new_user.id
+                    tenant.first_name = new_user.first_name
+                    tenant.last_name = new_user.last_name
+                    tenant.email = email
+                else:
+                    tenant = Tenant(
+                        user_id=new_user.id,
+                        first_name=new_user.first_name,
+                        last_name=new_user.last_name,
+                        email=email,
+                        status='active',
+                        grace_period_days=5
+                    )
+                    db.session.add(tenant)
 
             db.session.commit()
 
@@ -113,8 +142,13 @@ def register():
 def login():
     form = LoginForm()
 
+    if request.method == 'POST' and form.email.data:
+        form.email.data = form.email.data.strip().lower()
+
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter(
+            db.func.lower(db.func.trim(User.email)) == form.email.data
+        ).first()
 
         # Check if user is an OAuth-only user
         if user and user.is_oauth_user:
@@ -132,7 +166,7 @@ def login():
             elif any(role.name == 'tenant' for role in user.roles):
                 return redirect(url_for('main.tenant_dashboard'))
             else:
-                return redirect(url_for('main.index'))
+                return redirect(url_for('main.landing_page'))
 
         flash(_l('Invalid email or password.'), 'danger')
 
@@ -203,7 +237,7 @@ def logout():
     except Exception as e:
         current_app.logger.error(f"Logout error: {e}")
         flash(_l('An error occurred while logging out.'), 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.landing_page'))
 
 @auth.route('/edit/profile', methods=['GET', 'POST'])
 @login_required
@@ -245,15 +279,39 @@ def edit_profile():
         return redirect(url_for('auth.profile'))
 
 
-@auth.route('/profile')
+@auth.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    try:
-        return render_template('security/profile.html', user=current_user)
-    except Exception as e:
-        current_app.logger.error(f"Profile view error: {traceback.format_exc()}")
-        flash(_l('Unable to load your profile.'), 'danger')
-        return redirect(url_for('main.index'))
+    form = ProfileUpdateForm(obj=current_user)
+    if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+        duplicate = User.query.filter(User.email == email, User.id != current_user.id).first()
+        if duplicate:
+            form.email.errors.append(_l('That email address is already in use.'))
+        else:
+            try:
+                current_user.first_name = form.first_name.data.strip()
+                current_user.last_name = form.last_name.data.strip()
+                current_user.email = email
+                current_user.phone_number = form.phone_number.data.strip() if form.phone_number.data else None
+
+                if current_user.has_role('tenant'):
+                    tenant = Tenant.query.filter_by(user_id=current_user.id).first()
+                    if tenant:
+                        tenant.first_name = current_user.first_name
+                        tenant.last_name = current_user.last_name
+                        tenant.email = current_user.email
+                        tenant.phone_number = current_user.phone_number
+
+                db.session.commit()
+                flash(_l('Your profile was updated.'), 'success')
+                return redirect(url_for('auth.profile'))
+            except SQLAlchemyError:
+                db.session.rollback()
+                current_app.logger.exception('Profile update failed')
+                flash(_l('We could not save your profile. Please try again.'), 'danger')
+
+    return render_template('security/profile.html', user=current_user, form=form)
 
 @auth.route('/roles')
 @roles_required('landlord')
@@ -263,7 +321,7 @@ def roles():
     except Exception as e:
         current_app.logger.error(f"Roles page error: {traceback.format_exc()}")
         flash(_l('Unable to load roles.'), 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.landing_page'))
     
 
 

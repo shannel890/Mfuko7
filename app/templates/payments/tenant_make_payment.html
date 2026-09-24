@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Properties | PropertyPayTrack</title>
+  <title>Make a Payment | MFUKO</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -355,49 +356,57 @@
         gap: 15px;
         margin-top: 15px;
     }
+
+    body { background: #f7f8fa !important; color: #17211c; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    nav { background: #fff !important; border-bottom: 1px solid #e8ece9; box-shadow: none !important; backdrop-filter: none !important; }
+    .tenant-page { width: min(960px, calc(100% - 32px)); margin: 32px auto 56px; }
+    .card, .bg-glass { background: #fff !important; border: 1px solid #e8ece9 !important; border-radius: 12px !important; box-shadow: none !important; backdrop-filter: none !important; }
+    .card:hover { transform: none; }
+    .btn-primary { background: #176b49; border-radius: 8px; box-shadow: none; }
+    .btn-primary:hover { background: #12583b; transform: none; box-shadow: none; }
+    .btn-payment-method { background: #fff; border: 1px solid #e3e9e5; border-radius: 10px; color: #34443a; }
+    .btn-payment-method.active { background: #f1f7f3; border-color: #176b49; box-shadow: none; }
+    .amount-suggestion { color: #176b49; background: #f1f7f3; border-color: #d8e9de; }
+    .amount-suggestion:hover { background: #e4f1e8; transform: none; }
+    .text-primary { color: #176b49 !important; }
+    .payment-method-icon { color: #176b49; }
+    .tenant-nav-link { color: #647168; font-size: 14px; text-decoration: none; }
+    .tenant-nav-link:hover, .tenant-nav-link[aria-current="page"] { color: #176b49; }
+    .payment-method-error { display: none; color: #dc3545; font-size: .875rem; }
+    .payment-method-error.visible { display: block; }
+    .step { border-radius: 8px; }
+    @media (max-width: 768px) { .tenant-page { width: calc(100% - 28px); margin: 24px auto 40px; } .card-body { padding: 1.25rem !important; } }
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300">
-  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 text-xl font-semibold text-gray-800">
-              <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
-            </a>
-          </div>
-
-          <div class="hidden md:flex items-center space-x-6">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
-            
-            
-            <a href="{{ url_for('main.payments_history') }}" class="text-gray-700 hover:text-indigo-600 transition">Payments</a>
-            
-            <a href="{{ url_for('auth.profile') }}" class="text-gray-700 hover:text-indigo-600 transition">Profile</a>
-          </div>
-
-          <div class="flex items-center space-x-4">
-            <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block text-gray-700 hover:text-indigo-600 transition">Logout</a>
-
-            <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
-              <i data-lucide="menu" class="lucide-icon"></i>
-            </button>
-          </div>
+  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <a href="{{ url_for('main.tenant_dashboard') }}" class="text-xl font-semibold" style="color:#20845b;letter-spacing:-.6px">MFUKO</a>
+        <div class="hidden md:flex items-center space-x-6">
+          <a href="{{ url_for('main.tenant_dashboard') }}" class="tenant-nav-link">Overview</a>
+          <a href="{{ url_for('main.tenant_make_payment') }}" class="tenant-nav-link" aria-current="page">Payments</a>
+          <a href="{{ url_for('auth.profile') }}" class="tenant-nav-link">My Profile</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block tenant-nav-link">Sign out</a>
+          <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none" aria-label="Toggle navigation" aria-expanded="false">☰</button>
         </div>
       </div>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
+      <a href="{{ url_for('main.tenant_dashboard') }}" class="block py-2 tenant-nav-link">Overview</a>
+      <a href="{{ url_for('main.tenant_make_payment') }}" class="block py-2 tenant-nav-link" aria-current="page">Payments</a>
+      <a href="{{ url_for('auth.profile') }}" class="block py-2 tenant-nav-link">My Profile</a>
+      <a href="{{ url_for('auth.logout') }}" class="block py-2 tenant-nav-link">Sign out</a>
+    </div>
+  </nav>
 
-      <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-        <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
-        <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
-        
-        <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-        
-        <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
-        <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
-      </div>
-    </nav>
-
-  <div class="container mt-5 mb-5">
+  <main class="tenant-page">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="alert alert-{{ category if category in ['success', 'warning', 'info', 'danger'] else 'info' }}" role="alert">{{ message }}</div>
+    {% endfor %}
+    {% if form.errors %}<div class="alert alert-danger" role="alert">Please review the payment details and try again.</div>{% endif %}
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
             <!-- Progress Indicator -->
@@ -424,19 +433,13 @@
                     </h5>
                     <div class="row">
                         <div class="col-md-6">
-                            <p class="mb-2"><strong>Monthly Rent:</strong> KES 10,000.00</p>
-                            <p class="mb-2"><strong>Rent Due Date:</strong> 15 January, 2025</p>
+                            <p class="mb-2"><strong>Monthly Rent:</strong> KSh {{ '{:,.2f}'.format(tenant.rent_amount|float) if tenant.rent_amount else 'Not configured' }}</p>
+                            <p class="mb-2"><strong>Rent Due Date:</strong> {{ due_date.strftime('%d %B, %Y') }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p class="mb-2"><strong>Lease Start:</strong> 01 Jan 2025</p>
-                            <p class="mb-2"><strong>Lease End:</strong> 31 Jan 2025</p>
+                            <p class="mb-2"><strong>Lease Start:</strong> {{ tenant.lease_start_date.strftime('%d %b %Y') if tenant.lease_start_date else '—' }}</p>
+                            <p class="mb-2"><strong>Lease End:</strong> {{ tenant.lease_end_date.strftime('%d %b %Y') if tenant.lease_end_date else '—' }}</p>
                         </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-muted mt-1 d-block">60% of lease period completed</small>
                     </div>
                 </div>
             </div>
@@ -445,9 +448,9 @@
             <div class="alert alert-success text-center mb-4" role="alert" id="amountDueAlert">
                 <h5 class="mb-0 pulse-animation">
                     <i class="fas fa-money-bill-wave me-2"></i>
-                    Amount Due: <strong>KSh 10,000.00</strong>
+                    Amount Due: <strong>KSh {{ '{:,.2f}'.format(amount_due|float) }}</strong>
                 </h5>
-                <small class="mt-2 d-block">Due in 7 days</small>
+                <small class="mt-2 d-block">Due {{ due_date.strftime('%d %B, %Y') }}</small>
             </div>
 
             <!-- Payment Form -->
@@ -467,66 +470,42 @@
                             <div class="input-group">
                                 <span class="input-group-text">KSh</span>
                                 <input type="number" class="form-control form-control-lg" id="amount" name="amount" 
-                                       placeholder="Enter amount" min="1" max="100000" step="0.01" required>
+                                       placeholder="Enter amount" min="1" max="{{ amount_due }}" step="0.01" required>
                             </div>
                             <div class="amount-suggestions">
-                                <span class="amount-suggestion" data-amount="10000">Full Amount</span>
-                                <span class="amount-suggestion" data-amount="5000">Half Amount</span>
-                                <span class="amount-suggestion" data-amount="3000">3,000</span>
-                                <span class="amount-suggestion" data-amount="1500">1500</span>
+                                {% if amount_due %}<button type="button" class="amount-suggestion" data-amount="{{ amount_due }}">Full amount</button><button type="button" class="amount-suggestion" data-amount="{{ amount_due / 2 }}">Half amount</button>{% endif %}
                             </div>
-                            <div class="invalid-feedback">
-                                Please enter a valid amount between 1 and 100,000.
-                            </div>
+                            <div class="invalid-feedback">Enter an amount from KSh 1 up to the amount due.</div>
                         </div>
 
                         <!-- Payment Method Selection -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Payment Method</label>
                             <div class="payment-method-grid">
-                                <div class="btn-payment-method" data-method="mpesa">
+                                <div class="btn-payment-method" data-method="mpesa" role="button" tabindex="0">
                                     <div class="payment-method-icon">
                                         <i class="fas fa-mobile-alt"></i>
                                     </div>
                                     <div class="fw-semibold">M-Pesa</div>
                                     <small class="text-muted">Mobile Money</small>
                                 </div>
-                                <div class="btn-payment-method" data-method="bank">
+                                <div class="btn-payment-method" data-method="bank" role="button" tabindex="0">
                                     <div class="payment-method-icon">
                                         <i class="fas fa-university"></i>
                                     </div>
                                     <div class="fw-semibold">Bank Transfer</div>
                                     <small class="text-muted">Direct Transfer</small>
                                 </div>
-                                <div class="btn-payment-method" data-method="cash">
+                                <div class="btn-payment-method" data-method="cash" role="button" tabindex="0">
                                     <div class="payment-method-icon">
                                         <i class="fas fa-money-bill"></i>
                                     </div>
                                     <div class="fw-semibold">Cash</div>
                                     <small class="text-muted">Physical Cash</small>
                                 </div>
-                                <div class="btn-payment-method" data-method="check">
-                                    <div class="payment-method-icon">
-                                        <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="fw-semibold">Check</div>
-                                    <small class="text-muted">Bank Check</small>
-                                </div>
                             </div>
                             <input type="hidden" id="payment_method" name="payment_method" required>
-                            <div class="invalid-feedback">
-                                Please select a payment method.
-                            </div>
-                        </div>
-                        <!-- Phone Number Field (for M-Pesa) -->
-                        <div class="floating-label" id="phoneNumberField" style="display: none;">
-                            <div class="input-group-modern">
-                            <span class="input-group-text"><i class="fas fa-phone" aria-hidden="true"></i></span>
-                            <input type="tel" class="form-control-modern" id="phone_number" name="phone_number" 
-                                    placeholder=" " pattern="(\+254|0)[7][0-9]{8}" aria-describedby="phoneError">
-                            <label for="phone_number">Phone Number (M-Pesa)</label>
-                            </div>
-                            <div class="error-message" id="phoneError">Please enter a valid Kenyan phone number (e.g., +2547XXXXXXXX or 07XXXXXXXX)</div>
+                            <div class="payment-method-error" id="paymentMethodError" role="alert">Please select a payment method.</div>
                         </div>
 
                         <!-- Offline Payment Toggle -->
@@ -644,43 +623,19 @@
                 </div>
             </div>
 
-            <!-- Recent Payments -->
-            <div class="card mt-4 border-0 shadow-sm">
+            <section class="card mt-4 border-0 shadow-sm" id="recent-payments">
                 <div class="card-body">
-                    <h6 class="card-title text-primary">
-                        <i class="fas fa-history me-2"></i>Recent Payments
-                    </h6>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Method</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Dec 15, 2024</td>
-                                    <td>KSh 25,000.00</td>
-                                    <td>M-Pesa</td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Nov 15, 2024</td>
-                                    <td>KSh 25,000.00</td>
-                                    <td>Bank Transfer</td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h2 class="card-title text-primary">Recent Payments</h2>
+                    {% if recent_payments %}
+                    <div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody>
+                    {% for payment in recent_payments %}<tr><td>{{ payment.payment_date.strftime('%d %b %Y') if payment.payment_date else '—' }}</td><td>KSh {{ '{:,.2f}'.format(payment.amount|float) }}</td><td>{{ payment.payment_method|title }}</td><td>{{ payment.status|title }}</td></tr>{% endfor %}
+                    </tbody></table></div>
+                    {% else %}<p class="text-muted mb-0">No payments have been recorded yet.</p>{% endif %}
                 </div>
-            </div>
+            </section>
         </div>
     </div>
-</div>
+  </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -697,6 +652,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const amountInput = document.querySelector('#amount');
     const paymentMethodButtons = document.querySelectorAll('.btn-payment-method');
     const paymentMethodInput = document.querySelector('#payment_method');
+    const mobileMenuToggle = document.querySelector('#mobileMenuToggle');
+    const mobileMenu = document.querySelector('#mobileMenu');
+    mobileMenuToggle?.addEventListener('click', () => {
+        const open = mobileMenu.classList.toggle('hidden') === false;
+        mobileMenuToggle.setAttribute('aria-expanded', String(open));
+    });
     const amountSuggestions = document.querySelectorAll('.amount-suggestion');
     const formSummary = document.querySelector('#formSummary');
     const summaryAmount = document.querySelector('#summaryAmount');
@@ -793,13 +754,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Bind payment method selection
     paymentMethodButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        const chooseMethod = function() {
             paymentMethodButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            paymentMethodInput.value = this.dataset.method;
+            button.classList.add('active');
+            paymentMethodInput.value = button.dataset.method;
             validateField(paymentMethodInput);
+            document.querySelector('#paymentMethodError')?.classList.remove('visible');
             updateFormSummary();
             updateSteps();
+        };
+        button.addEventListener('click', chooseMethod);
+        button.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); chooseMethod(); }
         });
     });
 
@@ -819,6 +785,10 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             let isValid = form.checkValidity();
+            if (!paymentMethodInput.value) {
+                document.querySelector('#paymentMethodError')?.classList.add('visible');
+                isValid = false;
+            }
 
             if (!isValid) {
                 form.classList.add('was-validated');
@@ -826,8 +796,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             submitBtn.disabled = true;
-            spinner.classList.remove('d-none');
-            btnText.textContent = 'Submitting...';
+            spinner?.classList.remove('d-none');
+            if (btnText) btnText.textContent = 'Submitting...';
 
             setTimeout(() => {
                 form.submit();

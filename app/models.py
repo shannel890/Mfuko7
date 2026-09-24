@@ -103,7 +103,7 @@ class Property(db.Model):
     county_name = db.Column(db.String(100), nullable=False)
     amenities = db.Column(db.Text, nullable=True)
     utility_bill_types = db.Column(db.Text, nullable=True)
-    unit_numbers = db.Column(db.Text, nullable=False)
+    unit_numbers = db.Column(db.Text, nullable=False, default='')
     deposit_amount = db.Column(db.Numeric(10, 2), nullable=True)
     deposit_policy = db.Column(db.Text, nullable=True)
 
@@ -168,7 +168,7 @@ class Unit(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     unit_number = db.Column(db.String(50), nullable=False)
-    rent_amount = db.Column(db.Numeric(10, 2), nullable=False)
+    rent_amount = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     deposit_amount = db.Column(db.Numeric(10, 2), nullable=True)
     bedrooms = db.Column(db.Integer, nullable=True)
     bathrooms = db.Column(db.Integer, nullable=True)

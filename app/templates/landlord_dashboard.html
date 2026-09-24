@@ -1,710 +1,1559 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPT Dashboard</title>
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <!-- Preload and font-display: swap for fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.media='all'">
-    <script>
-        // Lazy load all images
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('img').forEach(img => {
-                if (!img.hasAttribute('loading')) {
-                    img.setAttribute('loading', 'lazy');
-                }
-            });
-        });
-    </script>
-    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" defer></script>
-    <style>
-        /* Base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            color: #1f2937;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-        body.dark {
-            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-            color: #f3f4f6;
-        }
-        /* Dark mode specific styles */
-        .dark .bg-white\/80 {
-            background: rgba(31, 41, 55, 0.8);
-        }
-        .dark .card {
-            background: rgba(31, 41, 55, 0.8);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-        .dark .stat-card {
-            background: rgba(31, 41, 55, 0.8);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-        .dark .payment-item {
-            background: rgba(55, 65, 81, 0.6);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-        .dark .text-gray-700 {
-            color: #d1d5db;
-        }
-        .dark .nav-link-custom {
-            color: #d1d5db;
-        }
-        .dark .nav-link-custom:hover {
-            color: #818cf8;
-        }
-        /* Navigation Specific Styles */
-        .navbar-brand-custom {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        .dark .navbar-brand-custom {
-            color: #f3f4f6;
-        }
-        .nav-link-custom {
-            color: #4b5563;
-            transition: color 0.3s ease;
-        }
-        .nav-link-custom:hover {
-            color: #4f46e5;
-        }
-        .logout-btn-custom {
-            background-color: #4f46e5;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.3s ease;
-        }
-        .logout-btn-custom:hover {
-            background-color: #4338ca;
-        }
-        /* General dashboard styles */
-        .dashboard-container {
-            padding: 1.5rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            opacity: 0;
-            animation: fadeIn 0.5s ease forwards;
-        }
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-        .space-y-8 > * + * {
-            margin-top: 2rem;
-        }
-        /* Header Section */
-        .header-section {
-            position: relative;
-            overflow: hidden;
-            border-radius: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
-            color: white;
-            transform: translateY(20px);
-            opacity: 0;
-            animation: slideIn 0.5s ease 0.2s forwards;
-        }
-        @keyframes slideIn {
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .header-content {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .header-text h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-        }
-        .header-text p {
-            font-size: 1.125rem;
-            opacity: 0.9;
-        }
-        .header-button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .header-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        .header-decoration-1 {
-            position: absolute;
-            top: -1rem;
-            right: -4rem;
-            width: 8rem;
-            height: 8rem;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .header-decoration-2 {
-            position: absolute;
-            bottom: -2rem;
-            left: -2rem;
-            width: 6rem;
-            height: 6rem;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-        }
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            gap: 1.5rem;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-        .stat-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            transform: translateY(20px);
-            opacity: 0;
-            animation: slideIn 0.5s ease forwards;
-            animation-delay: calc(var(--i) * 0.1s);
-        }
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
-        }
-        .dark .stat-card::before {
-            background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(31, 41, 55, 0.4) 100%);
-        }
-        .stat-card-header {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.5rem 1.5rem 0.75rem;
-        }
-        .stat-card-title {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #6b7280;
-        }
-        .dark .stat-card-title {
-            color: #9ca3af;
-        }
-        .stat-icon {
-            padding: 0.5rem;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-        }
-        .stat-card-content {
-            position: relative;
-            padding: 0 1.5rem 1.5rem;
-        }
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        .stat-change {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .text-success { color: #10b981; }
-        .text-destructive { color: #ef4444; }
-        .text-primary { color: #667eea; }
-        .text-secondary { color: #764ba2; }
-        /* Main Content Grid */
-        .main-grid {
-            display: grid;
-            gap: 2rem;
-            grid-template-columns: 1fr;
-        }
-        @media (min-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 2fr 1fr;
-            }
-        }
-        /* Card Styles */
-        .card {
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-            transform: translateY(20px);
-            opacity: 0;
-            animation: slideIn 0.5s ease 0.4s forwards;
-        }
-        .card-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        .dark .card-header {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .card-header-flex {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        .card-description {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        .dark .card-description {
-            color: #9ca3af;
-        }
-        .card-content {
-            padding: 1.5rem;
-        }
-        .view-all-btn {
-            background: white;
-            border: 1px solid #e5e7eb;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .dark .view-all-btn {
-            background: #374151;
-            border-color: #4b5563;
-        }
-        .view-all-btn:hover {
-            background: #f9fafb;
-        }
-        .dark .view-all-btn:hover {
-            background: #4b5563;
-        }
-        /* Payment Item */
-        .payment-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            border: 1px solid #e5e7eb;
-            background: rgba(255, 255, 255, 0.6);
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-            transform: translateY(20px);
-            opacity: 0;
-            animation: slideIn 0.5s ease forwards;
-            animation-delay: calc(var(--i) * 0.1s);
-        }
-        .payment-item:hover {
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        .dark .payment-item:hover {
-            background: rgba(55, 65, 81, 0.8);
-        }
-        .payment-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .payment-icon {
-            padding: 0.5rem;
-            border-radius: 50%;
-        }
-        .payment-icon.paid {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-        .payment-icon.overdue {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-        .payment-details h4 {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        .payment-details p {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 0.125rem;
-        }
-        .dark .payment-details p {
-            color: #9ca3af;
-        }
-        .payment-right {
-            text-align: right;
-        }
-        .payment-amount {
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .badge.paid {
-            background: #10b981;
-            color: white;
-        }
-        .badge.overdue {
-            background: #ef4444;
-            color: white;
-        }
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-            transform: translateY(20px);
-            opacity: 0;
-            animation: slideIn 0.5s ease forwards;
-            animation-delay: calc(var(--i) * 0.1s);
-        }
-        .dark .action-btn {
-            background: #374151;
-            border-color: #4b5563;
-        }
-        .action-btn:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        .action-btn:hover .action-icon {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        .action-icon {
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            background: rgba(102, 126, 234, 0.1);
-            transition: all 0.3s ease;
-        }
-        .action-text {
-            flex: 1;
-        }
-        .action-arrow {
-            opacity: 0.6;
-        }
-        /* Search Bar */
-        .search-container {
-            position: relative;
-            width: 200px;
-        }
-        .search-input {
-            width: 100%;
-            padding: 0.5rem 2rem 0.5rem 2.5rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            background: white;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-        }
-        .dark .search-input {
-            background: #374151;
-            border-color: #4b5563;
-            color: #f3f4f6;
-        }
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-        .search-icon {
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-        }
-        /* Notification Bell */
-        .notification-container {
-            position: relative;
-        }
-        .notification-bell {
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
-        .notification-bell:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-        .notification-count {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            padding: 0.2rem 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .notification-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 300px;
-            background: white;
-            border-radius: 0.5rem;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            display: none;
-            z-index: 100;
-        }
-        .dark .notification-dropdown {
-            background: #374151;
-            border-color: #4b5563;
-        }
-        .notification-dropdown.active {
-            display: block;
-        }
-        .notification-item {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 0.875rem;
-        }
-        .dark .notification-item {
-            border-bottom: 1px solid #4b5563;
-        }
-        .notification-item:last-child {
-            border-bottom: none;
-        }
-        /* Loading State */
-        .loading {
-            position: fixed;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.3s ease;
-        }
-        .dark .loading {
-            background: rgba(31, 41, 55, 0.8);
-        }
-        .loading.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #667eea;
-            border-top: 4px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 1rem;
-            }
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            .header-text h1 {
-                font-size: 2rem;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-            .search-container {
-                width: 100%;
-                margin-bottom: 1rem;
-            }
-            .notification-dropdown {
-                width: 100%;
-                right: 0;
-            }
-        }
-        /* Icons */
-        .lucide-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-        }
-        .lucide-icon-sm {
-            width: 1rem;
-            height: 1rem;
-        }
-        .hidden-mobile {
-            display: none;
-        }
-        @media (min-width: 768px) {
-            .hidden-mobile {
-                display: flex;
-            }
-        }
-        /* Simple, low-distraction presentation */
-        body { background: #f8fafc; color: #1f2937; }
-        nav { background: #fff !important; backdrop-filter: none !important; box-shadow: none !important; }
-        .dashboard-container { max-width: 1200px; padding: 2rem 1rem; opacity: 1; animation: none; }
-        .header-section { background: #fff; color: #1f2937; border: 1px solid #e5e7eb; border-radius: .5rem; padding: 1.5rem; transform: none; opacity: 1; animation: none; }
-        .header-text h1 { font-size: 1.75rem; margin-bottom: .25rem; }
-        .stats-grid { gap: 1rem; }
-        .stat-card, .card { background: #fff; border: 1px solid #e5e7eb; border-radius: .5rem; box-shadow: none; transform: none; opacity: 1; animation: none; }
-        .stat-card:hover { transform: none; box-shadow: none; }
-        .stat-card::before { display: none; }
-    </style>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <meta
+    name="theme-color"
+    content="#ffffff"
+  >
+
+  <meta
+    name="description"
+    content="MFUKO landlord dashboard"
+  >
+
+  <title>Dashboard · MFUKO</title>
+
+
+  <!-- ================================
+       FONTS
+  ================================= -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+
+  <!-- ================================
+       STYLES
+  ================================= -->
+
+  <style>
+
+    :root {
+
+      --primary: #176b49;
+      --primary-dark: #12553a;
+      --primary-soft: #edf7f2;
+
+      --accent: #e89024;
+      --accent-soft: #fff6e8;
+
+      --background: #ffffff;
+      --surface: #ffffff;
+      --surface-soft: #f8faf9;
+
+      --text: #17211c;
+      --text-secondary: #65726b;
+      --text-muted: #8b9690;
+
+      --border: #e4e9e6;
+      --border-light: #edf1ee;
+
+      --success: #18794d;
+      --success-soft: #edf8f2;
+
+      --danger: #c83c32;
+      --danger-soft: #fcebea;
+
+      --shadow-sm:
+        0 1px 2px rgba(20, 35, 28, 0.04);
+
+      --shadow-md:
+        0 8px 24px rgba(20, 35, 28, 0.06);
+
+      --radius: 12px;
+
+    }
+
+
+    /* ================================
+       RESET
+    ================================= */
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+
+      background: var(--background);
+      color: var(--text);
+
+      font-family:
+        "Inter",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+
+    /* ================================
+       TOP BAR
+    ================================= */
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+
+      height: 68px;
+
+      background: #ffffff;
+
+      border-bottom: 1px solid var(--border);
+
+      box-shadow:
+        0 1px 3px rgba(20, 35, 28, 0.03);
+    }
+
+    .topbar-inner {
+      width: min(
+        1160px,
+        calc(100% - 40px)
+      );
+
+      height: 100%;
+
+      margin: 0 auto;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 24px;
+    }
+
+
+    /* ================================
+       BRAND
+    ================================= */
+
+    .brand {
+      flex-shrink: 0;
+
+      font-family: "Manrope", sans-serif;
+
+      font-size: 20px;
+      font-weight: 800;
+
+      letter-spacing: -0.7px;
+
+      color: var(--primary);
+    }
+
+    .brand-mark {
+      color: var(--primary);
+    }
+
+
+    /* ================================
+       NAVIGATION
+    ================================= */
+
+    .nav {
+      display: flex;
+      align-items: center;
+
+      gap: 5px;
+
+      color: var(--text-secondary);
+
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .nav a {
+      padding: 8px 11px;
+
+      border-radius: 7px;
+
+      transition:
+        color 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .nav a:hover {
+      color: var(--primary);
+
+      background: var(--primary-soft);
+    }
+
+    .nav a[aria-current="page"] {
+      color: var(--primary);
+
+      background: var(--primary-soft);
+
+      font-weight: 600;
+    }
+
+
+    /* ================================
+       ACCOUNT
+    ================================= */
+
+    .account {
+      display: flex;
+      align-items: center;
+
+      gap: 11px;
+
+      color: var(--text-secondary);
+
+      font-size: 12px;
+    }
+
+    .user-name {
+      max-width: 145px;
+
+      overflow: hidden;
+
+      text-overflow: ellipsis;
+
+      white-space: nowrap;
+    }
+
+    .logout {
+      min-height: 34px;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 0 11px;
+
+      border: 1px solid var(--border);
+
+      border-radius: 7px;
+
+      color: var(--text-secondary);
+
+      font-size: 11px;
+      font-weight: 600;
+
+      transition:
+        border-color 0.2s ease,
+        color 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .logout:hover {
+      border-color: #ccd8d1;
+
+      background: var(--surface-soft);
+
+      color: var(--primary);
+    }
+
+    .menu-toggle {
+      display: none;
+
+      padding: 7px;
+
+      border: 0;
+
+      background: transparent;
+
+      color: var(--text);
+
+      cursor: pointer;
+
+      font-size: 18px;
+    }
+
+
+    /* ================================
+       MOBILE MENU
+    ================================= */
+
+    .mobile-menu {
+      display: none;
+
+      border-bottom: 1px solid var(--border);
+
+      background: #ffffff;
+
+      padding: 8px 16px 15px;
+    }
+
+    .mobile-menu.open {
+      display: grid;
+
+      gap: 2px;
+    }
+
+    .mobile-menu a {
+      padding: 10px 4px;
+
+      color: var(--text-secondary);
+
+      font-size: 13px;
+    }
+
+    .mobile-menu a:hover {
+      color: var(--primary);
+    }
+
+
+    /* ================================
+       PAGE
+    ================================= */
+
+    .page {
+      width: min(
+        1160px,
+        calc(100% - 40px)
+      );
+
+      margin: 0 auto;
+
+      padding: 38px 0 65px;
+    }
+
+
+    /* ================================
+       PAGE HEADER
+    ================================= */
+
+    .heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+
+      gap: 24px;
+
+      margin-bottom: 25px;
+    }
+
+    .heading-copy {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+
+      color: var(--text-muted);
+
+      font-size: 11px;
+      font-weight: 600;
+
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .heading h1 {
+      margin: 0;
+
+      font-family: "Manrope", sans-serif;
+
+      font-size: 29px;
+      line-height: 1.2;
+
+      font-weight: 800;
+
+      letter-spacing: -0.9px;
+
+      color: var(--text);
+    }
+
+    .heading p {
+      max-width: 600px;
+
+      margin: 8px 0 0;
+
+      color: var(--text-secondary);
+
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+
+    /* ================================
+       PRIMARY BUTTON
+    ================================= */
+
+    .primary-link {
+      flex-shrink: 0;
+
+      min-height: 40px;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 0 15px;
+
+      border-radius: 8px;
+
+      background: var(--primary);
+      color: #ffffff;
+
+      font-size: 12px;
+      font-weight: 600;
+
+      box-shadow:
+        0 3px 8px rgba(23, 107, 73, 0.13);
+
+      transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .primary-link:hover {
+      background: var(--primary-dark);
+
+      transform: translateY(-1px);
+
+      box-shadow:
+        0 5px 12px rgba(23, 107, 73, 0.18);
+    }
+
+
+    /* ================================
+       STATS
+    ================================= */
+
+    .stats {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          4,
+          minmax(0, 1fr)
+        );
+
+      gap: 13px;
+
+      margin-bottom: 22px;
+    }
+
+    .stat {
+      position: relative;
+
+      min-height: 125px;
+
+      padding: 18px;
+
+      overflow: hidden;
+
+      background: #ffffff;
+
+      border: 1px solid var(--border);
+
+      border-radius: var(--radius);
+
+      box-shadow: var(--shadow-sm);
+
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .stat:hover {
+      border-color: #d8e2dc;
+
+      box-shadow: var(--shadow-md);
+
+      transform: translateY(-1px);
+    }
+
+    .stat::after {
+      content: "";
+
+      position: absolute;
+
+      top: 0;
+      right: 0;
+
+      width: 3px;
+      height: 100%;
+
+      background: var(--primary);
+
+      opacity: 0;
+    }
+
+    .stat:hover::after {
+      opacity: 1;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      margin-top: 11px;
+
+      color: var(--text);
+
+      font-family: "Manrope", sans-serif;
+
+      font-size: 24px;
+      line-height: 1.15;
+
+      font-weight: 800;
+
+      letter-spacing: -0.7px;
+    }
+
+    .stat-note {
+      margin-top: 6px;
+
+      color: var(--text-muted);
+
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+
+    /* ================================
+       CONTENT GRID
+    ================================= */
+
+    .content {
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1.7fr)
+        minmax(250px, 0.8fr);
+
+      gap: 18px;
+
+      align-items: start;
+    }
+
+
+    /* ================================
+       PANELS
+    ================================= */
+
+    .panel {
+      overflow: hidden;
+
+      background: #ffffff;
+
+      border: 1px solid var(--border);
+
+      border-radius: var(--radius);
+
+      box-shadow: var(--shadow-sm);
+    }
+
+    .panel-head {
+      min-height: 57px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 12px;
+
+      padding: 0 19px;
+
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+
+      font-family: "Manrope", sans-serif;
+
+      color: var(--text);
+
+      font-size: 14px;
+      font-weight: 700;
+
+      letter-spacing: -0.2px;
+    }
+
+    .panel-head a {
+      color: var(--primary);
+
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .panel-head a:hover {
+      color: var(--primary-dark);
+    }
+
+
+    /* ================================
+       PAYMENTS TABLE
+    ================================= */
+
+    .table-wrap {
+      width: 100%;
+
+      overflow-x: auto;
+    }
+
+    .payments {
+      width: 100%;
+
+      border-collapse: collapse;
+    }
+
+    .payments th,
+    .payments td {
+      text-align: left;
+
+      padding:
+        13px 19px;
+
+      border-bottom:
+        1px solid var(--border-light);
+
+      font-size: 12px;
+
+      white-space: nowrap;
+    }
+
+    .payments th {
+      color: var(--text-muted);
+
+      font-size: 9px;
+      font-weight: 700;
+
+      letter-spacing: 0.07em;
+
+      text-transform: uppercase;
+
+      background: var(--surface-soft);
+    }
+
+    .payments tbody tr {
+      transition:
+        background 0.15s ease;
+    }
+
+    .payments tbody tr:hover {
+      background: #fbfcfb;
+    }
+
+    .payments tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .person {
+      color: var(--text);
+
+      font-weight: 600;
+    }
+
+    .subtle {
+      display: block;
+
+      margin-top: 3px;
+
+      color: var(--text-muted);
+
+      font-size: 10px;
+      font-weight: 400;
+    }
+
+    .amount {
+      text-align: right !important;
+
+      color: var(--text);
+
+      font-weight: 700;
+
+      white-space: nowrap;
+    }
+
+
+    /* ================================
+       PAYMENT STATUS
+    ================================= */
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+
+      gap: 6px;
+
+      padding: 5px 8px;
+
+      border-radius: 6px;
+
+      background: var(--success-soft);
+
+      color: var(--success);
+
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .status::before {
+      content: "";
+
+      width: 6px;
+      height: 6px;
+
+      border-radius: 50%;
+
+      background: #35a56f;
+    }
+
+
+    /* ================================
+       EMPTY STATE
+    ================================= */
+
+    .empty {
+      padding: 38px 20px;
+
+      color: var(--text-muted);
+
+      font-size: 12px;
+
+      text-align: center;
+    }
+
+
+    /* ================================
+       QUICK ACTIONS
+    ================================= */
+
+    .actions {
+      padding: 4px 16px 7px;
+    }
+
+    .action {
+      min-height: 52px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 15px;
+
+      padding: 0 4px;
+
+      border-bottom: 1px solid var(--border-light);
+
+      color: var(--text);
+
+      font-size: 12px;
+      font-weight: 600;
+
+      transition:
+        color 0.2s ease,
+        padding 0.2s ease;
+    }
+
+    .action:last-child {
+      border-bottom: 0;
+    }
+
+    .action:hover {
+      padding-left: 7px;
+
+      color: var(--primary);
+    }
+
+    .action-arrow {
+      color: #a0aaa4;
+
+      font-size: 15px;
+
+      transition:
+        transform 0.2s ease,
+        color 0.2s ease;
+    }
+
+    .action:hover .action-arrow {
+      color: var(--primary);
+
+      transform: translateX(2px);
+    }
+
+
+    /* ================================
+       RESPONSIVE
+    ================================= */
+
+    @media (max-width: 900px) {
+
+      .nav {
+        gap: 2px;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-actions {
+        display: grid;
+
+        grid-template-columns:
+          repeat(3, minmax(0, 1fr));
+      }
+
+      .quick-actions .action {
+        padding: 0 10px;
+
+        border-bottom: 0;
+
+        border-right:
+          1px solid var(--border-light);
+      }
+
+      .quick-actions .action:last-child {
+        border-right: 0;
+      }
+
+    }
+
+
+    @media (max-width: 760px) {
+
+      .topbar-inner,
+      .page {
+        width:
+          min(
+            calc(100% - 28px),
+            620px
+          );
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .stats {
+        grid-template-columns:
+          repeat(
+            2,
+            minmax(0, 1fr)
+          );
+      }
+
+      .heading {
+        align-items: flex-start;
+
+        flex-direction: column;
+      }
+
+      .primary-link {
+        width: 100%;
+      }
+
+    }
+
+
+    @media (max-width: 520px) {
+
+      .topbar {
+        height: 60px;
+      }
+
+      .topbar-inner {
+        gap: 12px;
+      }
+
+      .account {
+        margin-left: auto;
+      }
+
+      .user-name {
+        display: none;
+      }
+
+      .page {
+        width:
+          calc(100% - 28px);
+
+        padding-top: 27px;
+      }
+
+      .heading {
+        margin-bottom: 21px;
+      }
+
+      .heading h1 {
+        font-size: 25px;
+      }
+
+      .heading p {
+        font-size: 12px;
+      }
+
+      .stats {
+        gap: 10px;
+      }
+
+      .stat {
+        min-height: 115px;
+
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 21px;
+      }
+
+      .content {
+        gap: 14px;
+      }
+
+      .quick-actions {
+        display: block;
+      }
+
+      .quick-actions .action {
+        min-height: 48px;
+
+        padding: 0 4px;
+
+        border-right: 0;
+
+        border-bottom:
+          1px solid var(--border-light);
+      }
+
+      .payments {
+        min-width: 570px;
+      }
+
+      .panel-head {
+        padding: 0 16px;
+      }
+
+      .payments th,
+      .payments td {
+        padding:
+          12px 16px;
+      }
+
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+
+        transition: none !important;
+      }
+
+    }
+
+
+    /* ================================
+       ACCESSIBILITY
+    ================================= */
+
+    :focus-visible {
+      outline:
+        2px solid var(--primary);
+
+      outline-offset: 2px;
+    }
+
+  </style>
 </head>
+
+
 <body>
-    <div class="loading">
-        <div class="spinner"></div>
+
+
+  <!-- ================================
+       TOPBAR
+  ================================= -->
+
+  <header class="topbar">
+
+    <div class="topbar-inner">
+
+      <a
+        class="brand"
+        href="{{ url_for('main.landlord_dashboard') }}"
+        aria-label="MFUKO dashboard"
+      >
+        <span class="brand-mark">
+          MFUKO
+        </span>
+      </a>
+
+
+      <nav
+        class="nav"
+        aria-label="Main navigation"
+      >
+
+        <a
+          href="{{ url_for('main.landlord_dashboard') }}"
+          aria-current="page"
+        >
+          Overview
+        </a>
+
+        <a
+          href="{{ url_for('main.properties_list') }}"
+        >
+          Properties
+        </a>
+
+        <a
+          href="{{ url_for('main.tenants_list') }}"
+        >
+          Tenants
+        </a>
+
+        <a
+          href="{{ url_for('main.payments_history') }}"
+        >
+          Payments
+        </a>
+
+      </nav>
+
+
+      <div class="account">
+
+        <span class="user-name">
+          {{ current_user.first_name or current_user.email }}
+        </span>
+
+        <a
+          class="logout"
+          href="{{ url_for('auth.logout') }}"
+        >
+          Sign out
+        </a>
+
+        <button
+          class="menu-toggle"
+          id="menuToggle"
+          type="button"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+
+      </div>
+
     </div>
-    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ url_for('main.landlord_dashboard') }}" class="flex items-center space-x-2 navbar-brand-custom">
-                        <span class="text-green-500 font-bold">Property</span><span class="text-orange-500 font-bold">Pay</span><span class="text-blue-500 font-bold">Track</span>
-                    </a>
-                </div>
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link-custom">Dashboard</a>
-                    <a href="{{ url_for('main.properties_list') }}" class="nav-link-custom">Properties</a>
-                    <a href="{{ url_for('main.tenants_list') }}" class="nav-link-custom">Tenants</a>
-                    <a href="{{ url_for('main.payments_history') }}" class="nav-link-custom">Payments</a>
-                    <a href="{{ url_for('auth.profile') }}" class="nav-link-custom">Profile</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-block logout-btn-custom">Logout</a>
-                    <button id="mobileMenuToggle" class="md:hidden text-gray-700 focus:outline-none">
-                        <i data-lucide="menu" class="lucide-icon"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 border-t border-gray-200">
-            <a href="{{ url_for('main.landlord_dashboard') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Dashboard</a>
-            <a href="{{ url_for('main.properties_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Properties</a>
-            <a href="{{ url_for('main.tenants_list') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Tenants</a>
-            <a href="{{ url_for('main.payments_history') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Payments</a>
-            <a href="{{ url_for('auth.profile') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Profile</a>
-            <a href="{{ url_for('auth.logout') }}" class="block py-2 text-gray-700 hover:text-indigo-600">Logout</a>
-        </div>
+
+
+    <!-- Mobile navigation -->
+
+    <nav
+      class="mobile-menu"
+      id="mobileMenu"
+      aria-label="Mobile navigation"
+    >
+
+      <a
+        href="{{ url_for('main.landlord_dashboard') }}"
+      >
+        Overview
+      </a>
+
+      <a
+        href="{{ url_for('main.properties_list') }}"
+      >
+        Properties
+      </a>
+
+      <a
+        href="{{ url_for('main.tenants_list') }}"
+      >
+        Tenants
+      </a>
+
+      <a
+        href="{{ url_for('main.payments_history') }}"
+      >
+        Payments
+      </a>
+
+      <a
+        href="{{ url_for('auth.logout') }}"
+      >
+        Sign out
+      </a>
+
     </nav>
-    <div class="dashboard-container">
-        <div class="space-y-8">
-            <div class="header-section">
-                <div class="header-content">
-                    <div class="header-text">
-                        <h1>Welcome to MFUKO</h1>
-                        <p>Manage your properties, tenants, and payments efficiently with modern tools</p>
-                    </div>
-                </div>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-card" style="--i: 1">
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">Total Properties</div>
-                        <div class="stat-icon text-primary">
-                            <a href="{{ url_for('main.properties_list') }}" class="stat-icon text-primary">
-                                <i data-lucide="building-2" class="lucide-icon"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="stat-card-content">
-                        <div class="stat-value">3</div>
-                        <div class="stat-change text-success">
-                            <i data-lucide="arrow-up-right" class="lucide-icon-sm"></i>
-                            +2 from last month
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-card" style="--i: 2">
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">Active Tenants</div>
-                        <div class="stat-icon text-secondary">
-                            <i data-lucide="users" class="lucide-icon"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card-content">
-                        <div class="stat-value">28</div>
-                        <div class="stat-change text-success">
-                            <i data-lucide="arrow-up-right" class="lucide-icon-sm"></i>
-                            +4 from last month
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-card" style="--i: 3">
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">Monthly Revenue</div>
-                        <div class="stat-icon text-success">
-                            <i data-lucide="credit-card" class="lucide-icon"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card-content">
-                        <div class="stat-value">KSh 420,000</div>
-                        <div class="stat-change text-success">
-                            <i data-lucide="arrow-up-right" class="lucide-icon-sm"></i>
-                            +12% from last month
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-card" style="--i: 4">
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">Overdue Payments</div>
-                        <div class="stat-icon text-destruct
+
+  </header>
+
+
+  <!-- ================================
+       MAIN
+  ================================= -->
+
+  <main class="page">
+
+
+    <!-- Page heading -->
+
+    <section class="heading">
+
+      <div class="heading-copy">
+
+        <p class="eyebrow">
+          Your portfolio
+        </p>
+
+        <h1>
+          Good day,
+          {{ current_user.first_name or 'Landlord' }}
+        </h1>
+
+        <p>
+          A quick look at your properties
+          and rent collection.
+        </p>
+
+      </div>
+
+
+      <a
+        class="primary-link"
+        href="{{ url_for('main.properties_list') }}"
+      >
+        Manage properties
+        <span aria-hidden="true">
+          &nbsp;↗
+        </span>
+      </a>
+
+    </section>
+
+
+    <!-- ================================
+         PORTFOLIO STATS
+    ================================= -->
+
+    <section
+      class="stats"
+      aria-label="Portfolio summary"
+    >
+
+
+      <article class="stat">
+
+        <div class="stat-label">
+          Properties
+        </div>
+
+        <div class="stat-value">
+          {{ property_count }}
+        </div>
+
+        <div class="stat-note">
+          In your portfolio
+        </div>
+
+      </article>
+
+
+      <article class="stat">
+
+        <div class="stat-label">
+          Active tenants
+        </div>
+
+        <div class="stat-value">
+          {{ landlord_tenants|length }}
+        </div>
+
+        <div class="stat-note">
+          Currently renting
+        </div>
+
+      </article>
+
+
+      <article class="stat">
+
+        <div class="stat-label">
+          Collected this month
+        </div>
+
+        <div class="stat-value">
+          KSh
+          {{ '{:,.0f}'.format(metrics.total_collections|float) }}
+        </div>
+
+        <div class="stat-note">
+          Confirmed payments
+        </div>
+
+      </article>
+
+
+      <article class="stat">
+
+        <div class="stat-label">
+          Overdue payments
+        </div>
+
+        <div class="stat-value">
+          {{ metrics.overdue_payments }}
+        </div>
+
+        <div class="stat-note">
+          Need your attention
+        </div>
+
+      </article>
+
+
+    </section>
+
+
+    <!-- ================================
+         CONTENT
+    ================================= -->
+
+    <section class="content">
+
+
+      <!-- ============================
+           RECENT PAYMENTS
+      ============================= -->
+
+      <article class="panel">
+
+        <div class="panel-head">
+
+          <h2>
+            Recent payments
+          </h2>
+
+          <a
+            href="{{ url_for('main.payments_history') }}"
+          >
+            View history&nbsp; →
+          </a>
+
+        </div>
+
+
+        {% if recent_payments %}
+
+          <div class="table-wrap">
+
+            <table class="payments">
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Tenant
+                  </th>
+
+                  <th>
+                    Property
+                  </th>
+
+                  <th>
+                    Date
+                  </th>
+
+                  <th>
+                    Amount
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                {% for payment in recent_payments %}
+
+                  <tr>
+
+                    <td class="person">
+
+                      {{ payment.tenant_name }}
+
+                      <span class="subtle">
+                        Rent payment
+                      </span>
+
+                    </td>
+
+
+                    <td>
+                      {{ payment.property_name }}
+                    </td>
+
+
+                    <td>
+
+                      {{
+                        payment.payment_date.strftime(
+                          '%d %b %Y'
+                        )
+                        if payment.payment_date
+                        else '—'
+                      }}
+
+                    </td>
+
+
+                    <td class="amount">
+
+                      KSh
+                      {{
+                        '{:,.0f}'.format(
+                          payment.amount|float
+                        )
+                      }}
+
+                    </td>
+
+
+                    <td>
+
+                      <span class="status">
+                        Paid
+                      </span>
+
+                    </td>
+
+                  </tr>
+
+                {% endfor %}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        {% else %}
+
+          <div class="empty">
+            No confirmed payments yet.
+          </div>
+
+        {% endif %}
+
+      </article>
+
+
+      <!-- ============================
+           QUICK ACTIONS
+      ============================= -->
+
+      <aside class="panel">
+
+        <div class="panel-head">
+
+          <h2>
+            Quick actions
+          </h2>
+
+        </div>
+
+
+        <div class="actions quick-actions">
+
+
+          <a
+            class="action"
+            href="{{ url_for('main.properties_list') }}"
+          >
+
+            <span>
+              View properties
+            </span>
+
+            <span
+              class="action-arrow"
+              aria-hidden="true"
+            >
+              →
+            </span>
+
+          </a>
+
+
+          <a
+            class="action"
+            href="{{ url_for('main.tenants_list') }}"
+          >
+
+            <span>
+              Manage tenants
+            </span>
+
+            <span
+              class="action-arrow"
+              aria-hidden="true"
+            >
+              →
+            </span>
+
+          </a>
+
+
+          <a
+            class="action"
+            href="{{ url_for('main.payments_history') }}"
+          >
+
+            <span>
+              Review payments
+            </span>
+
+            <span
+              class="action-arrow"
+              aria-hidden="true"
+            >
+              →
+            </span>
+
+          </a>
+
+
+        </div>
+
+      </aside>
+
+
+    </section>
+
+
+  </main>
+
+
+  <!-- ================================
+       JAVASCRIPT
+  ================================= -->
+
+  <script>
+
+    const menuToggle =
+      document.getElementById(
+        "menuToggle"
+      );
+
+    const mobileMenu =
+      document.getElementById(
+        "mobileMenu"
+      );
+
+
+    if (
+      menuToggle &&
+      mobileMenu
+    ) {
+
+      menuToggle.addEventListener(
+        "click",
+        () => {
+
+          const open =
+            mobileMenu.classList.toggle(
+              "open"
+            );
+
+
+          menuToggle.setAttribute(
+            "aria-expanded",
+            String(open)
+          );
+
+
+          menuToggle.textContent =
+            open
+              ? "×"
+              : "☰";
+
+        }
+      );
+
+
+      mobileMenu
+        .querySelectorAll("a")
+        .forEach(
+          link => {
+
+            link.addEventListener(
+              "click",
+              () => {
+
+                mobileMenu.classList.remove(
+                  "open"
+                );
+
+                menuToggle.setAttribute(
+                  "aria-expanded",
+                  "false"
+                );
+
+                menuToggle.textContent =
+                  "☰";
+
+              }
+            );
+
+          }
+        );
+
+    }
+
+  </script>
+
+</body>
+
+</html>
+

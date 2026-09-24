@@ -56,21 +56,18 @@ cp .env.example .env
 Edit .env with your configuration:
 
 text
-FLASK_APP=app.py
-FLASK_ENV=development
-SECRET_KEY=your-secret-key
-DATABASE_URL=postgresql://username:password@localhost/real_estate_db
-Initialize the database:
-
-bash
-flask db init
-flask db migrate
-flask db upgrade
+APP_ENV=development
+FLASK_DEBUG=1
+SECRET_KEY=your-local-secret-key
 Run the application:
 
 bash
-flask run
-Access the application at http://localhost:5000
+python run.py
+Access the application at http://127.0.0.1:5000
+
+When `DATABASE_URL` is unset locally, the application automatically creates and
+uses `instance/mfuko.db` (SQLite). Add a `DATABASE_URL` only when you want to
+connect to PostgreSQL instead.
 
 Usage
 Registration: Create an account as a property owner or manager

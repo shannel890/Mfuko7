@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for, Response
 from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
-from app.extensions import db, mail
+from app.extensions import db, mail, csrf
 from sqlalchemy import func
-from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm, AssignPropertyForm, TenantLandlordForm
+from app.forms import TenantForm, PropertyForm, RecordPaymentForm, ContactForm, TenantPaymentForm, ReportFilterForm, AssignPropertyForm
 from app.models import Property, Tenant, Payment, Unit, Invoice, User
 from functools import wraps
 from datetime import datetime, timedelta
@@ -39,7 +39,7 @@ def roles_required(*required_roles):
             user_roles = {role.name for role in current_user.roles}
             if not set(required_roles).issubset(user_roles):
                 flash(_l('You do not have the required permissions to access this page.'), 'danger')
-                return redirect(url_for('main.index'))
+                return redirect(url_for('main.landing_page'))
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -56,20 +56,6 @@ def landing_page():
     except Exception as e:
         current_app.logger.error(f"Landing page error: {e}")
         flash(_l('An error occurred.'), 'danger')
-        return redirect(url_for('main.index'))
-
-@main.route('/index')
-def index():
-    try:
-        if current_user.is_authenticated:
-            if current_user.has_role('landlord'):
-                return redirect(url_for('main.landlord_dashboard'))
-            elif current_user.has_role('tenant'):
-                return redirect(url_for('main.tenant_dashboard'))
-        return render_template('index.html', now=datetime.utcnow())
-    except Exception as e:
-        current_app.logger.error(f"Error loading index: {e}")
-        flash(_l('An error occurred loading the page.'), 'danger')
         return redirect(url_for('main.landing_page'))
 
 @main.route('/features')
@@ -107,7 +93,7 @@ def admin():
     except Exception as e:
         current_app.logger.error(f"Admin page error: {e}")
         flash(_l('Failed to load admin page.'), 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.landing_page'))
 
 @main.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -140,27 +126,7 @@ def landlord_dashboard():
             'vacancy_rate': 0.00,
             'recent_transactions': 0
         }
-        recent_payments = [{
-            'tenant': 'Sarah Wanjiku',
-            'property': 'Green Valley Apt 2B',
-            'amount': 'KSh 25,000',
-            'date': 'Dec 1, 2024',
-            'status': 'paid'
-        },
-        {
-            'tenant': 'John Kimani',
-            'property': 'Sunset Heights 5A',
-            'amount': 'KSh 30,000',
-            'date': 'Nov 30, 2024',
-            'status': 'paid'
-        },
-        {
-            'tenant': 'Grace Achieng',
-            'property': 'Palm Court 1C',
-            'amount': 'KSh 20,000',
-            'date': 'Nov 29, 2024',
-            'status': 'overdue'
-        }]
+        recent_payments = []
         landlord_tenants = []  # Initialize for later use
         landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
         landlord_property_ids = [p.id for p in landlord_properties]
@@ -251,7 +217,8 @@ def landlord_dashboard():
             'landlord_dashboard.html',
             metrics=metrics,
             recent_payments=recent_payments,
-            landlord_tenants=landlord_tenants 
+            landlord_tenants=landlord_tenants,
+            property_count=len(landlord_properties)
         )
 
     except Exception as e:
@@ -261,7 +228,7 @@ def landlord_dashboard():
         return redirect(url_for('main.landing_page'))
 
 
-@main.route('/tenant/dashboard', methods=['GET', 'POST'])
+@main.route('/tenant/dashboard')
 @login_required
 @roles_required('tenant')
 def tenant_dashboard():
@@ -269,26 +236,32 @@ def tenant_dashboard():
         tenant = Tenant.query.filter_by(user_id=current_user.id).first()
 
         if not tenant:
-            tenant = Tenant(
-                user_id=current_user.id,
-                first_name=current_user.first_name,
-                last_name=current_user.last_name,
-                email=current_user.email,
-                status='active',
-                grace_period_days=5
-            )
-            db.session.add(tenant)
-            db.session.commit()
-            flash(_l('Tenant profile created automatically. Please select a landlord to get started.'), 'info')
+            normalized_email = current_user.email.strip().lower()
+            tenant = Tenant.query.filter(
+                db.func.lower(db.func.trim(Tenant.email)) == normalized_email,
+                Tenant.user_id.is_(None)
+            ).first()
+            if tenant:
+                tenant.user_id = current_user.id
+                db.session.commit()
+            else:
+                tenant = Tenant(
+                    user_id=current_user.id,
+                    first_name=current_user.first_name,
+                    last_name=current_user.last_name,
+                    email=normalized_email,
+                    status='active',
+                    grace_period_days=5
+                )
+                db.session.add(tenant)
+                db.session.commit()
+                flash(_l('Tenant profile created automatically.'), 'info')
 
-        form = TenantLandlordForm()
-        if form.validate_on_submit():
-            tenant.landlord_id = form.landlord_id.data
+        landlord = tenant.property.landlord if tenant.property else None
+        derived_landlord_id = landlord.id if landlord else None
+        if tenant.landlord_id != derived_landlord_id:
+            tenant.landlord_id = derived_landlord_id
             db.session.commit()
-            flash('Landlord selected successfully!', 'success')
-            return redirect(url_for('main.tenant_dashboard'))
-
-        landlord = User.query.get(tenant.landlord_id) if tenant.landlord_id else None
 
         today = datetime.utcnow().date()
         current_month_start = today.replace(day=1)
@@ -328,14 +301,14 @@ def tenant_dashboard():
             lease_start_date=tenant.lease_start_date,
             lease_end_date=tenant.lease_end_date,
             available_properties=available_properties_list,
-            form=form,
             landlord=landlord
         )
 
-    except Exception as e:
-        current_app.logger.error(f"Tenant Dashboard Error: {str(e)}")
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception('Tenant dashboard failed')
         flash(_l('An error occurred while loading the tenant dashboard.'), 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.landing_page'))
 
 
 
@@ -349,7 +322,7 @@ def properties_list():
     except Exception as e:
         current_app.logger.error(f"Error fetching properties: {e}")
         flash(_l('Failed to load properties.'), 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.landing_page'))
 
 
 @main.route('/properties/add', methods=['GET', 'POST'])
@@ -375,6 +348,20 @@ def property_add():
                 deposit_policy=form.deposit_policy.data
             )
             db.session.add(property)
+            db.session.flush()
+            unit_numbers = list(dict.fromkeys(
+                number.strip()
+                for number in form.unit_numbers.data.replace('\n', ',').split(',')
+                if number.strip()
+            ))
+            for unit_number in unit_numbers:
+                db.session.add(Unit(
+                    property_id=property.id,
+                    unit_number=unit_number,
+                    rent_amount=0,
+                    deposit_amount=form.deposit_amount.data or 0,
+                    status='vacant'
+                ))
             db.session.commit()
             flash(_l('Property added successfully!'), 'success')
             return redirect(url_for('main.properties_list'))
@@ -413,7 +400,10 @@ def assign_property(tenant_id):
         tenant = None
         if tenant_id:
             tenant = Tenant.query.get(tenant_id)
-            if not tenant:
+            if (not tenant or not (
+                    tenant.landlord_id == current_user.id
+                    or (tenant.property and tenant.property.landlord_id == current_user.id)
+            )):
                 flash(_l('Tenant not found.'), 'warning')
                 return redirect(url_for('main.landlord_dashboard'))
 
@@ -430,20 +420,40 @@ def assign_property(tenant_id):
         # Populate form choices
         form.property_id.choices = [(p.id, p.name) for p in properties]
         form.unit_id.choices = [(u.id, f"{u.unit_number} - {u.property.name}") for u in units]
-        form.tenant_id.choices = [(t.id, f"{t.first_name} {t.last_name}") for t in Tenant.query.all()]
+        landlord_tenant_query = Tenant.query.filter(
+            db.or_(
+                Tenant.landlord_id == current_user.id,
+                Tenant.property_id.in_(property_ids)
+            )
+        )
+        form.tenant_id.choices = [
+            (t.id, f"{t.first_name} {t.last_name}")
+            for t in landlord_tenant_query.order_by(Tenant.first_name, Tenant.last_name).all()
+        ]
 
         if request.method == 'GET' and tenant:
             form.tenant_id.data = tenant.id  # Pre-fill tenant if passed via URL
 
         if form.validate_on_submit():
+            selected_property = Property.query.get(form.property_id.data)
             selected_tenant = Tenant.query.get(form.tenant_id.data)
             selected_unit = Unit.query.get(form.unit_id.data)
 
-            if selected_tenant and selected_unit:
+            if (selected_property and selected_property.landlord_id == current_user.id
+                and selected_tenant and (
+                    selected_tenant.landlord_id == current_user.id
+                    or (selected_tenant.property and selected_tenant.property.landlord_id == current_user.id)
+                )
+                and selected_unit and selected_unit.property_id == selected_property.id
+                and selected_unit.status == 'vacant'):
+                previous_unit = selected_tenant.unit
+                if previous_unit and previous_unit.id != selected_unit.id:
+                    previous_unit.status = 'vacant'
                 selected_tenant.unit_id = selected_unit.id
                 selected_tenant.property_id = selected_unit.property_id
+                selected_tenant.landlord_id = current_user.id
+                selected_tenant.rent_amount = selected_unit.rent_amount
                 selected_unit.status = 'occupied'
-
                 db.session.commit()
                 flash(_l('Property assigned successfully!'), 'success')
                 return redirect(url_for('main.landlord_dashboard'))
@@ -458,9 +468,9 @@ def assign_property(tenant_id):
             form=form
         )
 
-    except Exception as e:
-        logging.error("Assign property error:")
-        logging.error(traceback.format_exc())
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception('Assign property failed')
         flash(_l('An error occurred while loading the assignment page.'), 'danger')
         return redirect(url_for('main.landlord_dashboard'))
     
@@ -471,10 +481,6 @@ def tenants_list():
     landlord_properties = Property.query.filter_by(landlord_id=current_user.id).all()
     property_ids = [p.id for p in landlord_properties]
     tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
-    print("Landlord ID:", current_user.id)
-    print("Property IDs:", property_ids)
-    print("Filtered Tenants:", [(t.id, t.first_name) for t in Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()])
-
     return render_template('tenants/list.html', tenants=tenants)
 
 @main.route('/tenants/add', methods=['GET', 'POST'])
@@ -482,26 +488,114 @@ def tenants_list():
 @roles_required('landlord')
 def tenant_add():
     form = TenantForm()
-    form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(landlord_id=current_user.id).all()]
-    if form.validate_on_submit():
-        tenant = Tenant(
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            email=form.email.data,
-            phone_number=form.phone_number.data,
-            property_id=form.property_id.data,
-            rent_amount=form.rent_amount.data,
-            due_day_of_month=form.due_day_of_month.data,
-            grace_period_days=form.grace_period_days.data,
-            lease_start_date=form.lease_start_date.data,
-            lease_end_date=form.lease_end_date.data,
-            national_id=form.national_id.data,
-            status=form.status.data
-        )
-        db.session.add(tenant)
+    if request.method == 'POST' and form.email.data:
+        form.email.data = form.email.data.strip().lower()
+    properties = Property.query.filter_by(landlord_id=current_user.id).order_by(Property.name).all()
+    property_ids = [property.id for property in properties]
+    # Older property records saved unit numbers as text without creating Unit rows.
+    # Backfill those missing rows so existing landlords can allocate their units too.
+    for property in properties:
+        recorded_numbers = {
+            number.strip()
+            for number in (property.unit_numbers or '').replace('\n', ',').split(',')
+            if number.strip()
+        }
+        existing_numbers = {unit.unit_number for unit in property.units}
+        for unit_number in recorded_numbers - existing_numbers:
+            db.session.add(Unit(
+                property_id=property.id,
+                unit_number=unit_number,
+                rent_amount=0,
+                deposit_amount=property.deposit_amount or 0,
+                status='vacant'
+            ))
+    if properties:
         db.session.commit()
-        flash(_l('Tenant added successfully!'), 'success')
-        return redirect(url_for('main.tenants_list'))
+    units = Unit.query.filter(Unit.property_id.in_(property_ids), Unit.status == 'vacant').order_by(Unit.unit_number).all() if property_ids else []
+    form.property_id.choices = [(property.id, property.name) for property in properties]
+    form.unit_id.choices = [(0, _l('Select a unit...'))] + [
+        (unit.id, f"{unit.property.name} — {unit.unit_number}", {'data-property': str(unit.property_id)})
+        for unit in units
+    ]
+
+    if form.validate_on_submit():
+        selected_unit = Unit.query.filter_by(id=form.unit_id.data, status='vacant').first()
+        property_ids_by_owner = {property.id for property in properties}
+        if (not selected_unit or selected_unit.property_id not in property_ids_by_owner
+                or selected_unit.property_id != form.property_id.data):
+            form.unit_id.errors.append(_l('Choose a vacant unit in the selected property.'))
+        else:
+            normalized_email = form.email.data.strip().lower() if form.email.data else None
+            existing_user = User.query.filter(
+                db.func.lower(db.func.trim(User.email)) == normalized_email
+            ).first() if normalized_email else None
+            if existing_user and existing_user.role != 'tenant' and not existing_user.has_role('tenant'):
+                form.email.errors.append(_l('This email belongs to a non-tenant account.'))
+            else:
+                tenant = existing_user.tenant_profile if existing_user else None
+                if normalized_email and tenant is None:
+                    tenant = Tenant.query.filter(
+                        db.func.lower(db.func.trim(Tenant.email)) == normalized_email,
+                        Tenant.user_id.is_(None)
+                    ).order_by(
+                        Tenant.unit_id.isnot(None).desc(),
+                        Tenant.property_id.isnot(None).desc(),
+                        Tenant.id.asc()
+                    ).first()
+                if tenant and tenant.user_id and (not existing_user or tenant.user_id != existing_user.id):
+                    form.email.errors.append(_l('This email is already linked to another tenant account.'))
+                elif tenant and tenant.unit_id and tenant.unit_id != selected_unit.id:
+                    form.email.errors.append(_l('This tenant is already assigned to a unit.'))
+                elif tenant and tenant.property and tenant.property.landlord_id != current_user.id:
+                    form.email.errors.append(_l('This tenant is already assigned to another landlord.'))
+                else:
+                    if not tenant:
+                        tenant = Tenant(
+                            first_name=form.first_name.data.strip(),
+                            last_name=form.last_name.data.strip(),
+                            email=normalized_email,
+                            phone_number=form.phone_number.data.strip(),
+                            property_id=selected_unit.property_id,
+                            unit_id=selected_unit.id,
+                            rent_amount=form.rent_amount.data,
+                            due_day_of_month=form.due_day_of_month.data,
+                            grace_period_days=form.grace_period_days.data,
+                            lease_start_date=form.lease_start_date.data,
+                            lease_end_date=form.lease_end_date.data,
+                            national_id=form.national_id.data,
+                            status=form.status.data,
+                            landlord_id=current_user.id,
+                            user_id=existing_user.id if existing_user else None
+                        )
+                        db.session.add(tenant)
+                    else:
+                        tenant.first_name = form.first_name.data.strip()
+                        tenant.last_name = form.last_name.data.strip()
+                        tenant.phone_number = form.phone_number.data.strip()
+                        tenant.property_id = selected_unit.property_id
+                        tenant.unit_id = selected_unit.id
+                        tenant.rent_amount = form.rent_amount.data
+                        tenant.due_day_of_month = form.due_day_of_month.data
+                        tenant.grace_period_days = form.grace_period_days.data
+                        tenant.lease_start_date = form.lease_start_date.data
+                        tenant.lease_end_date = form.lease_end_date.data
+                        tenant.national_id = form.national_id.data
+                        tenant.status = form.status.data
+                        tenant.landlord_id = current_user.id
+                        if existing_user:
+                            tenant.user_id = existing_user.id
+
+                    try:
+                        selected_unit.status = 'occupied'
+                        selected_unit.rent_amount = form.rent_amount.data
+                        db.session.commit()
+                    except Exception:
+                        db.session.rollback()
+                        current_app.logger.exception('Tenant allocation failed')
+                        flash(_l('The tenant could not be allocated. Please try again.'), 'danger')
+                    else:
+                        flash(_l('Tenant added and unit assigned successfully!'), 'success')
+                        return redirect(url_for('main.tenants_list'))
 
     return render_template('tenants/add_edit.html', form=form, edit=False)
 
@@ -516,7 +610,9 @@ def tenant_edit(id):
     form = TenantForm(obj=tenant)
     form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(landlord_id=current_user.id).all()]
     if form.validate_on_submit():
+        assigned_unit_id = tenant.unit_id
         form.populate_obj(tenant)
+        tenant.unit_id = assigned_unit_id
         db.session.commit()
         flash(_l('Tenant updated successfully!'), 'success')
         return redirect(url_for('main.tenants_list'))
@@ -599,7 +695,7 @@ def payments_history():
     except Exception as e:
         current_app.logger.error(f"Error loading payment history: {e}")
         flash(_l('Failed to load payment history.'), 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.landing_page'))
 
 
 
@@ -646,10 +742,27 @@ def tenant_make_payment():
 
     if not tenant:
         flash("Tenant profile not found.", "danger")
-        return redirect(url_for("main.index"))
+        return redirect(url_for("main.landing_page"))
 
-    invoice = Invoice.query.filter_by(tenant_id=tenant.id, status='pending').first()
-    amount_due = invoice.amount_due if invoice else tenant.rent_amount
+    invoice = Invoice.query.filter(
+        Invoice.tenant_id == tenant.id,
+        Invoice.status.in_(['pending', 'partially_paid'])
+    ).order_by(Invoice.issue_date.asc()).first()
+    amount_due = invoice.amount_due if invoice else (tenant.rent_amount or 0)
+    recent_payments = Payment.query.filter_by(tenant_id=tenant.id).order_by(
+        Payment.payment_date.desc()
+    ).limit(5).all()
+    today = datetime.utcnow().date()
+    due_day = tenant.due_day_of_month or 1
+    try:
+        due_date = today.replace(day=due_day)
+    except ValueError:
+        next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
+        due_date = next_month - timedelta(days=1)
+
+    if form.validate_on_submit() and form.amount.data > amount_due:
+        flash(_l('Payment cannot exceed the current amount due.'), 'danger')
+        return redirect(url_for('main.tenant_make_payment'))
 
     if form.validate_on_submit():
         if form.transaction_id.data and not form.is_offline.data:
@@ -662,10 +775,10 @@ def tenant_make_payment():
             tenant_id=tenant.id,
             payment_method=form.payment_method.data,
             transaction_id=form.transaction_id.data if not form.is_offline.data else None,
-            payment_date=form.payment_date.data,
+            payment_date=datetime.combine(form.payment_date.data, datetime.min.time()),
             paybill_number=form.paybill_number.data,
             fees=form.fees.data,
-            status='pending' if form.payment_method.data == 'mpesa' else 'completed',
+            status='pending' if form.payment_method.data == 'mpesa' and not form.is_offline.data else 'completed',
             is_offline=form.is_offline.data,
             offline_reference=form.offline_reference.data,
             description=form.description.data
@@ -683,13 +796,18 @@ def tenant_make_payment():
                     flash(_l("Failed to authenticate with M-Pesa. Try again later."), "danger")
                     return redirect(url_for("main.tenant_make_payment"))
 
-            phone_number = current_user.phone_number
+            phone_number = tenant.phone_number or current_user.phone_number
             if not phone_number:
                 flash("Phone number not found in your profile. Please update it.", "danger")
-                return redirect(url_for('auth.edit_profile'))
+                return redirect(url_for('auth.profile'))
 
             current_app.logger.info(f"Phone number before formatting: {phone_number}")
             account_reference = f"Tenant-{tenant.id}"
+
+            callback_url = current_app.config.get('MPESA_CALLBACK_URL', '')
+            if not callback_url.startswith('https://') or 'example.com' in callback_url:
+                flash(_l('M-Pesa needs a public HTTPS callback URL. Configure MPESA_CALLBACK_URL as your site URL ending in /mpesa/callback.'), 'danger')
+                return redirect(url_for('main.tenant_make_payment'))
 
             checkout_id = mpesa.initiate_stk_push(
                 phone_number=phone_number,
@@ -700,6 +818,7 @@ def tenant_make_payment():
 
             if checkout_id:
                 payment.transaction_id = checkout_id
+                payment.notes = f"STK checkout: {checkout_id}"
                 payment.status = 'pending'
                 flash(_l('Payment initiated. Confirm on your phone.'), 'success')
             else:
@@ -708,7 +827,7 @@ def tenant_make_payment():
 
         db.session.add(payment)
 
-        if invoice:
+        if invoice and payment.status != 'pending':
             invoice.amount_due -= payment.amount
             invoice.status = 'paid' if invoice.amount_due <= 0 else 'partially_paid'
 
@@ -720,6 +839,8 @@ def tenant_make_payment():
         'payments/tenant_make_payment.html',
         form=form,
         amount_due=amount_due,
+        due_date=due_date,
+        recent_payments=recent_payments,
         tenant=tenant
     )
 # Mock data function (replace with database queries)
@@ -754,7 +875,7 @@ def reports():
     except Exception as e:
         current_app.logger.error(f"Report error: {e}")
         flash(_l('Failed to generate report.'), 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.landing_page'))
 
 @main.route('/reports/export')
 @login_required
@@ -810,3 +931,51 @@ def delete_property(property_id):
     db.session.commit()
     flash('Property deleted successfully', 'success')
     return redirect(url_for('main.properties_list'))
+
+@main.route('/mpesa/callback', methods=['POST'])
+@csrf.exempt
+def mpesa_callback():
+    data = request.get_json(silent=True) or {}
+    result = (data.get('Body') or {}).get('stkCallback') or {}
+    checkout_id = result.get('CheckoutRequestID')
+    result_code = result.get('ResultCode')
+    if not checkout_id or result_code is None:
+        current_app.logger.warning('Received an invalid M-Pesa callback payload')
+        return {'ResultCode': 1, 'ResultDesc': 'Invalid callback payload'}, 400
+
+    payment = Payment.query.filter(
+        db.or_(
+            Payment.transaction_id == checkout_id,
+            Payment.notes.like(f'%STK checkout: {checkout_id}%')
+        )
+    ).first()
+    if not payment:
+        current_app.logger.warning('M-Pesa callback did not match a pending checkout: %s', checkout_id)
+        return {'ResultCode': 0, 'ResultDesc': 'Accepted'}
+
+    try:
+        if int(result_code) == 0:
+            already_confirmed = payment.status == 'confirmed'
+            items = ((result.get('CallbackMetadata') or {}).get('Item') or [])
+            metadata = {item.get('Name'): item.get('Value') for item in items}
+            receipt = metadata.get('MpesaReceiptNumber')
+            amount = metadata.get('Amount')
+            if receipt:
+                payment.transaction_id = str(receipt)
+            if amount is not None:
+                payment.amount = amount
+            payment.status = 'confirmed'
+            payment.payment_date = datetime.utcnow()
+            invoice = payment.invoice
+            if invoice and not already_confirmed:
+                invoice.amount_due = max(0, invoice.amount_due - payment.amount)
+                invoice.status = 'paid' if invoice.amount_due <= 0 else 'partially_paid'
+        else:
+            payment.status = 'failed'
+            payment.notes = (payment.notes or '') + f"\nM-Pesa failed: {result.get('ResultDesc', 'Payment was not completed')}"
+        db.session.commit()
+        return {'ResultCode': 0, 'ResultDesc': 'Accepted'}
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception('Unable to process M-Pesa callback for checkout %s', checkout_id)
+        return {'ResultCode': 1, 'ResultDesc': 'Callback processing failed'}, 500

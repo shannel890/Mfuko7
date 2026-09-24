@@ -1,917 +1,992 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="{{ g.locale or 'en' }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="User profile page for PropertyPayTrack">
-    <title>{{ user.full_name or user.username }} - Profile</title>
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" defer>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" defer>
-
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --accent: #f59e0b;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --text-muted: #9ca3af;
-            --white: #ffffff;
-            --bg-primary: #f8fafc;
-            --bg-secondary: #f1f5f9;
-            --glass: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --shadow-hover: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            --border-radius: 20px;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            --nav-height: 70px;
-        }
-
-        /* Dark mode variables */
-        body.dark {
-            --text: #f3f4f6;
-            --text-light: #9ca3af;
-            --text-muted: #6b7280;
-            --bg-primary: #1f2937;
-            --bg-secondary: #374151;
-            --glass: rgba(31, 41, 55, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #dddee2 0%, #381061 50%, #ebd5d1 100%);
-            background-attachment: fixed;
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
-            min-height: 100vh;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-
-        body.dark {
-            background: linear-gradient(135deg, #1f2937 0%, #4b5563 50%, #374151 100%);
-        }
-
-        /* Keep the tenant profile calm and easy to read. */
-        body.tenant-profile {
-            background: #ffffff;
-        }
-
-        body.tenant-profile .bg-particles {
-            display: none;
-        }
-
-        /* Animated Background Particles */
-        .bg-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 20s infinite linear;
-        }
-
-        .particle:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
-        .particle:nth-child(2) { top: 20%; left: 80%; animation-delay: 2s; }
-        .particle:nth-child(3) { top: 60%; left: 30%; animation-delay: 4s; }
-        .particle:nth-child(4) { top: 80%; left: 70%; animation-delay: 6s; }
-        .particle:nth-child(5) { top: 40%; left: 60%; animation-delay: 8s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-30px) rotate(120deg); }
-            66% { transform: translateY(-60px) rotate(240deg); }
-        }
-
-        /* Enhanced Navigation */
-        nav {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            height: var(--nav-height);
-            display: flex;
-            align-items: center;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            width: 100%;
-        }
-
-        .nav-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 100%;
-        }
-
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            font-size: 1.5rem;
-            background: linear-gradient(45deg, #22c55e, #3b82f6, #f97316);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .nav-link {
-            color: var(--text);
-            font-weight: 500;
-            text-decoration: none;
-            transition: var(--transition);
-            position: relative;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-        }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            transition: var(--transition);
-            transform: translateX(-50%);
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .dark .nav-link {
-            color: #d1d5db;
-        }
-
-        .dark .nav-link:hover {
-            color: #818cf8;
-        }
-
-        .nav-link:hover::before {
-            width: 80%;
-        }
-
-        .logout-btn {
-            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
-            color: var(--white);
-            padding: 0.7rem 1.5rem;
-            border-radius: 25px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-        }
-
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 8px;
-        }
-
-        /* Profile Section */
-        .profile-wrapper {
-            padding: 4rem 2rem;
-            min-height: calc(100vh - var(--nav-height));
-            position: relative;
-            z-index: 10;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .profile-card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: var(--transition);
-            max-width: 800px;
-            margin: 0 auto;
-            animation: slideUp 0.8s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .profile-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .profile-header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: var(--white);
-            padding: 3rem 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            margin: 0 auto 1.5rem;
-            position: relative;
-            z-index: 2;
-            border: 3px solid var(--white);
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-avatar .avatar-placeholder {
-            background: linear-gradient(45deg, var(--secondary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: var(--white);
-            width: 100%;
-            height: 100%;
-        }
-
-        .profile-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .profile-subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-top: 0.5rem;
-        }
-
-        .profile-body {
-            padding: 2.5rem 2rem;
-        }
-
-        .info-grid {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .info-row {
-            display: flex;
-            align-items: center;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: var(--transition);
-        }
-
-        .info-row:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateX(8px);
-        }
-
-        .info-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1.5rem;
-            color: var(--white);
-            font-size: 1.3rem;
-            flex-shrink: 0;
-        }
-
-        .info-content {
-            flex: 1;
-            color: var(--white);
-        }
-
-        .info-label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            opacity: 0.9;
-            text-transform: uppercase;
-        }
-
-        .role-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-top: 0.8rem;
-        }
-
-        .badge-custom {
-            background: linear-gradient(45deg, var(--info), var(--primary));
-            color: var(--white);
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .profile-footer {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            padding: 2.5rem 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-custom {
-            padding: 1rem 2.5rem;
-            font-weight: 600;
-            font-size: 1rem;
-            border-radius: 30px;
-            border: none;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            transition: var(--transition);
-        }
-
-        .btn-primary-custom {
-            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
-            color: var(--white);
-        }
-
-        .btn-warning-custom {
-            background: linear-gradient(45deg, var(--accent), var(--warning));
-            color: var(--white);
-        }
-
-        /* Settings Panel */
-        .settings-panel {
-            display: none;
-            position: fixed;
-            top: var(--nav-height);
-            right: 0;
-            width: 300px;
-            background: var(--glass);
-            border-left: 1px solid var(--glass-border);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 2rem;
-            z-index: 1000;
-            animation: slideInRight 0.3s ease;
-        }
-
-        .settings-panel.active {
-            display: block;
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-
-        .settings-panel h3 {
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-            color: var(--white);
-        }
-
-        .settings-item {
-            margin-bottom: 1rem;
-        }
-
-        .settings-item label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--white);
-        }
-
-        .settings-item select,
-        .settings-item input {
-            width: 100%;
-            padding: 0.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--white);
-        }
-
-        /* Notification System */
-        .notification {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            color: var(--white);
-            z-index: 2000;
-            animation: slideIn 0.3s ease forwards, slideOut 0.3s ease 2.7s forwards;
-        }
-
-        .notification.success {
-            background: var(--success);
-        }
-
-        .notification.error {
-            background: var(--danger);
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-
-        /* Loading State */
-        .loading {
-            position: fixed;
-            inset: 0;
-            background: var(--glass);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            transition: opacity 0.3s ease;
-        }
-
-        .loading.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--primary);
-            border-top: 4px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .nav-links {
-                position: fixed;
-                top: var(--nav-height);
-                left: 0;
-                width: 100%;
-                height: calc(100vh - var(--nav-height));
-                background: var(--glass);
-                flex-direction: column;
-                justify-content: center;
-                transform: translateX(100%);
-                transition: transform 0.5s ease-out;
-            }
-
-            .nav-links.active {
-                transform: translateX(0);
-            }
-
-            .mobile-menu-toggle {
-                display: block;
-            }
-
-            .settings-panel {
-                width: 100%;
-            }
-        }
-
-        /* Accessibility */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
-        }
-
-        .nav-link:focus,
-        .logout-btn:focus,
-        .btn-custom:focus,
-        .mobile-menu-toggle:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>{{ _('My Profile') }} · MFUKO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --green: #176b49;
+      --green-dark: #12553a;
+      --green-soft: #edf7f2;
+      --green-border: #cfe8dc;
+
+      --orange: #e89024;
+
+      --text: #17201b;
+      --text-soft: #66736c;
+      --muted: #87928c;
+
+      --surface: #ffffff;
+      --surface-soft: #f8faf9;
+
+      --border: #e5ebe7;
+      --border-dark: #d6dfda;
+
+      --success: #217a4d;
+      --success-soft: #edf8f1;
+
+      --danger: #c73b3b;
+      --danger-soft: #fff0f0;
+
+      --shadow-sm: 0 1px 2px rgba(23, 32, 27, .04);
+      --shadow-md: 0 8px 24px rgba(23, 32, 27, .06);
+
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--surface-soft);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--surface-soft);
+      color: var(--text);
+      font-family: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    /* =========================
+       Header
+       ========================= */
+
+    .topbar {
+      height: 68px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-inner {
+      width: min(1180px, calc(100% - 40px));
+      height: 100%;
+      margin: 0 auto;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      font-family: Manrope, Inter, sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -.7px;
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .nav a {
+      padding: 9px 11px;
+      border-radius: 8px;
+      transition:
+        background .15s ease,
+        color .15s ease;
+    }
+
+    .nav a:hover {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .nav a[aria-current="page"] {
+      color: var(--green);
+      background: var(--green-soft);
+      font-weight: 700;
+    }
+
+    .nav .signout {
+      margin-left: 6px;
+      border: 1px solid var(--border-dark);
+      background: var(--surface);
+    }
+
+    .nav .signout:hover {
+      background: var(--surface-soft);
+      color: var(--text);
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 40px;
+      height: 40px;
+
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--surface);
+      color: var(--text);
+
+      cursor: pointer;
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .menu-toggle:hover {
+      border-color: var(--green-border);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .mobile-menu {
+      display: none;
+    }
+
+    /* =========================
+       Page
+       ========================= */
+
+    .page {
+      width: min(900px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 44px 0 64px;
+    }
+
+    .intro {
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      margin: 0;
+      font-family: Manrope, Inter, sans-serif;
+      font-size: 30px;
+      line-height: 1.2;
+      letter-spacing: -.9px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .intro p:last-child {
+      margin: 9px 0 0;
+      color: var(--text-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* =========================
+       Alerts
+       ========================= */
+
+    .alert {
+      margin-bottom: 16px;
+      padding: 13px 15px;
+
+      border: 1px solid transparent;
+      border-radius: 10px;
+
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .alert-success {
+      background: var(--success-soft);
+      border-color: #cfe9d9;
+      color: var(--success);
+    }
+
+    .alert-danger {
+      background: var(--danger-soft);
+      border-color: #f1d1d1;
+      color: var(--danger);
+    }
+
+    /* =========================
+       Profile Card
+       ========================= */
+
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    /* =========================
+       Identity
+       ========================= */
+
+    .identity {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      padding: 24px;
+
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      flex: 0 0 58px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 50%;
+      border: 1px solid var(--green-border);
+      background: var(--green-soft);
+
+      color: var(--green);
+      font-family: Manrope, Inter, sans-serif;
+      font-size: 21px;
+      font-weight: 800;
+    }
+
+    .identity-copy {
+      min-width: 0;
+    }
+
+    .identity-copy h2 {
+      margin: 0;
+
+      font-family: Manrope, Inter, sans-serif;
+      font-size: 18px;
+      line-height: 1.3;
+      font-weight: 800;
+      letter-spacing: -.35px;
+
+      color: var(--text);
+    }
+
+    .identity-copy p {
+      margin: 5px 0 0;
+
+      color: var(--text-soft);
+      font-size: 13px;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .role {
+      margin-left: auto;
+      flex: 0 0 auto;
+
+      padding: 7px 11px;
+
+      border: 1px solid var(--green-border);
+      border-radius: 999px;
+
+      background: var(--green-soft);
+      color: var(--green);
+
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    /* =========================
+       Form
+       ========================= */
+
+    .profile-form {
+      padding: 26px 24px 24px;
+    }
+
+    .section-heading {
+      margin-bottom: 20px;
+    }
+
+    .section-number {
+      display: block;
+      margin-bottom: 5px;
+
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    .section-heading h3 {
+      margin: 0;
+
+      font-family: Manrope, Inter, sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -.25px;
+    }
+
+    .section-heading p {
+      margin: 5px 0 0;
+      color: var(--text-soft);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .field {
+      min-width: 0;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+
+      color: #46534b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      height: 44px;
+
+      padding: 0 12px;
+
+      border: 1px solid var(--border-dark);
+      border-radius: 9px;
+
+      background: var(--surface);
+      color: var(--text);
+
+      font-size: 13px;
+
+      outline: none;
+
+      transition:
+        border-color .15s ease,
+        box-shadow .15s ease,
+        background .15s ease;
+    }
+
+    .field input:hover {
+      border-color: #c6d2cb;
+    }
+
+    .field input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23, 107, 73, .10);
+    }
+
+    .field input::placeholder {
+      color: #a0aaa4;
+    }
+
+    .hint {
+      margin: 7px 0 0;
+
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .error {
+      margin: 7px 0 0;
+
+      color: var(--danger);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* =========================
+       Form Footer
+       ========================= */
+
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+
+      margin-top: 28px;
+      padding-top: 20px;
+
+      border-top: 1px solid var(--border);
+    }
+
+    .form-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .save {
+      min-height: 42px;
+
+      border: 1px solid var(--green);
+      border-radius: 9px;
+
+      padding: 0 16px;
+
+      background: var(--green);
+      color: #fff;
+
+      font-size: 13px;
+      font-weight: 700;
+
+      cursor: pointer;
+
+      transition:
+        background .15s ease,
+        border-color .15s ease,
+        transform .15s ease;
+    }
+
+    .save:hover {
+      background: var(--green-dark);
+      border-color: var(--green-dark);
+    }
+
+    .save:active {
+      transform: translateY(1px);
+    }
+
+    .back {
+      min-height: 42px;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 0 14px;
+
+      border: 1px solid var(--border-dark);
+      border-radius: 9px;
+
+      background: var(--surface);
+      color: #34443a;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      transition:
+        background .15s ease,
+        border-color .15s ease;
+    }
+
+    .back:hover {
+      background: var(--surface-soft);
+      border-color: #c9d5ce;
+    }
+
+    /* =========================
+       Responsive
+       ========================= */
+
+    @media (max-width: 760px) {
+      .topbar-inner {
+        width: calc(100% - 32px);
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: grid;
+        place-items: center;
+      }
+
+      .mobile-menu {
+        width: 100%;
+
+        padding: 8px 16px 14px;
+
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .mobile-menu.open {
+        display: grid;
+      }
+
+      .mobile-menu a {
+        padding: 11px 4px;
+
+        color: var(--text-soft);
+        font-size: 13px;
+        font-weight: 600;
+
+        border-bottom: 1px solid #f0f3f1;
+      }
+
+      .mobile-menu a:last-child {
+        border-bottom: 0;
+      }
+
+      .mobile-menu a:hover {
+        color: var(--green);
+      }
+
+      .page {
+        width: calc(100% - 28px);
+        padding-top: 30px;
+      }
+
+      .intro h1 {
+        font-size: 26px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar {
+        height: 62px;
+      }
+
+      .page {
+        padding-bottom: 40px;
+      }
+
+      .identity {
+        align-items: flex-start;
+        padding: 19px 17px;
+      }
+
+      .avatar {
+        width: 50px;
+        height: 50px;
+        flex-basis: 50px;
+        font-size: 18px;
+      }
+
+      .identity-copy h2 {
+        font-size: 16px;
+      }
+
+      .role {
+        align-self: flex-start;
+        padding: 6px 9px;
+        font-size: 10px;
+      }
+
+      .profile-form {
+        padding: 22px 17px 18px;
+      }
+
+      .fields {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+      .form-footer {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .form-note {
+        order: 2;
+      }
+
+      .actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .actions > * {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .identity {
+        gap: 12px;
+      }
+
+      .role {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
 </head>
-<body{% if user.is_tenant %} class="tenant-profile"{% endif %}>
-    <div class="loading">
-        <div class="spinner"></div>
+
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+
+      <a
+        href="{{ url_for('main.tenant_dashboard') if user.has_role('tenant') else url_for('main.landlord_dashboard') }}"
+        class="brand"
+      >
+        MFUKO
+      </a>
+
+      <nav class="nav" aria-label="Main navigation">
+
+        <a
+          href="{{ url_for('main.tenant_dashboard') if user.has_role('tenant') else url_for('main.landlord_dashboard') }}"
+        >
+          {{ _('Overview') }}
+        </a>
+
+        {% if user.has_role('tenant') %}
+
+          <a href="{{ url_for('main.tenant_make_payment') }}">
+            {{ _('Payments') }}
+          </a>
+
+        {% else %}
+
+          <a href="{{ url_for('main.properties_list') }}">
+            {{ _('Properties') }}
+          </a>
+
+          <a href="{{ url_for('main.tenants_list') }}">
+            {{ _('Tenants') }}
+          </a>
+
+          <a href="{{ url_for('main.payments_history') }}">
+            {{ _('Payments') }}
+          </a>
+
+        {% endif %}
+
+        <a
+          href="{{ url_for('auth.logout') }}"
+          class="signout"
+        >
+          {{ _('Sign out') }}
+        </a>
+
+      </nav>
+
+      <button
+        class="menu-toggle"
+        id="menuToggle"
+        type="button"
+        aria-label="{{ _('Toggle navigation') }}"
+        aria-expanded="false"
+        aria-controls="mobileMenu"
+      >
+        ☰
+      </button>
+
     </div>
 
-    <div class="bg-particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-    </div>
+    <nav
+      class="mobile-menu"
+      id="mobileMenu"
+      aria-label="Mobile navigation"
+    >
 
-    <nav>
-        <div class="nav-container">
-            <div class="nav-content">
-                <a href="{{ url_for('main.index') }}" class="navbar-brand">
-                    <span style="color: #22c55e;">Property</span><span style="color: #f97316;">Pay</span><span style="color: #3b82f6;">Track</span>
-                </a>
+      <a href="{{ url_for('main.tenant_dashboard') if user.has_role('tenant') else url_for('main.landlord_dashboard') }}">
+        {{ _('Overview') }}
+      </a>
 
-                <div class="nav-links" id="navLinks">
-                    <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link" aria-label="Go to Dashboard">Dashboard</a>
-                    <a href="{{ url_for('main.tenant_make_payment') }}" class="nav-link" aria-label="Make Payments">Payments</a>
-                    <a href="{{ url_for('auth.profile') }}" class="nav-link" aria-label="View Profile">Profile</a>
-                    <button id="settingsToggle" class="nav-link" aria-label="Open Settings"><i class="fas fa-cog"></i> Settings</button>
-                    <a href="{{ url_for('auth.logout') }}" class="logout-btn" aria-label="Logout">Logout</a>
-                </div>
+      {% if user.has_role('tenant') %}
 
-                <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle mobile menu">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
+        <a href="{{ url_for('main.tenant_make_payment') }}">
+          {{ _('Payments') }}
+        </a>
+
+      {% else %}
+
+        <a href="{{ url_for('main.properties_list') }}">
+          {{ _('Properties') }}
+        </a>
+
+        <a href="{{ url_for('main.tenants_list') }}">
+          {{ _('Tenants') }}
+        </a>
+
+        <a href="{{ url_for('main.payments_history') }}">
+          {{ _('Payments') }}
+        </a>
+
+      {% endif %}
+
+      <a href="{{ url_for('auth.logout') }}">
+        {{ _('Sign out') }}
+      </a>
+
     </nav>
+  </header>
 
-    <div class="settings-panel" id="settingsPanel">
-        <h3>User Settings</h3>
-        <div class="settings-item">
-            <label for="theme">Theme</label>
-            <select id="theme" aria-label="Select theme">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-            </select>
-        </div>
-        <div class="settings-item">
-            <label for="language">Language</label>
-            <select id="language" aria-label="Select language">
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-            </select>
-        </div>
+
+  <main class="page">
+
+    <div class="intro">
+      <p class="eyebrow">{{ _('Account') }}</p>
+
+      <h1>
+        {{ _('My profile') }}
+      </h1>
+
+      <p>
+        {{ _('Keep your contact details up to date.') }}
+      </p>
     </div>
 
-    <main class="profile-wrapper">
-        <div class="container">
-            <div class="profile-card" role="region" aria-labelledby="profile-title">
-                <header class="profile-header">
-                    <div class="profile-avatar" id="avatarContainer">
-                        <div class="avatar-placeholder"><i class="fas fa-user"></i></div>
-                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" aria-label="Upload profile picture">
-                    </div>
-                    <h1 class="profile-title" id="profile-title">{{ user.full_name or user.username }}</h1>
-                    <p class="profile-subtitle">Manage your account information and preferences</p>
-                </header>
 
-                <div class="profile-body">
-                    <div class="info-grid">
-                        <div class="info-row" style="--i: 1">
-                            <div class="info-icon">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">Username</div>
-                                <div class="info-value">{{ user.username or 'N/A' }}</div>
-                            </div>
-                        </div>
+    {% for category, message in get_flashed_messages(with_categories=true) %}
 
-                        <div class="info-row" style="--i: 2">
-                            <div class="info-icon">
-                                <i class="fas fa-id-card"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">First Name</div>
-                                <div class="info-value">{{ user.first_name or 'N/A' }}</div>
-                            </div>
-                        </div>
+      <div
+        class="alert alert-{{ 'success' if category == 'success' else 'danger' }}"
+        role="alert"
+      >
+        {{ message }}
+      </div>
 
-                        <div class="info-row" style="--i: 3">
-                            <div class="info-icon">
-                                <i class="fas fa-id-card"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">Last Name</div>
-                                <div class="info-value">{{ user.last_name or 'N/A' }}</div>
-                            </div>
-                        </div>
+    {% endfor %}
 
-                        <div class="info-row" style="--i: 4">
-                            <div class="info-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">Email</div>
-                                <div class="info-value">{{ user.email or 'N/A' }}</div>
-                            </div>
-                        </div>
 
-                        <div class="info-row" style="--i: 5">
-                            <div class="info-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">Phone Number</div>
-                                <div class="info-value">{{ user.phone_number or 'N/A' }}</div>
-                            </div>
-                        </div>
+    <section
+      class="profile-card"
+      aria-label="{{ _('Profile details') }}"
+    >
 
-                        <div class="info-row" style="--i: 6">
-                            <div class="info-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">County</div>
-                                <div class="info-value">{{ user.county or 'N/A' }}</div>
-                            </div>
-                        </div>
+      <div class="identity">
 
-                        <div class="info-row" style="--i: 7">
-                            <div class="info-icon">
-                                <i class="fas fa-user-tag"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">Roles</div>
-                                <div class="info-value">
-                                    <div class="role-badges">
-                                        {% if user.is_admin %}
-                                            <span class="badge-custom"><i class="fas fa-shield-alt"></i> Administrator</span>
-                                        {% endif %}
-                                        {% if user.is_landlord %}
-                                            <span class="badge-custom"><i class="fas fa-home"></i> Landlord</span>
-                                        {% endif %}
-                                        {% if user.is_tenant %}
-                                            <span class="badge-custom"><i class="fas fa-person"></i> Tenant</span>
-                                        {% endif %}
-                                        {% if not user.is_admin and not user.is_landlord and not user.is_tenant %}
-                                            <span class="badge-custom"><i class="fas fa-question-circle"></i> No Roles Assigned</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="info-row" style="--i: 8">
-                            <div class="info-icon">
-                                <i class="fas fa-globe"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">Language</div>
-                                <div class="info-value">{{ user.language or 'English' }}</div>
-                            </div>
-                        </div>
-
-                        <div class="info-row" style="--i: 9">
-                            <div class="info-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="info-content">
-                                <div class="info-label">Last Login</div>
-                                <div class="info-value">{{ user.last_login or 'N/A' }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <footer class="profile-footer">
-                    <a href="{{ url_for('auth.forgot_password') }}" class="btn-custom btn-warning-custom" aria-label="Change Password">
-                        <i class="fas fa-key"></i>
-                        <span>Change Password</span>
-                    </a>
-                    <a href="{{ url_for('auth.edit_profile') }}" class="btn-custom btn-primary-custom" aria-label="Edit Profile">
-                        <i class="fas fa-edit"></i>
-                        <span>Edit Profile</span>
-                    </a>
-                </footer>
-            </div>
+        <div
+          class="avatar"
+          aria-hidden="true"
+        >
+          {{ (user.first_name or user.email or 'U')[:1]|upper }}
         </div>
-    </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize theme
-            const theme = localStorage.getItem('theme') || 'light';
-            if (theme === 'dark') {
-                document.body.classList.add('dark');
-                document.querySelector('#theme').value = 'dark';
-            }
+        <div class="identity-copy">
 
-            // Loading state
-            const loading = document.querySelector('.loading');
-            setTimeout(() => {
-                loading.classList.add('hidden');
-            }, 1000);
+          <h2>
+            {{ user.first_name or _('Your profile') }}
+            {{ user.last_name or '' }}
+          </h2>
 
-            // Mobile menu
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const navLinks = document.getElementById('navLinks');
-            mobileMenuToggle.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
-                mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
-                mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
-            });
+          <p>
+            {{ user.email }}
+          </p>
 
-            // Settings panel
-            const settingsToggle = document.getElementById('settingsToggle');
-            const settingsPanel = document.getElementById('settingsPanel');
-            settingsToggle.addEventListener('click', () => {
-                settingsPanel.classList.toggle('active');
-            });
+        </div>
 
-            // Theme toggle
-            document.getElementById('theme').addEventListener('change', (e) => {
-                const isDark = e.target.value === 'dark';
-                document.body.classList.toggle('dark', isDark);
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                showNotification('Theme changed successfully', 'success');
-            });
+        <span class="role">
+          {{
+            _('Tenant')
+            if user.has_role('tenant')
+            else _('Landlord')
+            if user.has_role('landlord')
+            else _('Account')
+          }}
+        </span>
 
-            // Language selection
-            document.getElementById('language').addEventListener('change', (e) => {
-                showNotification(`Language changed to ${e.target.value}`, 'success');
-            });
+      </div>
 
-            // Profile picture upload
-            const avatarContainer = document.getElementById('avatarContainer');
-            const avatarInput = document.getElementById('avatarInput');
-            avatarContainer.addEventListener('click', () => avatarInput.click());
-            avatarInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    if (file.size > 2 * 1024 * 1024) {
-                        showNotification('Image size must be less than 2MB', 'error');
-                        return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        avatarContainer.innerHTML = '';
-                        avatarContainer.appendChild(img);
-                        showNotification('Profile picture updated', 'success');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
 
-            // Notification system
-            function showNotification(message, type) {
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                notification.textContent = message;
-                document.body.appendChild(notification);
-                setTimeout(() => notification.remove(), 3000);
-            }
+      <form
+        class="profile-form"
+        method="post"
+        action="{{ url_for('auth.profile') }}"
+        novalidate
+      >
 
-            // Ripple effect
-            function createRipple(event) {
-                const element = event.currentTarget;
-                const circle = document.createElement('span');
-                const diameter = Math.max(element.clientWidth, element.clientHeight);
-                const radius = diameter / 2;
+        {{ form.hidden_tag() }}
 
-                circle.style.width = circle.style.height = `${diameter}px`;
-                circle.style.left = `${event.clientX - element.getBoundingClientRect().left - radius}px`;
-                circle.style.top = `${event.clientY - element.getBoundingClientRect().top - radius}px`;
-                circle.classList.add('ripple-effect');
-                element.appendChild(circle);
 
-                circle.addEventListener('animationend', () => circle.remove());
-            }
+        <div class="section-heading">
 
-            document.querySelectorAll('.btn-custom, .logout-btn, .info-row').forEach(element => {
-                element.addEventListener('click', createRipple);
-            });
+          <span class="section-number">
+            01
+          </span>
 
-            // Close mobile menu on link click
-            navLinks.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
-                    navLinks.classList.remove('active');
-                    mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-                    mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-                });
-            });
+          <h3>
+            {{ _('Personal information') }}
+          </h3>
 
-            // Accessibility: Escape key handling
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    navLinks.classList.remove('active');
-                    settingsPanel.classList.remove('active');
-                    mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-                    mobileMenuToggle.querySelector('i').classList.add('fa-bars');
-                }
-            });
+          <p>
+            {{ _('Update the contact information associated with your account.') }}
+          </p>
 
-            // Intersection Observer for animations
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateX(0)';
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        </div>
 
-            document.querySelectorAll('.info-row').forEach((row, index) => {
-                row.style.opacity = '0';
-                row.style.transform = 'translateX(30px)';
-                row.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
-                observer.observe(row);
-            });
 
-            // Dynamic ripple styles
-            const style = document.createElement('style');
-            style.textContent = `
-                .ripple-effect {
-                    position: absolute;
-                    border-radius: 50%;
-                    background: rgba(255, 255, 255, 0.3);
-                    transform: scale(0);
-                    animation: ripple 600ms linear;
-                    pointer-events: none;
-                }
-            `;
-            document.head.appendChild(style);
+        <div class="fields">
+
+          {% for field in [
+            form.first_name,
+            form.last_name,
+            form.email,
+            form.phone_number
+          ] %}
+
+            <div
+              class="field{% if field.name == 'phone_number' %} full{% endif %}"
+            >
+
+              <label for="{{ field.id }}">
+                {{ field.label.text }}
+              </label>
+
+              {{
+                field(
+                  class_='field-input',
+                  autocomplete=
+                    'given-name'
+                    if field.name == 'first_name'
+                    else
+                    'family-name'
+                    if field.name == 'last_name'
+                    else
+                    'email'
+                    if field.name == 'email'
+                    else
+                    'tel',
+                  placeholder=field.label.text
+                )
+              }}
+
+              {% if field.name == 'phone_number' %}
+
+                <p class="hint">
+                  {{ _('Used for M-Pesa payment prompts.') }}
+                </p>
+
+              {% endif %}
+
+              {% for error in field.errors %}
+
+                <p class="error">
+                  {{ error }}
+                </p>
+
+              {% endfor %}
+
+            </div>
+
+          {% endfor %}
+
+        </div>
+
+
+        <div class="form-footer">
+
+          <p class="form-note">
+            {{ _('Your account details are used to identify your MFUKO account.') }}
+          </p>
+
+          <div class="actions">
+
+            <a
+              class="back"
+              href="{{ url_for('main.tenant_dashboard') if user.has_role('tenant') else url_for('main.landlord_dashboard') }}"
+            >
+              {{ _('Back to dashboard') }}
+            </a>
+
+            <button
+              class="save"
+              type="submit"
+            >
+              {{ _('Save profile') }}
+            </button>
+
+          </div>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  </main>
+
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    if (menuToggle && mobileMenu) {
+      menuToggle.addEventListener('click', () => {
+        const open = mobileMenu.classList.toggle('open');
+
+        menuToggle.setAttribute(
+          'aria-expanded',
+          String(open)
+        );
+      });
+
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.remove('open');
+          menuToggle.setAttribute('aria-expanded', 'false');
         });
-    </script>
+      });
+    }
+  </script>
+
 </body>
 </html>

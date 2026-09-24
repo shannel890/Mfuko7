@@ -51,18 +51,22 @@ def db_session(app):
 @pytest.fixture
 def landlord_role(db_session):
     """Create landlord role"""
-    role = Role(name='landlord', description='Landlord role')
-    db_session.add(role)
-    db_session.commit()
+    role = Role.query.filter_by(name='landlord').first()
+    if role is None:
+        role = Role(name='landlord', description='Landlord role')
+        db_session.add(role)
+        db_session.commit()
     return role
 
 
 @pytest.fixture
 def tenant_role(db_session):
     """Create tenant role"""
-    role = Role(name='tenant', description='Tenant role')
-    db_session.add(role)
-    db_session.commit()
+    role = Role.query.filter_by(name='tenant').first()
+    if role is None:
+        role = Role(name='tenant', description='Tenant role')
+        db_session.add(role)
+        db_session.commit()
     return role
 
 
@@ -404,7 +408,7 @@ class TestNotifications:
     """Test notification functionality"""
     
     @patch('app.notification.mail.send')
-    def test_email_notification(self, mock_send):
+    def test_email_notification(self, mock_send, app):
         """Test email notification sending"""
         mock_send.return_value = True
         

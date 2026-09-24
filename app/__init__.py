@@ -30,14 +30,35 @@ def create_app():
     app = Flask(__name__)
     # --- Basic config
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
-    db_url = os.getenv("DATABASE_URL")
+    app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '0') == '1'
+    app.config['HOST'] = os.getenv('HOST', '127.0.0.1')
+    app.config['PORT'] = int(os.getenv('PORT', 5000))
+    environment = os.getenv('APP_ENV', os.getenv('FLASK_ENV', 'development'))
+    app.config['APP_ENV'] = environment
+    db_url = os.getenv('DATABASE_URL')
 
+    # A local checkout works without cloud credentials. Production deployments
+    # must still provide an explicit, persistent database connection.
     if not db_url:
-        raise RuntimeError(
-            "DATABASE_URL is missing from the project .env file"
-        )
+        if os.getenv('VERCEL') or environment == 'production':
+            raise RuntimeError('DATABASE_URL must be configured in production.')
+        local_database = BASE_DIR / 'instance' / 'mfuko.db'
+        local_database.parent.mkdir(exist_ok=True)
+        db_url = f'sqlite:///{local_database}'
 
-    if "sslmode=" not in db_url:
+    # Resolve relative SQLite URLs from the project root and ensure their
+    # parent directory exists. This makes DATABASE_URL=sqlite:///instance/mfuko.db
+    # work on a new local checkout.
+    if db_url.startswith('sqlite:///'):
+        sqlite_path = Path(db_url.removeprefix('sqlite:///'))
+        if sqlite_path != Path(':memory:'):
+            if not sqlite_path.is_absolute():
+                sqlite_path = BASE_DIR / sqlite_path
+            sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+            db_url = f'sqlite:///{sqlite_path}'
+
+    # sslmode is a PostgreSQL option and breaks SQLite URLs.
+    if db_url.startswith(('postgres://', 'postgresql://')) and 'sslmode=' not in db_url:
         separator = "&" if "?" in db_url else "?"
         db_url += f"{separator}sslmode=require"
 
@@ -67,10 +88,10 @@ def create_app():
 
     # --- M-Pesa config
     app.config.update({
-        'MPESA_CONSUMER_KEY': config('MPESA_CONSUMER_KEY'),
-        'MPESA_CONSUMER_SECRET': config('MPESA_CONSUMER_SECRET'),
-        'MPESA_SHORTCODE': config('MPESA_SHORTCODE'),
-        'MPESA_PASSKEY': config('MPESA_PASSKEY'),
+        'MPESA_CONSUMER_KEY': config('MPESA_CONSUMER_KEY', default=None),
+        'MPESA_CONSUMER_SECRET': config('MPESA_CONSUMER_SECRET', default=None),
+        'MPESA_SHORTCODE': config('MPESA_SHORTCODE', default=None),
+        'MPESA_PASSKEY': config('MPESA_PASSKEY', default=None),
         'MPESA_CALLBACK_URL': config('MPESA_CALLBACK_URL', default='https://example.com/callback'),
         'MPESA_ENVIRONMENT': config('MPESA_ENVIRONMENT', default='sandbox'),
     })
@@ -83,9 +104,9 @@ def create_app():
 
     # --- Twilio config
     app.config.update({
-        'TWILIO_ACCOUNT_SID': config('TWILIO_ACCOUNT_SID'),
-        'TWILIO_AUTH_TOKEN': config('TWILIO_AUTH_TOKEN'),
-        'TWILIO_PHONE_NUMBER': config('TWILIO_PHONE_NUMBER'),
+        'TWILIO_ACCOUNT_SID': config('TWILIO_ACCOUNT_SID', default=None),
+        'TWILIO_AUTH_TOKEN': config('TWILIO_AUTH_TOKEN', default=None),
+        'TWILIO_PHONE_NUMBER': config('TWILIO_PHONE_NUMBER', default=None),
     })
 
     # --- Init extensions
@@ -141,12 +162,17 @@ def create_app():
         # Initialize database manager for read/write separation
         init_db_manager(app)
 
-        # Create landlord role if missing
-        landlord_role = Role.query.filter_by(name='landlord').first()
-        if not landlord_role:
-            landlord_role = Role(name='landlord')
-            db.session.add(landlord_role)
-            db.session.commit()
+        # Ensure both self-registration roles exist.
+        existing_roles = {role.name: role for role in Role.query.filter(
+            Role.name.in_(['landlord', 'tenant'])
+        ).all()}
+        for role_name in ('landlord', 'tenant'):
+            if role_name not in existing_roles:
+                role = Role(name=role_name)
+                db.session.add(role)
+                existing_roles[role_name] = role
+        db.session.commit()
+        landlord_role = existing_roles['landlord']
 
         # Create landlord user if missing
         landlord_user = User.query.filter_by(email='shannel@gmail.com').first()

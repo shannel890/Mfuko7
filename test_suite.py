@@ -55,9 +55,11 @@ def runner(app):
 def landlord_role(app):
     """Create a landlord role."""
     with app.app_context():
-        role = Role(name='landlord', description='Property owner')
-        db.session.add(role)
-        db.session.commit()
+        role = Role.query.filter_by(name='landlord').first()
+        if role is None:
+            role = Role(name='landlord', description='Property owner')
+            db.session.add(role)
+            db.session.commit()
         return role
 
 
@@ -65,9 +67,11 @@ def landlord_role(app):
 def tenant_role(app):
     """Create a tenant role."""
     with app.app_context():
-        role = Role(name='tenant', description='Property tenant')
-        db.session.add(role)
-        db.session.commit()
+        role = Role.query.filter_by(name='tenant').first()
+        if role is None:
+            role = Role(name='tenant', description='Property tenant')
+            db.session.add(role)
+            db.session.commit()
         return role
 
 
@@ -87,6 +91,7 @@ def landlord_user(app, landlord_role):
         user.roles.append(landlord_role)
         db.session.add(user)
         db.session.commit()
+        db.session.refresh(user)
         return user
 
 
@@ -107,6 +112,7 @@ def tenant_user(app, tenant_role):
         user.roles.append(tenant_role)
         db.session.add(user)
         db.session.commit()
+        db.session.refresh(user)
         return user
 
 
@@ -126,6 +132,7 @@ def test_property(app, landlord_user):
         )
         db.session.add(property)
         db.session.commit()
+        db.session.refresh(property)
         return property
 
 
@@ -144,6 +151,7 @@ def test_unit(app, test_property):
         )
         db.session.add(unit)
         db.session.commit()
+        db.session.refresh(unit)
         return unit
 
 
@@ -165,6 +173,7 @@ def test_tenant(app, test_property, tenant_user):
         )
         db.session.add(tenant)
         db.session.commit()
+        db.session.refresh(tenant)
         return tenant
 
 

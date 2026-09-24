@@ -1,825 +1,1884 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Payment History Management for PropertyPayTrack" />
-  <title>{{ _('Payment History') }} | PropertyPayTrack</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --background: #f5f7fa;
-      --foreground: #1e293b;
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --muted: #e2e8f0;
-      --primary: #667eea;
-      --primary-dark: #764ba2;
-      --success: #059669;
-      --warning: #d97706;
-      --danger: #dc2626;
-    }
-
-    body.dark {
-      --background: #1a202c;
-      --foreground: #e2e8f0;
-      --card-bg: rgba(45, 55, 72, 0.95);
-      --muted: #2d3748;
-    }
-
-    body {
-      background: var(--background);
-      color: var(--foreground);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-      margin: 0;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    .modern-nav {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .brand-logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .nav-link {
-      color: var(--foreground);
-      text-decoration: none;
-      font-weight: 500;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .nav-link:hover {
-      color: var(--primary);
-      background: rgba(59, 130, 246, 0.1);
-    }
-
-    .nav-link.active {
-      color: var(--primary);
-      background: rgba(59, 130, 246, 0.1);
-    }
-
-    .logout-btn {
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      color: white;
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    .logout-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(238, 90, 36, 0.3);
-      color: white;
-    }
-
-    .page-header {
-      margin-bottom: 2rem;
-    }
-
-    .page-title {
-      font-size: 2.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .page-subtitle {
-      color: #64748b;
-      font-size: 1.1rem;
-    }
-
-    .btn-primary-modern {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.75rem;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-primary-modern:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-      color: white;
-    }
-
-    .btn-filter-modern {
-      background: var(--card-bg);
-      color: #64748b;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.75rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .btn-filter-modern:hover {
-      background: white;
-      color: var(--primary);
-      border-color: var(--primary);
-      transform: translateY(-1px);
-    }
-
-    .modern-card {
-      background: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 1.5rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(20px);
-      overflow: hidden;
-      animation: slideUp 0.5s ease;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .card-header-modern {
-      background: linear-gradient(135deg, var(--card-bg), var(--muted));
-      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-      padding: 1.5rem;
-    }
-
-    .search-container {
-      position: relative;
-      max-width: 400px;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      z-index: 1;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 0.75rem 1rem 0.75rem 3rem;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      border-radius: 0.75rem;
-      background: var(--card-bg);
-      font-size: 0.95rem;
-      transition: all 0.3s ease;
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      background: white;
-    }
-
-    .results-count {
-      background: rgba(102, 126, 234, 0.1);
-      color: var(--primary);
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
-
-    .card-body-modern {
-      padding: 0;
-    }
-
-    .modern-table {
-      margin-bottom: 0;
-    }
-
-    .table-header-modern {
-      background: linear-gradient(135deg, var(--muted), var(--card-bg));
-    }
-
-    .table-header-text {
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 1rem 0.75rem;
-      cursor: pointer;
-    }
-
-    .table-header-text:hover {
-      color: var(--primary);
-    }
-
-    .table-header-text.sort-asc::after,
-    .table-header-text.sort-desc::after {
-      content: '';
-      display: inline-block;
-      width: 0;
-      height: 0;
-      margin-left: 0.5rem;
-      vertical-align: middle;
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-    }
-
-    .table-header-text.sort-asc::after {
-      border-bottom: 4px solid var(--primary);
-    }
-
-    .table-header-text.sort-desc::after {
-      border-top: 4px solid var(--primary);
-    }
-
-    .payment-row-modern {
-      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-      transition: all 0.3s ease;
-      opacity: 0;
-      animation: fadeIn 0.5s ease forwards;
-      animation-delay: calc(var(--row-index) * 0.1s);
-    }
-
-    .payment-row-modern:hover {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-      transform: translateX(4px);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .modern-checkbox .form-check-input {
-      width: 1.25rem;
-      height: 1.25rem;
-      border: 2px solid #d1d5db;
-      border-radius: 0.375rem;
-      transition: all 0.3s ease;
-    }
-
-    .modern-checkbox .form-check-input:checked {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border-color: var(--primary);
-    }
-
-    .avatar-modern {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border-radius: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1rem;
-      color: white;
-      font-size: 1.1rem;
-    }
-
-    .tenant-info {
-      min-width: 0;
-    }
-
-    .tenant-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .property-name {
-      color: #64748b;
-      font-size: 0.85rem;
-      margin-top: 0.25rem;
-    }
-
-    .amount-text {
-      font-weight: 700;
-      color: var(--success);
-      font-size: 1.1rem;
-      background: linear-gradient(135deg, var(--success), #10b981);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .method-badge {
-      background: rgba(102, 126, 234, 0.1);
-      color: var(--primary);
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .date-container {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .date-text {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    .time-text {
-      color: #64748b;
-      font-size: 0.8rem;
-    }
-
-    .status-badge {
-      padding: 0.5rem 1rem;
-      border-radius: 0.75rem;
-      font-weight: 600;
-      font-size: 0.8rem;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .status-confirmed {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success);
-    }
-
-    .status-pending {
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--warning);
-    }
-
-    .status-failed {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger);
-    }
-
-    .action-btn {
-      background: rgba(148, 163, 184, 0.1);
-      border: none;
-      color: #64748b;
-      padding: 0.5rem;
-      border-radius: 0.5rem;
-      transition: all 0.3s ease;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .action-btn:hover {
-      background: rgba(102, 126, 234, 0.1);
-      color: var(--primary);
-    }
-
-    .modern-dropdown {
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      background: var(--card-bg);
-      padding: 0.5rem;
-    }
-
-    .modern-dropdown .dropdown-item {
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      transition: all 0.3s ease;
-      margin-bottom: 0.25rem;
-    }
-
-    .modern-dropdown .dropdown-item:hover {
-      background: rgba(102, 126, 234, 0.1);
-      color: var(--primary);
-      transform: translateX(4px);
-    }
-
-    .empty-state-modern {
-      padding: 3rem;
-      text-align: center;
-    }
-
-    .empty-icon {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1.5rem;
-      font-size: 2rem;
-      color: white;
-    }
-
-    .empty-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .empty-subtitle {
-      color: #64748b;
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .card-footer-modern {
-      background: linear-gradient(135deg, var(--muted), var(--card-bg));
-      border-top: 1px solid rgba(148, 163, 184, 0.2);
-      padding: 1.5rem;
-    }
-
-    .btn-outline-modern {
-      background: rgba(102, 126, 234, 0.1);
-      color: var(--primary);
-      border: 1px solid rgba(102, 126, 234, 0.3);
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    .btn-outline-modern:hover:not(:disabled) {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-outline-modern:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn-outline-danger {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    .btn-outline-danger:hover:not(:disabled) {
-      background: var(--danger);
-      color: white;
-    }
-
-    .btn-outline-danger:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .modern-pagination .page-link {
-      background: var(--card-bg);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      color: #64748b;
-      padding: 0.5rem 1rem;
-      margin: 0 0.125rem;
-      border-radius: 0.5rem;
-      transition: all 0.3s ease;
-    }
-
-    .modern-pagination .page-item.active .page-link {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border-color: var(--primary);
-      color: white;
-    }
-
-    .modern-pagination .page-link:hover {
-      background: rgba(102, 126, 234, 0.1);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: 0.5rem;
-      color: white;
-      z-index: 2000;
-      animation: slideIn 0.3s ease forwards, slideOut 0.3s ease 2.7s forwards;
-    }
-
-    .notification.success {
-      background: var(--success);
-    }
-
-    .notification.error {
-      background: var(--danger);
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
-    @keyframes slideOut {
-      from { transform: translateX(0); opacity: 1; }
-      to { transform: translateX(100%); opacity: 0; }
-    }
-
-    .loading {
-      position: fixed;
-      inset: 0;
-      background: var(--background);
-      opacity: 0.8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 3000;
-      transition: opacity 0.3s ease;
-    }
-
-    .loading.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid var(--primary);
-      border-top: 4px solid transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .modal-modern {
-      background: var(--card-bg);
-      border-radius: 1rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(10px);
-    }
-
-    .modal-header-modern {
-      background: linear-gradient(135deg, var(--muted), var(--card-bg));
-      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .modal-footer-modern {
-      border-top: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .date-range-picker {
-      position: relative;
-      display: inline-block;
-    }
-
-    .date-range-input {
-      background: var(--card-bg);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      padding: 0.75rem 1rem;
-      border-radius: 0.75rem;
-      font-size: 0.95rem;
-      width: 200px;
-    }
-
-    .date-range-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    @media (max-width: 768px) {
-      .page-title {
-        font-size: 2rem;
-      }
-
-      .modern-table {
-        font-size: 0.85rem;
-      }
-
-      .avatar-modern {
-        width: 40px;
-        height: 40px;
-      }
-
-      .btn-primary-modern,
-      .btn-filter-modern {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .container-fluid {
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-
-      .page-header {
-        text-align: center;
-      }
-
-      .modern-table {
-        display: block;
-        overflow-x: auto;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-    /* Simple, low-distraction presentation */
-    body { background: #f8fafc; color: #1f2937; }
-    .modern-nav { background: #fff !important; box-shadow: none; }
-    .page-header { margin-bottom: 1.5rem; }
-    .modern-card { border-radius: .5rem; box-shadow: none; }
-    .btn-primary-modern { border-radius: .375rem; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <meta
+        name="description"
+        content="Payment history management for MFUKO"
+    >
+
+    <title>{{ _('Payment History') }} · MFUKO</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <style>
+        :root {
+            --green: #176b49;
+            --green-dark: #12553a;
+            --green-soft: #edf7f2;
+            --green-border: #cfe8dc;
+
+            --orange: #e89024;
+            --orange-soft: #fff5e8;
+
+            --text: #17201b;
+            --text-soft: #66736c;
+            --muted: #87928c;
+
+            --background: #ffffff;
+            --surface: #ffffff;
+            --surface-soft: #f8faf9;
+
+            --border: #e5ebe7;
+            --border-dark: #d6dfda;
+
+            --danger: #c73b3b;
+            --danger-soft: #fff0f0;
+
+            --success: #217a4d;
+            --success-soft: #edf8f1;
+
+            --warning: #a96a08;
+            --warning-soft: #fff7e7;
+
+            --shadow-sm: 0 2px 8px rgba(23, 32, 27, 0.04);
+            --shadow-md: 0 8px 24px rgba(23, 32, 27, 0.07);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+
+            --max-width: 1180px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            background: var(--background);
+            color: var(--text);
+
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* =========================
+           NAVIGATION
+        ========================== */
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            height: 68px;
+
+            background: rgba(255, 255, 255, 0.97);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            width: min(var(--max-width), calc(100% - 40px));
+            height: 100%;
+            margin: 0 auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            color: var(--green-dark);
+
+            font-family: "Manrope", sans-serif;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 9px;
+
+            background: var(--green);
+            color: white;
+
+            font-size: 14px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            min-height: 38px;
+            padding: 8px 12px;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            border-radius: 8px;
+
+            color: var(--text-soft);
+
+            font-size: 13px;
+            font-weight: 600;
+
+            transition:
+                background 0.18s ease,
+                color 0.18s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--surface-soft);
+            color: var(--green-dark);
+        }
+
+        .nav-link.active {
+            background: var(--green-soft);
+            color: var(--green-dark);
+        }
+
+        .nav-account {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .account-name {
+            color: var(--text-soft);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            min-height: 36px;
+            padding: 7px 11px;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            background: white;
+            color: var(--text-soft);
+
+            font-size: 12px;
+            font-weight: 600;
+
+            transition:
+                background 0.18s ease,
+                border-color 0.18s ease,
+                color 0.18s ease;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger-soft);
+            border-color: #edc8c8;
+            color: var(--danger);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+
+            width: 38px;
+            height: 38px;
+
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            background: white;
+            color: var(--text);
+        }
+
+        /* =========================
+           PAGE
+        ========================== */
+
+        .page {
+            width: min(var(--max-width), calc(100% - 40px));
+            margin: 0 auto;
+
+            padding: 42px 0 60px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+
+            margin-bottom: 28px;
+        }
+
+        .eyebrow {
+            margin: 0 0 7px;
+
+            color: var(--green);
+
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+        }
+
+        .page-title {
+            margin: 0;
+
+            color: var(--text);
+
+            font-family: "Manrope", sans-serif;
+            font-size: clamp(28px, 4vw, 38px);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -0.045em;
+        }
+
+        .page-subtitle {
+            max-width: 620px;
+            margin: 9px 0 0;
+
+            color: var(--text-soft);
+            font-size: 14px;
+        }
+
+        .primary-btn {
+            min-height: 42px;
+            padding: 0 16px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            border: 1px solid var(--green);
+            border-radius: 9px;
+
+            background: var(--green);
+            color: white;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            box-shadow: 0 4px 12px rgba(23, 107, 73, 0.14);
+
+            transition:
+                background 0.18s ease,
+                border-color 0.18s ease,
+                transform 0.18s ease;
+        }
+
+        .primary-btn:hover {
+            background: var(--green-dark);
+            border-color: var(--green-dark);
+            transform: translateY(-1px);
+        }
+
+        /* =========================
+           TOOLBAR
+        ========================== */
+
+        .toolbar {
+            margin-bottom: 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .search-container {
+            position: relative;
+            width: min(420px, 100%);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: var(--muted);
+            font-size: 13px;
+
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 42px;
+
+            padding: 0 14px 0 39px;
+
+            border: 1px solid var(--border-dark);
+            border-radius: 9px;
+
+            background: white;
+            color: var(--text);
+
+            outline: none;
+
+            font-size: 13px;
+
+            transition:
+                border-color 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .search-input::placeholder {
+            color: #9aa49f;
+        }
+
+        .search-input:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(23, 107, 73, 0.08);
+        }
+
+        .results-count {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* =========================
+           PAYMENT CARD
+        ========================== */
+
+        .payment-card {
+            overflow: hidden;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            min-height: 62px;
+            padding: 0 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title h2 {
+            margin: 0;
+
+            color: var(--text);
+
+            font-family: "Manrope", sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .count-badge {
+            min-width: 26px;
+            height: 24px;
+            padding: 0 7px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 999px;
+
+            background: var(--green-soft);
+            color: var(--green-dark);
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .payment-table {
+            width: 100%;
+            min-width: 820px;
+
+            border-collapse: collapse;
+        }
+
+        .payment-table th {
+            padding: 12px 20px;
+
+            background: #fbfcfb;
+            border-bottom: 1px solid var(--border);
+
+            color: var(--muted);
+
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .payment-table td {
+            padding: 15px 20px;
+
+            border-bottom: 1px solid var(--border);
+
+            color: var(--text-soft);
+
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .payment-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .payment-table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .payment-table tbody tr:hover {
+            background: #fcfefd;
+        }
+
+        /* =========================
+           PAYMENT INFORMATION
+        ========================== */
+
+        .date-cell {
+            min-width: 105px;
+        }
+
+        .date-main {
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .date-label {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .tenant-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            min-width: 170px;
+        }
+
+        .tenant-avatar {
+            width: 34px;
+            height: 34px;
+            flex: 0 0 34px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 9px;
+
+            background: var(--green-soft);
+            color: var(--green-dark);
+
+            font-family: "Manrope", sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .tenant-name {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .property-name {
+            color: var(--text-soft);
+            font-weight: 600;
+        }
+
+        .amount {
+            color: var(--green-dark);
+            font-family: "Manrope", sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .method-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            min-height: 28px;
+            padding: 4px 9px;
+
+            border: 1px solid var(--border);
+            border-radius: 999px;
+
+            background: #fbfcfb;
+            color: var(--text-soft);
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .method-badge i {
+            color: var(--green);
+            font-size: 10px;
+        }
+
+        /* =========================
+           STATUS
+        ========================== */
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            min-height: 27px;
+            padding: 4px 9px;
+
+            border-radius: 999px;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-confirmed {
+            background: var(--success-soft);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: var(--warning-soft);
+            color: var(--warning);
+        }
+
+        .status-failed {
+            background: var(--danger-soft);
+            color: var(--danger);
+        }
+
+        .status-unknown {
+            background: #f1f3f2;
+            color: var(--muted);
+        }
+
+        /* =========================
+           ACTIONS
+        ========================== */
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 7px;
+
+            background: white;
+            color: var(--text-soft);
+
+            font-size: 11px;
+
+            transition:
+                border-color 0.18s ease,
+                background 0.18s ease,
+                color 0.18s ease;
+        }
+
+        .action-btn:hover {
+            border-color: #edc8c8;
+            background: var(--danger-soft);
+            color: var(--danger);
+        }
+
+        /* =========================
+           MOBILE PAYMENT CARDS
+        ========================== */
+
+        .mobile-payments {
+            display: none;
+        }
+
+        .mobile-payment {
+            padding: 17px 18px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .mobile-payment:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-payment-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .mobile-payment-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-payment-meta {
+            margin-top: 14px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .meta-label {
+            margin-bottom: 3px;
+
+            color: var(--muted);
+
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .meta-value {
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .mobile-payment-bottom {
+            margin-top: 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        /* =========================
+           EMPTY STATES
+        ========================== */
+
+        .empty-state {
+            padding: 58px 24px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 48px;
+            height: 48px;
+
+            margin: 0 auto 15px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 12px;
+
+            background: var(--green-soft);
+            color: var(--green);
+
+            font-size: 18px;
+        }
+
+        .empty-state h3 {
+            margin: 0;
+
+            font-family: "Manrope", sans-serif;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .empty-state p {
+            max-width: 420px;
+            margin: 7px auto 18px;
+
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .empty-action {
+            display: inline-flex;
+        }
+
+        .no-results {
+            display: none;
+            padding: 46px 20px;
+
+            text-align: center;
+        }
+
+        .no-results-icon {
+            width: 42px;
+            height: 42px;
+
+            margin: 0 auto 12px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 10px;
+
+            background: #f3f5f4;
+            color: var(--muted);
+        }
+
+        .no-results strong {
+            display: block;
+
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .no-results span {
+            display: block;
+            margin-top: 4px;
+
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* =========================
+           LOADING
+        ========================== */
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(3px);
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-box {
+            min-width: 210px;
+            padding: 22px;
+
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+
+            box-shadow: var(--shadow-md);
+
+            text-align: center;
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+
+            margin: 0 auto 12px;
+
+            border: 3px solid var(--green-soft);
+            border-top-color: var(--green);
+
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--text-soft);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 900px) {
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-account {
+                margin-left: auto;
+            }
+
+            .mobile-menu-btn {
+                display: inline-flex;
+            }
+
+            .nav-inner {
+                position: relative;
+            }
+
+            .nav-links.mobile-open {
+                position: absolute;
+                top: 58px;
+                left: 0;
+                right: 0;
+
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+
+                gap: 3px;
+                padding: 8px;
+
+                background: white;
+
+                border: 1px solid var(--border);
+                border-radius: 12px;
+
+                box-shadow: var(--shadow-md);
+            }
+
+            .nav-links.mobile-open .nav-link {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .topbar {
+                height: 62px;
+            }
+
+            .nav-inner,
+            .page {
+                width: min(100% - 28px, var(--max-width));
+            }
+
+            .page {
+                padding: 30px 0 45px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+
+                margin-bottom: 22px;
+            }
+
+            .page-title {
+                font-size: 29px;
+            }
+
+            .page-subtitle {
+                font-size: 13px;
+            }
+
+            .primary-btn {
+                width: 100%;
+            }
+
+            .account-name {
+                display: none;
+            }
+
+            .toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+
+            .results-count {
+                text-align: right;
+            }
+
+            .table-wrap {
+                display: none;
+            }
+
+            .mobile-payments {
+                display: block;
+            }
+
+            .card-header {
+                min-height: 58px;
+                padding: 0 17px;
+            }
+        }
+
+        @media (max-width: 430px) {
+
+            .brand {
+                font-size: 17px;
+            }
+
+            .brand-mark {
+                width: 29px;
+                height: 29px;
+            }
+
+            .mobile-menu-btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            .mobile-payment {
+                padding: 15px;
+            }
+
+            .mobile-payment-meta {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
 </head>
-<body class="modern-bg">
-  <div class="loading hidden">
-    <div class="spinner"></div>
-  </div>
 
-  <nav class="modern-nav bg-white dark:bg-gray-900 shadow">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16 items-center">
-        <!-- Logo -->
-        <a href="{{ url_for('main.landlord_dashboard') }}" class="brand-logo text-xl font-bold">
-          <span class="text-emerald-500">Property</span>
-          <span class="text-amber-500">Pay</span>
-          <span class="text-rose-500">Track</span>
-        </a>
+<body>
 
-        <!-- Desktop Nav -->
-        <div class="hidden md:flex space-x-6 items-center">
-          <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link">Dashboard</a>
-          <a href="{{ url_for('main.properties_list') }}" class="nav-link">Properties</a>
-          <a href="{{ url_for('main.tenants_list') }}" class="nav-link">Tenants</a>
-          <a href="{{ url_for('main.payments_history') }}" class="nav-link active">Payments</a>
-          <a href="{{ url_for('auth.profile') }}" class="nav-link">Profile</a>
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
+
+    <header class="topbar">
+        <div class="nav-inner">
+
+            <a
+                href="{{ url_for('main.landlord_dashboard') }}"
+                class="brand"
+            >
+                <span class="brand-mark">
+                    <i class="fa-solid fa-house"></i>
+                </span>
+
+                MFUKO
+            </a>
+
+
+            <nav class="nav-links" id="navLinks">
+
+                <a
+                    href="{{ url_for('main.landlord_dashboard') }}"
+                    class="nav-link"
+                >
+                    <i class="fa-solid fa-chart-line"></i>
+                    Overview
+                </a>
+
+                <a
+                    href="{{ url_for('main.properties_list') }}"
+                    class="nav-link"
+                >
+                    <i class="fa-solid fa-building"></i>
+                    Properties
+                </a>
+
+                <a
+                    href="{{ url_for('main.tenants_list') }}"
+                    class="nav-link"
+                >
+                    <i class="fa-solid fa-users"></i>
+                    Tenants
+                </a>
+
+                <a
+                    href="{{ url_for('main.payments_history') }}"
+                    class="nav-link active"
+                    aria-current="page"
+                >
+                    <i class="fa-solid fa-receipt"></i>
+                    Payments
+                </a>
+
+            </nav>
+
+
+            <div class="nav-account">
+
+                <span class="account-name">
+                    {{ current_user.first_name or 'Landlord' }}
+                </span>
+
+                <a
+                    href="{{ url_for('auth.logout') }}"
+                    class="logout-btn"
+                >
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Sign out
+                </a>
+
+                <button
+                    type="button"
+                    class="mobile-menu-btn"
+                    id="mobileMenuBtn"
+                    aria-label="Open navigation menu"
+                    aria-expanded="false"
+                >
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+            </div>
+
+        </div>
+    </header>
+
+
+    <!-- =========================
+         PAGE
+    ========================== -->
+
+    <main class="page">
+
+        <section class="page-header">
+
+            <div>
+                <p class="eyebrow">
+                    Financial records
+                </p>
+
+                <h1 class="page-title">
+                    {{ _('Payment History') }}
+                </h1>
+
+                <p class="page-subtitle">
+                    {{ _('View and manage all payment records across your properties.') }}
+                </p>
+            </div>
+
+
+            <a
+                href="{{ url_for('main.record_payment') }}"
+                class="primary-btn"
+            >
+                <i class="fa-solid fa-plus"></i>
+                {{ _('Record Payment') }}
+            </a>
+
+        </section>
+
+
+        <!-- =========================
+             SEARCH
+        ========================== -->
+
+        <div class="toolbar">
+
+            <div class="search-container">
+
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+
+                <input
+                    type="search"
+                    class="search-input"
+                    id="paymentSearch"
+                    placeholder="{{ _('Search payments...') }}"
+                    aria-label="{{ _('Search payments') }}"
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <div class="results-count" id="resultsCount">
+                {{ _('Total:') }} {{ payments|length }} {{ _('payments') }}
+            </div>
+
         </div>
 
-        <!-- Right Controls -->
-        <div class="flex items-center space-x-4">
-          <!-- Logout (Desktop) -->
-          <a href="{{ url_for('auth.logout') }}" class="logout-btn hidden md:inline-flex items-center gap-2">
-            <i class="fas fa-sign-out-alt"></i> {{ _('Logout') }}
-          </a>
-          <!-- Mobile Toggle -->
-          <button id="mobileMenuToggle" class="md:hidden text-gray-700 dark:text-gray-200 focus:outline-none" aria-label="Open menu">
-            <i class="fas fa-bars text-xl"></i>
-          </button>
+
+        <!-- =========================
+             PAYMENT TABLE
+        ========================== -->
+
+        <section class="payment-card">
+
+            <div class="card-header">
+
+                <div class="card-title">
+
+                    <h2>
+                        Payment records
+                    </h2>
+
+                    <span class="count-badge" id="paymentCount">
+                        {{ payments|length }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            {% if payments %}
+
+                <!-- DESKTOP -->
+
+                <div class="table-wrap">
+
+                    <table class="payment-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>{{ _('Date') }}</th>
+                                <th>{{ _('Tenant') }}</th>
+                                <th>{{ _('Property') }}</th>
+                                <th>{{ _('Amount') }}</th>
+                                <th>{{ _('Method') }}</th>
+                                <th>{{ _('Status') }}</th>
+                                <th style="text-align:right;">
+                                    {{ _('Actions') }}
+                                </th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="paymentTableBody">
+
+                            {% for payment in payments %}
+
+                                {% set payment_status = payment.status.lower() if payment.status else 'unknown' %}
+
+                                {% set status_class =
+                                    'status-confirmed'
+                                    if payment.status == 'Paid'
+                                    else 'status-pending'
+                                    if payment.status == 'Pending'
+                                    else 'status-failed'
+                                    if payment.status == 'Failed'
+                                    else 'status-unknown'
+                                %}
+
+                                {% set tenant_first =
+                                    payment.tenant.first_name[0]
+                                    if payment.tenant and payment.tenant.first_name
+                                    else 'T'
+                                %}
+
+                                {% set tenant_last =
+                                    payment.tenant.last_name[0]
+                                    if payment.tenant and payment.tenant.last_name
+                                    else ''
+                                %}
+
+                                <tr
+                                    class="payment-row"
+                                    data-search="
+                                        {{ (
+                                            payment.payment_date.strftime('%Y-%m-%d')
+                                            ~ ' '
+                                            ~ (payment.tenant.first_name if payment.tenant else '')
+                                            ~ ' '
+                                            ~ (payment.tenant.last_name if payment.tenant else '')
+                                            ~ ' '
+                                            ~ (payment.tenant.property.name if payment.tenant and payment.tenant.property else '')
+                                            ~ ' '
+                                            ~ (payment.method or '')
+                                            ~ ' '
+                                            ~ (payment.status or '')
+                                        )|lower }}
+                                    "
+                                >
+
+                                    <td class="date-cell">
+
+                                        <div class="date-main">
+                                            {{ payment.payment_date.strftime('%d %b %Y') }}
+                                        </div>
+
+                                        <div class="date-label">
+                                            {{ payment.payment_date.strftime('%A') }}
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="tenant-cell">
+
+                                            <div class="tenant-avatar">
+                                                {{ tenant_first }}{{ tenant_last }}
+                                            </div>
+
+                                            <div>
+                                                <div class="tenant-name">
+                                                    {{ payment.tenant.first_name }}
+                                                    {{ payment.tenant.last_name }}
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="property-name">
+                                            {{
+                                                payment.tenant.property.name
+                                                if payment.tenant and payment.tenant.property
+                                                else 'N/A'
+                                            }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="amount">
+                                            KSh {{ '{:,.2f}'.format(payment.amount|float) }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="method-badge">
+
+                                            <i class="fa-solid fa-wallet"></i>
+
+                                            {{ payment.method }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="status-badge {{ status_class }}">
+
+                                            <span class="status-dot"></span>
+
+                                            {{ payment.status or 'Unknown' }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td style="text-align:right;">
+
+                                        <a
+                                            href="{{ url_for('main.delete_payment', payment_id=payment.id) }}"
+                                            class="action-btn delete-payment-btn"
+                                            title="{{ _('Delete payment') }}"
+                                            aria-label="{{ _('Delete payment') }}"
+                                        >
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- MOBILE -->
+
+                <div class="mobile-payments" id="mobilePayments">
+
+                    {% for payment in payments %}
+
+                        {% set status_class =
+                            'status-confirmed'
+                            if payment.status == 'Paid'
+                            else 'status-pending'
+                            if payment.status == 'Pending'
+                            else 'status-failed'
+                            if payment.status == 'Failed'
+                            else 'status-unknown'
+                        %}
+
+                        {% set tenant_first =
+                            payment.tenant.first_name[0]
+                            if payment.tenant and payment.tenant.first_name
+                            else 'T'
+                        %}
+
+                        {% set tenant_last =
+                            payment.tenant.last_name[0]
+                            if payment.tenant and payment.tenant.last_name
+                            else ''
+                        %}
+
+                        <article
+                            class="mobile-payment"
+                            data-search="
+                                {{
+                                    (
+                                        payment.payment_date.strftime('%Y-%m-%d')
+                                        ~ ' '
+                                        ~ (payment.tenant.first_name if payment.tenant else '')
+                                        ~ ' '
+                                        ~ (payment.tenant.last_name if payment.tenant else '')
+                                        ~ ' '
+                                        ~ (payment.tenant.property.name if payment.tenant and payment.tenant.property else '')
+                                        ~ ' '
+                                        ~ (payment.method or '')
+                                        ~ ' '
+                                        ~ (payment.status or '')
+                                    )|lower
+                                }}
+                            "
+                        >
+
+                            <div class="mobile-payment-top">
+
+                                <div class="mobile-payment-info">
+
+                                    <div class="tenant-avatar">
+                                        {{ tenant_first }}{{ tenant_last }}
+                                    </div>
+
+                                    <div>
+
+                                        <div class="tenant-name">
+                                            {{ payment.tenant.first_name }}
+                                            {{ payment.tenant.last_name }}
+                                        </div>
+
+                                        <div class="property-name">
+                                            {{
+                                                payment.tenant.property.name
+                                                if payment.tenant and payment.tenant.property
+                                                else 'N/A'
+                                            }}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <span class="status-badge {{ status_class }}">
+
+                                    <span class="status-dot"></span>
+
+                                    {{ payment.status or 'Unknown' }}
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="mobile-payment-meta">
+
+                                <div>
+                                    <div class="meta-label">
+                                        Date
+                                    </div>
+
+                                    <div class="meta-value">
+                                        {{ payment.payment_date.strftime('%d %b %Y') }}
+                                    </div>
+                                </div>
+
+
+                                <div>
+                                    <div class="meta-label">
+                                        Method
+                                    </div>
+
+                                    <div class="meta-value">
+                                        {{ payment.method }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="mobile-payment-bottom">
+
+                                <span class="amount">
+                                    KSh {{ '{:,.2f}'.format(payment.amount|float) }}
+                                </span>
+
+
+                                <a
+                                    href="{{ url_for('main.delete_payment', payment_id=payment.id) }}"
+                                    class="action-btn delete-payment-btn"
+                                    title="{{ _('Delete payment') }}"
+                                    aria-label="{{ _('Delete payment') }}"
+                                >
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- NO SEARCH RESULTS -->
+
+                <div class="no-results" id="noResults">
+
+                    <div class="no-results-icon">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+
+                    <strong>
+                        No payments found
+                    </strong>
+
+                    <span>
+                        Try searching for a different tenant, property, method or status.
+                    </span>
+
+                </div>
+
+            {% else %}
+
+                <!-- EMPTY DATABASE STATE -->
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+
+                    <h3>
+                        No payments recorded
+                    </h3>
+
+                    <p>
+                        Record your first payment to start building your payment history.
+                    </p>
+
+                    <a
+                        href="{{ url_for('main.record_payment') }}"
+                        class="primary-btn empty-action"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        {{ _('Record Payment') }}
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         LOADING
+    ========================== -->
+
+    <div
+        class="loading-overlay"
+        id="loadingOverlay"
+    >
+
+        <div class="loading-box">
+
+            <div class="spinner"></div>
+
+            <div class="loading-text">
+                {{ _('Processing payment...') }}
+            </div>
+
         </div>
-      </div>
+
     </div>
 
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="md:hidden hidden flex flex-col px-4 py-4 space-y-2 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
-      <a href="{{ url_for('main.landlord_dashboard') }}" class="nav-link block">Dashboard</a>
-      <a href="{{ url_for('main.properties_list') }}" class="nav-link block">Properties</a>
-      <a href="{{ url_for('main.tenants_list') }}" class="nav-link block">Tenants</a>
-      <a href="{{ url_for('main.payments_history') }}" class="nav-link block active">Payments</a>
-      <a href="{{ url_for('auth.profile') }}" class="nav-link block">Profile</a>
-      <a href="{{ url_for('auth.logout') }}" class="nav-link block">Logout</a>
-    </div>
-  </nav>
 
-  <div class="container-fluid px-4 py-6">
-    <div class="page-header">
-      <h1 class="page-title">{{ _('Payment History') }}</h1>
-      <p class="page-subtitle">{{ _('View and manage all payment records') }}</p>
-    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
-      <div class="flex gap-2">
-        <a href="{{ url_for('main.record_payment') }}" class="btn-primary-modern" aria-label="Record Payment">
-          <i class="fas fa-plus mr-1"></i> {{ _('Record Payment') }}
-        </a>
-      </div>
-      <div class="search-container">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" 
-               class="search-input" 
-               id="paymentSearch" 
-               placeholder="{{ _('Search payments...') }}" 
-               aria-label="{{ _('Search payments') }}"/>
-      </div>
-    </div>
+            /* =========================
+               MOBILE NAVIGATION
+            ========================== */
 
-    <div class="modern-card">
-      <table class="modern-table w-full">
-        <thead class="table-header-modern">
-          <tr>
-            <th class="table-header-text">{{ _('Date') }}</th>
-            <th class="table-header-text">{{ _('Tenant') }}</th>
-            <th class="table-header-text">{{ _('Property') }}</th>
-            <th class="table-header-text text-right">{{ _('Amount') }}</th>
-            <th class="table-header-text">{{ _('Method') }}</th>
-            <th class="table-header-text">{{ _('Status') }}</th>
-            <th class="table-header-text text-center">{{ _('Actions') }}</th>
-          </tr>
-        </thead>
-        <tbody id="paymentTableBody">
-          {% for payment in payments %}
-          <tr class="payment-row-modern" style="--row-index: {{ loop.index0 }}">
-            <td class="date-text" data-date="{{ payment.payment_date.strftime('%Y-%m-%d') }}">{{ payment.payment_date.strftime('%Y-%m-%d') }}</td>
-            <td class="tenant-info" data-tenant="{{ payment.tenant.name }}">
-              <span class="tenant-name">{{ payment.tenant.first_name }}</span>
-            </td>
-            <td class="property-name" data-property="{{ payment.tenant.property.name if payment.tenant.property else 'N/A' }}">
-              {{ payment.tenant.property.name if payment.tenant.property else 'N/A' }}
-            </td>
-            <td class="amount-text text-right" data-amount="{{ payment.amount }}">{{ '{:,.2f}'.format(payment.amount) }}</td>
-            <td class="method-badge">{{ payment.method }}</td>
-            <td>
-              <span class="status-badge {{ 'status-confirmed' if payment.status == 'Paid' else 'status-pending' if payment.status == 'Pending' else 'status-failed' }}">
-                {{ payment.status }}
-              </span>
-            </td>
-            <td class="text-center">
-              <a href="{{ url_for('main.delete_payment', payment_id=payment.id) }}" 
-                 class="action-btn btn-outline-danger" 
-                 title="{{ _('Delete') }}" 
-                 onclick="return confirm('{{ _('Are you sure you want to delete this payment?') }}')"
-                 aria-label="Delete payment">
-                <i class="fas fa-trash"></i>
-              </a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+            const mobileMenuBtn =
+                document.getElementById("mobileMenuBtn");
 
-    <p class="results-count mt-4">{{ _('Total:') }} {{ payments|length }} {{ _('payments') }}</p>
-  </div>
+            const navLinks =
+                document.getElementById("navLinks");
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const searchInput = document.getElementById('paymentSearch');
-      const paymentTableBody = document.getElementById('paymentTableBody');
-      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-      const mobileMenu = document.getElementById('mobileMenu');
 
-      // Mobile menu toggle
-      mobileMenuToggle?.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-      });
+            if (mobileMenuBtn && navLinks) {
 
-      // Update result count display
-      function updateResultCount() {
-        const visibleRows = Array.from(paymentTableBody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
-        document.querySelector('.results-count').textContent = `Total: ${visibleRows.length} payments`;
-      }
+                mobileMenuBtn.addEventListener(
+                    "click",
+                    function () {
 
-      // Filter payment rows by search input
-      function filterTable() {
-        const query = searchInput.value.toLowerCase();
-        paymentTableBody.querySelectorAll('tr').forEach(row => {
-          const tenant = row.querySelector('[data-tenant]').dataset.tenant.toLowerCase();
-          const property = row.querySelector('[data-property]')?.dataset.property.toLowerCase() || '';
-          if (tenant.includes(query) || property.includes(query)) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
+                        const isOpen =
+                            navLinks.classList.toggle(
+                                "mobile-open"
+                            );
+
+                        mobileMenuBtn.setAttribute(
+                            "aria-expanded",
+                            isOpen ? "true" : "false"
+                        );
+
+                        mobileMenuBtn.innerHTML =
+                            isOpen
+                                ? '<i class="fa-solid fa-xmark"></i>'
+                                : '<i class="fa-solid fa-bars"></i>';
+                    }
+                );
+
+
+                navLinks
+                    .querySelectorAll(".nav-link")
+                    .forEach(function (link) {
+
+                        link.addEventListener(
+                            "click",
+                            function () {
+
+                                navLinks.classList.remove(
+                                    "mobile-open"
+                                );
+
+                                mobileMenuBtn.setAttribute(
+                                    "aria-expanded",
+                                    "false"
+                                );
+
+                                mobileMenuBtn.innerHTML =
+                                    '<i class="fa-solid fa-bars"></i>';
+                            }
+                        );
+
+                    });
+            }
+
+
+            /* =========================
+               PAYMENT SEARCH
+            ========================== */
+
+            const searchInput =
+                document.getElementById("paymentSearch");
+
+            const paymentRows =
+                Array.from(
+                    document.querySelectorAll(".payment-row")
+                );
+
+            const mobilePayments =
+                Array.from(
+                    document.querySelectorAll(".mobile-payment")
+                );
+
+            const resultsCount =
+                document.getElementById("resultsCount");
+
+            const paymentCount =
+                document.getElementById("paymentCount");
+
+            const noResults =
+                document.getElementById("noResults");
+
+
+            function filterPayments() {
+
+                const query =
+                    (searchInput?.value || "")
+                        .trim()
+                        .toLowerCase();
+
+
+                let visibleCount = 0;
+
+
+                paymentRows.forEach(function (row) {
+
+                    const searchText =
+                        row.dataset.search || "";
+
+                    const matches =
+                        !query ||
+                        searchText.includes(query);
+
+
+                    row.style.display =
+                        matches ? "" : "none";
+
+
+                    if (matches) {
+                        visibleCount++;
+                    }
+
+                });
+
+
+                mobilePayments.forEach(function (card) {
+
+                    const searchText =
+                        card.dataset.search || "";
+
+                    const matches =
+                        !query ||
+                        searchText.includes(query);
+
+
+                    card.style.display =
+                        matches ? "" : "none";
+
+                });
+
+
+                if (resultsCount) {
+
+                    resultsCount.textContent =
+                        `Total: ${visibleCount} payment${visibleCount === 1 ? "" : "s"}`;
+
+                }
+
+
+                if (paymentCount) {
+                    paymentCount.textContent =
+                        visibleCount;
+                }
+
+
+                if (noResults) {
+
+                    noResults.style.display =
+                        visibleCount === 0
+                            ? "block"
+                            : "none";
+
+                }
+
+            }
+
+
+            if (searchInput) {
+
+                searchInput.addEventListener(
+                    "input",
+                    filterPayments
+                );
+
+            }
+
+
+            /* =========================
+               DELETE CONFIRMATION
+            ========================== */
+
+            const loadingOverlay =
+                document.getElementById("loadingOverlay");
+
+
+            document
+                .querySelectorAll(".delete-payment-btn")
+                .forEach(function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function (event) {
+
+                            event.preventDefault();
+
+
+                            const confirmed =
+                                window.confirm(
+                                    "{{ _('Are you sure you want to delete this payment? This action cannot be undone.') }}"
+                                );
+
+
+                            if (!confirmed) {
+                                return;
+                            }
+
+
+                            if (loadingOverlay) {
+                                loadingOverlay.classList.add("show");
+                            }
+
+
+                            /*
+                             * Allow the loading state to render
+                             * before following the delete route.
+                             */
+
+                            setTimeout(function () {
+                                window.location.href =
+                                    button.href;
+                            }, 120);
+
+                        }
+                    );
+
+                });
+
+
+            /* =========================
+               ESCAPE KEY
+            ========================== */
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (event.key === "Escape") {
+
+                        if (
+                            navLinks &&
+                            navLinks.classList.contains(
+                                "mobile-open"
+                            )
+                        ) {
+
+                            navLinks.classList.remove(
+                                "mobile-open"
+                            );
+
+                            mobileMenuBtn?.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+                            if (mobileMenuBtn) {
+
+                                mobileMenuBtn.innerHTML =
+                                    '<i class="fa-solid fa-bars"></i>';
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+
+            /* =========================
+               INITIAL STATE
+            ========================== */
+
+            filterPayments();
+
         });
-        updateResultCount();
-      }
+    </script>
 
-      searchInput.addEventListener('input', filterTable);
-
-      // Initial result count update
-      updateResultCount();
-    });
-  </script>
 </body>
 </html>
