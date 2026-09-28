@@ -14,6 +14,7 @@ from app.routes import main
 from app.auth.routes import auth
 from app.job import rent_due_reminders, overdue_notifications
 from app.mpesa.mpesa_api import MpesaAPI
+from app.ai.routes import ai
 
 from pathlib import Path
 
@@ -147,6 +148,7 @@ def create_app():
     # --- Register blueprints
     app.register_blueprint(main)
     app.register_blueprint(auth)
+    app.register_blueprint(ai)
 
     # --- Global template variables
     @app.context_processor

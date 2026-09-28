@@ -1,0 +1,167 @@
+import json
+import os
+
+from openai import OpenAI
+
+from app.ai.prompts import SYSTEM_PROMPT
+from app.ai.tools import (
+    get_rent_balance,
+    get_payment_history,
+    search_properties,
+)
+
+
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
+
+MODEL = os.getenv(
+    "OPENAI_MODEL",
+    "gpt-5.6-luna"
+)
+
+
+TOOLS = [
+    {
+        "type": "function",
+        "name": "get_rent_balance",
+        "description": (
+            "Get the authenticated tenant's rent information, "
+            "current invoice and confirmed payment total."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": False,
+        },
+    },
+    {
+        "type": "function",
+        "name": "get_payment_history",
+        "description": (
+            "Get payment history belonging to the authenticated tenant."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "description": "Maximum number of payments to return.",
+                    "minimum": 1,
+                    "maximum": 20,
+                }
+            },
+            "additionalProperties": False,
+        },
+    },
+    {
+        "type": "function",
+        "name": "search_properties",
+        "description": (
+            "Search available vacant rental units by county, "
+            "property type, maximum rent, or bedrooms."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "county": {
+                    "type": ["string", "null"]
+                },
+                "property_type": {
+                    "type": ["string", "null"]
+                },
+                "max_rent": {
+                    "type": ["number", "null"]
+                },
+                "bedrooms": {
+                    "type": ["integer", "null"]
+                },
+            },
+            "additionalProperties": False,
+        },
+    },
+]
+
+
+def execute_tool(name, arguments, user):
+
+    if name == "get_rent_balance":
+        return get_rent_balance(user)
+
+    if name == "get_payment_history":
+        return get_payment_history(
+            user,
+            limit=arguments.get("limit", 10),
+        )
+
+    if name == "search_properties":
+        return search_properties(
+            county=arguments.get("county"),
+            property_type=arguments.get("property_type"),
+            max_rent=arguments.get("max_rent"),
+            bedrooms=arguments.get("bedrooms"),
+        )
+
+    return {
+        "success": False,
+        "message": "Unknown tool."
+    }
+
+
+def chat(user, message):
+    """
+    Send a user message to MFUKO AI and handle tool calls.
+    """
+
+    if not os.getenv("OPENAI_API_KEY"):
+        raise RuntimeError(
+            "OPENAI_API_KEY is not configured."
+        )
+
+    response = client.responses.create(
+        model=MODEL,
+        instructions=SYSTEM_PROMPT,
+        input=message,
+        tools=TOOLS,
+    )
+
+    while True:
+
+        function_calls = [
+            item
+            for item in response.output
+            if item.type == "function_call"
+        ]
+
+        if not function_calls:
+            return response.output_text
+
+        tool_outputs = []
+
+        for call in function_calls:
+
+            try:
+                arguments = json.loads(call.arguments)
+            except json.JSONDecodeError:
+                arguments = {}
+
+            result = execute_tool(
+                call.name,
+                arguments,
+                user,
+            )
+
+            tool_outputs.append(
+                {
+                    "type": "function_call_output",
+                    "call_id": call.call_id,
+                    "output": json.dumps(result),
+                }
+            )
+
+        response = client.responses.create(
+            model=MODEL,
+            previous_response_id=response.id,
+            input=tool_outputs,
+            tools=TOOLS,
+        )

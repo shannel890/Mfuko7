@@ -3,3 +3,7 @@ instance/
 mfuko7
 migrations/
 __pycache__/
+*.env
+app/.env
+__pycache__/
+*.pyc

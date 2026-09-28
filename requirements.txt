@@ -61,3 +61,4 @@ WTForms==3.2.1
 yarl==1.20.1
 gunicorn
 oauthlib
+openai==3.20.0
