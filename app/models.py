@@ -271,3 +271,93 @@ class Message(db.Model):
 
     def __repr__(self):
         return f'<Message {self.id}>'
+
+class AIConversation(db.Model):
+    __tablename__ = 'ai_conversation'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True
+    )
+
+    title = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
+    )
+
+    user = db.relationship(
+        'User',
+        backref=db.backref(
+            'ai_conversations',
+            lazy=True,
+            cascade='all, delete-orphan'
+        )
+    )
+
+    messages = db.relationship(
+        'AIMessage',
+        back_populates='conversation',
+        lazy=True,
+        cascade='all, delete-orphan',
+        order_by='AIMessage.created_at'
+    )
+
+    def __repr__(self):
+        return f'<AIConversation {self.id} user={self.user_id}>'
+
+
+class AIMessage(db.Model):
+    __tablename__ = 'ai_message'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    conversation_id = db.Column(
+        db.Integer,
+        db.ForeignKey('ai_conversation.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True
+    )
+
+    role = db.Column(
+        db.String(20),
+        nullable=False
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    tool_name = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        index=True
+    )
+
+    conversation = db.relationship(
+        'AIConversation',
+        back_populates='messages'
+    )
+
+    def __repr__(self):
+        return f'<AIMessage {self.id} role={self.role}>'

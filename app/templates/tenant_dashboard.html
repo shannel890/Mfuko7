@@ -650,5 +650,451 @@
             if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleMenu(); }
         });
     </script>
+        <!-- MFUKO AI Assistant -->
+    <style>
+        #mfuko-ai-button {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 1050;
+            border: none;
+            border-radius: 999px;
+            padding: 14px 20px;
+            background: #0d6efd;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #mfuko-ai-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+        }
+
+        #mfuko-ai-window {
+            position: fixed;
+            right: 24px;
+            bottom: 88px;
+            width: min(390px, calc(100vw - 32px));
+            height: min(560px, calc(100vh - 120px));
+            z-index: 1049;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+            border: 1px solid #e5e7eb;
+        }
+
+        #mfuko-ai-window.active {
+            display: flex;
+        }
+
+        .mfuko-ai-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px;
+            background: #0d6efd;
+            color: #fff;
+        }
+
+        .mfuko-ai-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .mfuko-ai-subtitle {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        #mfuko-ai-close {
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        #mfuko-ai-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f8fafc;
+        }
+
+        .mfuko-ai-message {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .mfuko-ai-message.user {
+            justify-content: flex-end;
+        }
+
+        .mfuko-ai-bubble {
+            max-width: 82%;
+            padding: 10px 13px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .mfuko-ai-message.assistant .mfuko-ai-bubble {
+            background: #fff;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 4px;
+        }
+
+        .mfuko-ai-message.user .mfuko-ai-bubble {
+            background: #0d6efd;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .mfuko-ai-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            padding: 0 16px 10px;
+            background: #f8fafc;
+        }
+
+        .mfuko-ai-suggestion {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #334155;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .mfuko-ai-suggestion:hover {
+            background: #f1f5f9;
+        }
+
+        .mfuko-ai-input-area {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid #e5e7eb;
+            background: #fff;
+        }
+
+        #mfuko-ai-input {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 10px 12px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        #mfuko-ai-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        }
+
+        #mfuko-ai-send {
+            border: none;
+            border-radius: 12px;
+            padding: 0 15px;
+            background: #0d6efd;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        #mfuko-ai-send:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .mfuko-ai-typing {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .mfuko-ai-typing span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #94a3b8;
+            animation: mfukoAiBounce 1.2s infinite ease-in-out;
+        }
+
+        .mfuko-ai-typing span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .mfuko-ai-typing span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes mfukoAiBounce {
+            0%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-4px);
+            }
+        }
+
+        @media (max-width: 576px) {
+            #mfuko-ai-button {
+                right: 16px;
+                bottom: 16px;
+            }
+
+            #mfuko-ai-window {
+                right: 8px;
+                bottom: 76px;
+                width: calc(100vw - 16px);
+                height: calc(100vh - 100px);
+                border-radius: 14px;
+            }
+        }
+    </style>
+
+    <button
+        id="mfuko-ai-button"
+        type="button"
+        aria-label="Open MFUKO AI"
+    >
+        🤖 MFUKO AI
+    </button>
+
+    <section
+        id="mfuko-ai-window"
+        aria-label="MFUKO AI chat"
+    >
+        <div class="mfuko-ai-header">
+            <div>
+                <div class="mfuko-ai-title">
+                    <span>🤖</span>
+                    <span>MFUKO AI</span>
+                </div>
+                <div class="mfuko-ai-subtitle">
+                    Your property assistant
+                </div>
+            </div>
+
+            <button
+                id="mfuko-ai-close"
+                type="button"
+                aria-label="Close MFUKO AI"
+            >
+                ×
+            </button>
+        </div>
+
+        <div id="mfuko-ai-messages">
+            <div class="mfuko-ai-message assistant">
+                <div class="mfuko-ai-bubble">
+                    👋 Hi! I'm MFUKO AI. I can help you with your rent balance, payment history, and available properties.
+                </div>
+            </div>
+        </div>
+
+        <div class="mfuko-ai-suggestions">
+            <button
+                type="button"
+                class="mfuko-ai-suggestion"
+                data-question="What's my rent balance?"
+            >
+                Rent balance
+            </button>
+
+            <button
+                type="button"
+                class="mfuko-ai-suggestion"
+                data-question="Show me my recent payment history."
+            >
+                Payment history
+            </button>
+
+            <button
+                type="button"
+                class="mfuko-ai-suggestion"
+                data-question="Find me available 2-bedroom properties."
+            >
+                Find properties
+            </button>
+        </div>
+
+        <div class="mfuko-ai-input-area">
+            <input
+                id="mfuko-ai-input"
+                type="text"
+                placeholder="Ask MFUKO AI..."
+                autocomplete="off"
+                aria-label="Ask MFUKO AI"
+            >
+
+            <button
+                id="mfuko-ai-send"
+                type="button"
+            >
+                Send
+            </button>
+        </div>
+    </section>
+
+    <script>
+        (() => {
+            const aiButton = document.getElementById('mfuko-ai-button');
+            const aiWindow = document.getElementById('mfuko-ai-window');
+            const aiClose = document.getElementById('mfuko-ai-close');
+            const aiMessages = document.getElementById('mfuko-ai-messages');
+            const aiInput = document.getElementById('mfuko-ai-input');
+            const aiSend = document.getElementById('mfuko-ai-send');
+            const suggestions = document.querySelectorAll('.mfuko-ai-suggestion');
+            let conversationId = sessionStorage.getItem('mfuko_ai_conversation_id');
+            const csrfToken = document.querySelector(
+                'meta[name="csrf-token"]'
+            ).content;
+
+            function openAi() {
+                aiWindow.classList.add('active');
+                aiInput.focus();
+            }
+
+            function closeAi() {
+                aiWindow.classList.remove('active');
+            }
+
+            function scrollMessages() {
+                aiMessages.scrollTop = aiMessages.scrollHeight;
+            }
+
+            function addMessage(text, role) {
+                const wrapper = document.createElement('div');
+                wrapper.className = `mfuko-ai-message ${role}`;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'mfuko-ai-bubble';
+                bubble.textContent = text;
+
+                wrapper.appendChild(bubble);
+                aiMessages.appendChild(wrapper);
+
+                scrollMessages();
+
+                return wrapper;
+            }
+
+            function addTypingIndicator() {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'mfuko-ai-message assistant';
+                wrapper.id = 'mfuko-ai-typing-indicator';
+
+                wrapper.innerHTML = `
+                    <div class="mfuko-ai-bubble">
+                        <span class="mfuko-ai-typing">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                    </div>
+                `;
+
+                aiMessages.appendChild(wrapper);
+                scrollMessages();
+
+                return wrapper;
+            }
+
+            async function sendMessage(message) {
+                const trimmed = message.trim();
+
+                if (!trimmed || aiSend.disabled) {
+                    return;
+                }
+
+                addMessage(trimmed, 'user');
+
+                aiInput.value = '';
+                aiSend.disabled = true;
+
+                const typing = addTypingIndicator();
+
+                try {
+                    const response = await fetch('/api/ai/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            message: trimmed,
+                            conversation_id: conversationId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    typing.remove();
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(
+                            data.error || 'MFUKO AI could not process your request.'
+                        );
+                    }
+                    conversationId = data.conversation_id;
+                    sessionStorage.setItem(
+                        'mfuko_ai_conversation_id',
+                        conversationId
+                    );
+                    addMessage(data.answer, 'assistant');
+
+                } catch (error) {
+                    typing.remove();
+
+                    addMessage(
+                        error.message ||
+                        'MFUKO AI is temporarily unavailable. Please try again.',
+                        'assistant'
+                    );
+                } finally {
+                    aiSend.disabled = false;
+                    aiInput.focus();
+                }
+            }
+
+            aiButton.addEventListener('click', openAi);
+            aiClose.addEventListener('click', closeAi);
+
+            aiSend.addEventListener('click', () => {
+                sendMessage(aiInput.value);
+            });
+
+            aiInput.addEventListener('keydown', event => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendMessage(aiInput.value);
+                }
+            });
+
+            suggestions.forEach(button => {
+                button.addEventListener('click', () => {
+                    sendMessage(button.dataset.question);
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

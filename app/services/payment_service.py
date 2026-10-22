@@ -123,16 +123,8 @@ class PaymentService:
     @staticmethod
     def initiate_mpesa_payment(tenant_id, amount, phone_number, account_reference=None):
         """
-        Initiate M-Pesa STK push payment.
-
-        Args:
-            tenant_id: ID of tenant
-            amount: Payment amount
-            phone_number: Tenant's phone number
-            account_reference: Account reference for M-Pesa
-
-        Returns:
-            dict: {success: bool, checkout_id: str or None, message: str}
+        Initiate an M-Pesa STK Push and create a pending Payment record
+        that can be reconciled when Safaricom sends the callback.
         """
         try:
             mpesa = current_app.mpesa_api
@@ -147,7 +139,30 @@ class PaymentService:
                     }
 
             account_reference = account_reference or f"Tenant-{tenant_id}"
-            
+
+            # Determine the invoice currently being paid, if one exists.
+            invoice = Invoice.query.filter_by(
+                tenant_id=tenant_id,
+                status='pending'
+            ).order_by(
+                Invoice.issue_date.desc()
+            ).first()
+
+            # Create a pending payment BEFORE initiating STK Push.
+            payment = Payment(
+                tenant_id=tenant_id,
+                amount=amount,
+                payment_method='mpesa',
+                status='pending',
+                is_offline=False,
+                invoice_id=invoice.id if invoice else None,
+                description='Monthly Rent',
+                notes='M-Pesa STK payment pending'
+            )
+
+            db.session.add(payment)
+            db.session.flush()
+
             checkout_id = mpesa.initiate_stk_push(
                 phone_number=phone_number,
                 amount=amount,
@@ -156,25 +171,40 @@ class PaymentService:
             )
 
             if checkout_id:
-                logger.info(f"M-Pesa payment initiated for tenant {tenant_id}: {checkout_id}")
+                # Store CheckoutRequestID so the callback can find this payment.
+                payment.transaction_id = checkout_id
+                payment.notes = f'M-Pesa STK checkout: {checkout_id}'
+                db.session.commit()
+
+                logger.info(
+                    f"M-Pesa payment initiated for tenant {tenant_id}: "
+                    f"{checkout_id}, payment_id={payment.id}"
+                )
+
                 return {
                     'success': True,
                     'checkout_id': checkout_id,
+                    'payment_id': payment.id,
                     'message': 'Payment initiated. Confirm on your phone.'
                 }
-            else:
-                return {
-                    'success': False,
-                    'checkout_id': None,
-                    'message': 'Payment initiation failed'
-                }
 
-        except Exception as e:
-            logger.error(f"Error initiating M-Pesa payment: {str(e)}")
+            # STK Push failed, so remove the pending payment.
+            db.session.rollback()
+
             return {
                 'success': False,
                 'checkout_id': None,
-                'message': str(e)
+                'message': 'Payment initiation failed'
+            }
+
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error initiating M-Pesa payment: {str(e)}")
+
+            return {
+                'success': False,
+                'checkout_id': None,
+                'message': 'An error occurred while initiating the payment'
             }
 
     @staticmethod

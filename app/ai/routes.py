@@ -1,7 +1,10 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, session
 from flask_login import login_required, current_user
 
-from app.ai.service import chat
+from app.ai.service import (
+    chat,
+    confirm_rent_payment,
+)
 
 
 ai = Blueprint(
@@ -19,6 +22,7 @@ def ai_chat():
         data = request.get_json(silent=True) or {}
 
         message = data.get("message", "").strip()
+        conversation_id = data.get("conversation_id")
 
         if not message:
             return jsonify({
@@ -32,17 +36,48 @@ def ai_chat():
                 "error": "Message is too long."
             }), 400
 
-        answer = chat(
+        # ---------------------------------------------------------
+        # Explicit M-Pesa payment confirmation
+        # ---------------------------------------------------------
+        pending_payment = session.get("pending_rent_payment")
+
+        confirmation_words = {
+            "yes",
+            "yes please",
+            "confirm",
+            "confirmed",
+            "proceed",
+            "go ahead",
+            "pay",
+            "make the payment",
+        }
+
+        if pending_payment and message.lower() in confirmation_words:
+            result = confirm_rent_payment(current_user)
+
+            return jsonify({
+                "success": result.get("success", False),
+                "conversation_id": conversation_id,
+                "answer": result.get("message"),
+                "payment": result,
+            })
+
+        # ---------------------------------------------------------
+        # Normal AI conversation
+        # ---------------------------------------------------------
+        result = chat(
             current_user,
-            message
+            message,
+            conversation_id=conversation_id,
         )
 
         return jsonify({
             "success": True,
-            "answer": answer
+            "conversation_id": result["conversation_id"],
+            "answer": result["answer"],
         })
 
-    except Exception as exc:
+    except Exception:
 
         current_app.logger.exception(
             "MFUKO AI error"
