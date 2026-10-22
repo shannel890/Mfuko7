@@ -29,7 +29,7 @@ Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
 frozenlist==1.7.0
 greenlet==3.2.3
-idna==3.10
+idna==3.20
 importlib_resources==6.5.2
 itsdangerous==2.2.0
 Jinja2==3.1.6
@@ -62,4 +62,3 @@ WTForms==3.2.1
 yarl==1.20.1
 gunicorn
 oauthlib
-openai==3.20.0
