@@ -215,9 +215,9 @@ Invoice (1)
 **Configuration:**
 ```python
 MPESA_CONSUMER_KEY = "HB9GZfSEGV8VipXHKcmQWRgAd9LeLrLRyynclXMlbA8OOrUI"
-MPESA_CONSUMER_SECRET = "TZzpbwpcDAS8l1kpZOu8YAChGSsfG7JTviSlj2mCPFyeybVqvmOUzqIpPQvsk3GD"
+MPESA_CONSUMER_SECRET = [removed; load from environment]
 MPESA_SHORTCODE = "174379"
-MPESA_PASSKEY = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"
+MPESA_PASSKEY = [removed; load from environment]
 MPESA_ENVIRONMENT = "sandbox"
 ```
 
@@ -413,9 +413,9 @@ MAIL_USERNAME=<email>
 MAIL_PASSWORD=<password>
 
 MPESA_CONSUMER_KEY=<key>
-MPESA_CONSUMER_SECRET=<secret>
+MPESA_CONSUMER_SECRET=[removed; load from environment]
 MPESA_SHORTCODE=174379
-MPESA_PASSKEY=<pass>
+MPESA_PASSKEY=[removed; load from environment]
 MPESA_ENVIRONMENT=sandbox
 
 TWILIO_ACCOUNT_SID=<sid>

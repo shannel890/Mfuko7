@@ -26,10 +26,6 @@ from app.ai.tools import (
 )
 
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
-
 MODEL = os.getenv(
     "GEMINI_MODEL",
     "gemini-3.8-flash",
@@ -551,6 +547,10 @@ def chat(user, message, conversation_id=None):
         raise RuntimeError(
             "GEMINI_API_KEY is not configured."
         )
+
+    # Construct the SDK client only when a request needs AI. Module imports and
+    # normal application startup do not initialize an external API client.
+    client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
 
     try:
 

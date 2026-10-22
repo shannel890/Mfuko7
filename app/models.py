@@ -217,6 +217,7 @@ class Invoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     invoice_number = db.Column(db.String(100), unique=True, nullable=False)
     issue_date = db.Column(db.Date, default=lambda: datetime.now(timezone.utc).date())
+    due_date = db.Column(db.Date, nullable=True)
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
     amount_due = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(50), default='pending')
@@ -361,3 +362,21 @@ class AIMessage(db.Model):
 
     def __repr__(self):
         return f'<AIMessage {self.id} role={self.role}>'
+
+
+class NotificationDelivery(db.Model):
+    """Persistent idempotency key and attempt state for scheduled notices."""
+    __tablename__ = 'notification_delivery'
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenant.id', ondelete='CASCADE'), nullable=False, index=True)
+    kind = db.Column(db.String(40), nullable=False)
+    due_date = db.Column(db.Date, nullable=False)
+    channel = db.Column(db.String(10), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='processing')
+    attempts = db.Column(db.Integer, nullable=False, default=1)
+    last_error = db.Column(db.String(100), nullable=True)
+    sent_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    __table_args__ = (
+        db.UniqueConstraint('tenant_id', 'kind', 'due_date', 'channel', name='uq_notification_delivery_event'),
+    )

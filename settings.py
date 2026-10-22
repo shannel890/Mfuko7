@@ -1,42 +1,37 @@
 import os
-from dotenv import load_dotenv
-from decouple import config
-
-load_dotenv()
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
+    SECRET_KEY = os.getenv('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
     SECURITY_PASSWORD_SALT = os.getenv('SECURITY_PASSWORD_SALT')
 
     # M-Pesa API Configuration
-    MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY', default=None)
-    MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET', default=None)
-    MPESA_PASSKEY = config('MPESA_PASSKEY', default=None)
-    MPESA_SHORTCODE = config('MPESA_SHORTCODE', default='174379')
-    MPESA_PAYBILL = config('MPESA_PAYBILL', default='174379')
-    MPESA_INITIATOR_PASSWORD = config('MPESA_INITIATOR_PASSWORD', default='Safaricom999!')
-    MPESA_SAF_CALLBACK_URL = config('MPESA_SAF_CALLBACK_URL', default='https://example.com/callback')
-    MPESA_ENVIRONMENT = config('MPESA_ENVIRONMENT', default='sandbox')
+    MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY')
+    MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET')
+    MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
+    MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE')
+    MPESA_PAYBILL = os.getenv('MPESA_PAYBILL')
+    MPESA_INITIATOR_PASSWORD = os.getenv('MPESA_INITIATOR_PASSWORD')
+    MPESA_SAF_CALLBACK_URL = os.getenv('MPESA_SAF_CALLBACK_URL')
+    MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'sandbox')
 
     # Mail Configuration
-    MAIL_SERVER = config('MAIL_SERVER', default='smtp.mailtrap.io')
-    MAIL_PORT = config('MAIL_PORT', default=2525, cast=int)
+    MAIL_SERVER = os.getenv('MAIL_SERVER')
+    MAIL_PORT = int(os.getenv('MAIL_PORT', '587'))
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes', 'on')
     MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'False').lower() in ('true', '1', 'yes', 'on')
-    MAIL_USERNAME = config('MAIL_USERNAME',default='shannelkirui739@gmail.com')
-    MAIL_PASSWORD = config('MAIL_PASSWORD',default=None)
-    MAIL_DEFAULT_SENDER = config('MAIL_DEFAULT_SENDER', default='noreply@example.com')
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
 
     # Google OAuth
-    GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default=None)
-    GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default=None)
+    GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
     # Twilio
-    TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', default=None)
-    TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', default=None)
-    TWILIO_PHONE_NUMBER = config('TWILIO_PHONE_NUMBER', default=None)
+    TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+    TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+    TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 
-    # APScheduler
-    SCHEDULER_API_ENABLED = True
+    CRON_SECRET = os.getenv('CRON_SECRET')

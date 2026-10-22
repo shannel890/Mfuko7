@@ -17,9 +17,15 @@ from app.models import Property, Role, Tenant, Unit, User
 def app(monkeypatch):
     monkeypatch.setenv('DATABASE_URL', 'sqlite:///:memory:')
     monkeypatch.setenv('APP_ENV', 'development')
+    monkeypatch.setenv('SECRET_KEY', 'test-only-signing-key')
     application = create_app()
     application.config.update(TESTING=True, WTF_CSRF_ENABLED=False)
     with application.app_context():
+        db.create_all()
+        for role_name in ('landlord', 'tenant'):
+            if Role.query.filter_by(name=role_name).first() is None:
+                db.session.add(Role(name=role_name))
+        db.session.commit()
         yield application
         db.session.remove()
         db.drop_all()

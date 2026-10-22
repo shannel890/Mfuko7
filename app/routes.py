@@ -45,6 +45,7 @@ def roles_required(*required_roles):
     return decorator
 
 @main.route('/')
+@main.route('/index')
 def landing_page():
     try:
         if current_user.is_authenticated:

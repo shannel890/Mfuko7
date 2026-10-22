@@ -1,11 +1,7 @@
 import requests
-import os
 import base64
-from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from flask import current_app
-
-load_dotenv()
 
 class MpesaAPI:
     """Handler for M-Pesa Daraja API integration."""
@@ -23,11 +19,6 @@ class MpesaAPI:
         self.passkey = current_app.config.get('MPESA_PASSKEY')
         self.callback_url = current_app.config.get('MPESA_CALLBACK_URL')
 
-        # Validate required credentials
-        if not all([self.consumer_key, self.consumer_secret, self.shortcode, self.passkey, self.callback_url]):
-            current_app.logger.error("One or more M-Pesa credentials are missing in config")
-            raise ValueError("M-Pesa credentials are missing")
-
     def set_access_token(self, token, expires_in=3599):
         """Store the access token and set its expiry time."""
         self.access_token = token
@@ -42,6 +33,9 @@ class MpesaAPI:
         return self.sandbox_url if current_app.config.get('MPESA_ENVIRONMENT') == 'sandbox' else self.base_url
 
     def refresh_token(self):
+        if not all([self.consumer_key, self.consumer_secret, self.shortcode, self.passkey, self.callback_url]):
+            current_app.logger.error("M-Pesa configuration is incomplete; payment request cannot proceed.")
+            return False
         try:
             credentials = f"{self.consumer_key}:{self.consumer_secret}"
             encoded_credentials = base64.b64encode(credentials.encode()).decode()
@@ -65,11 +59,11 @@ class MpesaAPI:
                 current_app.logger.info("M-Pesa access token refreshed successfully")
                 return True
             else:
-                current_app.logger.error(f"Token refresh failed: {response.text}")
+                current_app.logger.error("Token refresh failed with HTTP %s", response.status_code)
                 return False
 
         except Exception as e:
-            current_app.logger.error(f"Exception while refreshing token: {e}", exc_info=True)
+            current_app.logger.error("M-Pesa token refresh failed (%s).", type(e).__name__)
             return False
 
     def ensure_valid_token(self):
@@ -138,14 +132,13 @@ class MpesaAPI:
 
             if response.status_code == 200:
                 result = response.json()
-                current_app.logger.info(f"Transaction query result: {result}")
                 return result.get('ResultCode') == "0"
 
-            current_app.logger.error(f"Transaction query failed: {response.text}")
+            current_app.logger.error("Transaction query failed with HTTP %s", response.status_code)
             return False
 
         except Exception as e:
-            current_app.logger.error(f"Error during transaction verification: {e}", exc_info=True)
+            current_app.logger.error("M-Pesa transaction verification failed (%s).", type(e).__name__)
             return False
 
     def initiate_stk_push(self, phone_number, amount, account_reference, transaction_description=None):
@@ -188,14 +181,13 @@ class MpesaAPI:
 
             if response.status_code == 200:
                 result = response.json()
-                current_app.logger.info(f"STK Push response: {result}")
                 return result.get('CheckoutRequestID') if result.get('ResponseCode') == "0" else None
 
-            current_app.logger.error(f"STK Push failed: {response.text}")
+            current_app.logger.error("STK Push failed with HTTP %s", response.status_code)
             return None
 
         except Exception as e:
-            current_app.logger.error(f"Error initiating STK push: {e}", exc_info=True)
+            current_app.logger.error("M-Pesa STK Push failed (%s).", type(e).__name__)
             return None
 
 

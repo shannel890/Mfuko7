@@ -11,5 +11,11 @@
       "src": "/.*",
       "dest": "run.py"
     }
+  ],
+  "crons": [
+    {
+      "path": "/internal/cron/rent-notifications",
+      "schedule": "0 6 * * *"
+    }
   ]
 }

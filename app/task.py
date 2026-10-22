@@ -41,14 +41,14 @@ def refresh_mpesa_token(app):
                 if hasattr(mpesa_api, 'set_access_token'):
                     mpesa_api.set_access_token(access_token, expires_in=expires_in)
             else:
-                app.logger.warning(f"M-Pesa token response did not include access_token: {data}")
+                app.logger.warning("M-Pesa token response did not include an access token.")
 
         except requests.exceptions.RequestException as e:
-            app.logger.error(f"M-Pesa token refresh failed: {e}", exc_info=True)
+            app.logger.error("M-Pesa token refresh failed (%s).", type(e).__name__)
         except json.JSONDecodeError:
-            app.logger.error(f"Invalid JSON in M-Pesa token response: {response.text}", exc_info=True)
+            app.logger.error("M-Pesa token refresh returned invalid JSON.")
         except Exception as e:
-            app.logger.error(f"Unexpected error during token refresh: {e}", exc_info=True)
+            app.logger.error("Unexpected M-Pesa token refresh error (%s).", type(e).__name__)
 
 def check_and_generate_rent_invoices(app):
     """

@@ -20,8 +20,11 @@ from werkzeug.security import generate_password_hash
 
 
 @pytest.fixture(scope='function')
-def app():
+def app(monkeypatch):
     """Create and configure a test Flask application"""
+    monkeypatch.setenv('DATABASE_URL', 'sqlite:///:memory:')
+    monkeypatch.setenv('APP_ENV', 'development')
+    monkeypatch.setenv('SECRET_KEY', 'test-only-signing-key')
     app = create_app()
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -422,7 +425,7 @@ class TestNotifications:
         # The function should execute without errors
         assert mock_send.called or result is None
     
-    @patch('app.notification.twilio_client.messages.create')
+    @patch('app.notification.Client')
     def test_sms_notification(self, mock_sms):
         """Test SMS notification sending"""
         mock_sms.return_value = Mock(sid='SM123456')

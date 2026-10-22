@@ -242,7 +242,6 @@ class TestModels(unittest.TestCase):
             amount=25000.00,
             status='pending',
             payment_method='mpesa',
-            due_date=datetime.utcnow().date()
         )
         db.session.add(payment)
         db.session.commit()
@@ -353,7 +352,6 @@ class TestNotifications(unittest.TestCase):
             amount=25000.00,
             status='paid',
             payment_method='mpesa',
-            due_date=datetime.utcnow().date()
         )
         db.session.add(payment)
         db.session.commit()

@@ -1,25 +1,22 @@
 import os
-import uuid
 import logging
-from flask import Flask, app
-from decouple import config
+import secrets
+import hmac
+import click
+from flask import Flask, request, jsonify, current_app
 from dotenv import load_dotenv
 from datetime import datetime
-from twilio.rest import Client
-from werkzeug.security import generate_password_hash
-
-from app.extensions import db, babel, mail, csrf, scheduler, oauth, login_manager, migrate, init_db_manager
-from app.models import User, Role
-from app.routes import main
-from app.auth.routes import auth
-from app.job import rent_due_reminders, overdue_notifications
-from app.mpesa.mpesa_api import MpesaAPI
-from app.ai.routes import ai
-
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
+
+from app.extensions import db, babel, mail, csrf, oauth, login_manager, migrate, init_db_manager
+from app.models import User, Role
+from app.routes import main
+from app.auth.routes import auth
+from app.mpesa.mpesa_api import MpesaAPI
+from app.ai.routes import ai
 
 # Configure logging
 logging.basicConfig(
@@ -30,12 +27,17 @@ logging.basicConfig(
 def create_app():
     app = Flask(__name__)
     # --- Basic config
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
     app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '0') == '1'
     app.config['HOST'] = os.getenv('HOST', '127.0.0.1')
     app.config['PORT'] = int(os.getenv('PORT', 5000))
     environment = os.getenv('APP_ENV', os.getenv('FLASK_ENV', 'development'))
     app.config['APP_ENV'] = environment
+    secret_key = os.getenv('SECRET_KEY')
+    if not secret_key:
+        if environment == 'production' or os.getenv('VERCEL'):
+            raise RuntimeError('SECRET_KEY must be configured in production.')
+        secret_key = secrets.token_urlsafe(48)
+    app.config['SECRET_KEY'] = secret_key
     db_url = os.getenv('DATABASE_URL')
 
     # A local checkout works without cloud credentials. Production deployments
@@ -59,7 +61,7 @@ def create_app():
             db_url = f'sqlite:///{sqlite_path}'
 
     # sslmode is a PostgreSQL option and breaks SQLite URLs.
-    if db_url.startswith(('postgres://', 'postgresql://')) and 'sslmode=' not in db_url:
+    if db_url.startswith(('postgres://', 'postgresql://', 'postgresql+psycopg2://')) and 'sslmode=' not in db_url:
         separator = "&" if "?" in db_url else "?"
         db_url += f"{separator}sslmode=require"
 
@@ -79,22 +81,22 @@ def create_app():
 
     # --- Mail config
     app.config.update({
-        'MAIL_SERVER': os.getenv('MAIL_SERVER', 'smtp.gmail.com'),
+        'MAIL_SERVER': os.getenv('MAIL_SERVER'),
         'MAIL_PORT': int(os.getenv('MAIL_PORT', 587)),
         'MAIL_USE_TLS': True,
         'MAIL_USERNAME': os.getenv('MAIL_USERNAME'),
         'MAIL_PASSWORD': os.getenv('MAIL_PASSWORD'),
-        'MAIL_DEFAULT_SENDER': os.getenv('MAIL_DEFAULT_SENDER', 'no-reply@example.com'),
+        'MAIL_DEFAULT_SENDER': os.getenv('MAIL_DEFAULT_SENDER'),
     })
 
     # --- M-Pesa config
     app.config.update({
-        'MPESA_CONSUMER_KEY': config('MPESA_CONSUMER_KEY', default=None),
-        'MPESA_CONSUMER_SECRET': config('MPESA_CONSUMER_SECRET', default=None),
-        'MPESA_SHORTCODE': config('MPESA_SHORTCODE', default=None),
-        'MPESA_PASSKEY': config('MPESA_PASSKEY', default=None),
-        'MPESA_CALLBACK_URL': config('MPESA_CALLBACK_URL', default='https://example.com/callback'),
-        'MPESA_ENVIRONMENT': config('MPESA_ENVIRONMENT', default='sandbox'),
+        'MPESA_CONSUMER_KEY': os.getenv('MPESA_CONSUMER_KEY'),
+        'MPESA_CONSUMER_SECRET': os.getenv('MPESA_CONSUMER_SECRET'),
+        'MPESA_SHORTCODE': os.getenv('MPESA_SHORTCODE'),
+        'MPESA_PASSKEY': os.getenv('MPESA_PASSKEY'),
+        'MPESA_CALLBACK_URL': os.getenv('MPESA_CALLBACK_URL'),
+        'MPESA_ENVIRONMENT': os.getenv('MPESA_ENVIRONMENT', 'sandbox'),
     })
 
     # --- Google OAuth config
@@ -105,10 +107,13 @@ def create_app():
 
     # --- Twilio config
     app.config.update({
-        'TWILIO_ACCOUNT_SID': config('TWILIO_ACCOUNT_SID', default=None),
-        'TWILIO_AUTH_TOKEN': config('TWILIO_AUTH_TOKEN', default=None),
-        'TWILIO_PHONE_NUMBER': config('TWILIO_PHONE_NUMBER', default=None),
+        'TWILIO_ACCOUNT_SID': os.getenv('TWILIO_ACCOUNT_SID'),
+        'TWILIO_AUTH_TOKEN': os.getenv('TWILIO_AUTH_TOKEN'),
+        'TWILIO_PHONE_NUMBER': os.getenv('TWILIO_PHONE_NUMBER'),
+        'CRON_SECRET': os.getenv('CRON_SECRET'),
     })
+    if (environment == 'production' or os.getenv('VERCEL')) and not app.config['CRON_SECRET']:
+        raise RuntimeError('CRON_SECRET must be configured for production scheduled notifications.')
 
     # --- Init extensions
     db.init_app(app)
@@ -121,15 +126,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
 
-    # --- Scheduler setup
-    scheduler.init_app(app)
-    scheduler.start()
-    scheduler.add_job(id='rent_due_reminders', func=rent_due_reminders, trigger='cron', hour=9)
-    scheduler.add_job(id='overdue_notifications', func=overdue_notifications, trigger='cron', hour=10)
-
-    # --- Twilio client setup
-    global twilio_client
-    twilio_client = Client(app.config['TWILIO_ACCOUNT_SID'], app.config['TWILIO_AUTH_TOKEN'])
+    # Recurring work is invoked by an external cron service.
 
     # --- OAuth registration
     oauth.register(
@@ -150,6 +147,60 @@ def create_app():
     app.register_blueprint(auth)
     app.register_blueprint(ai)
 
+    @app.cli.command('create-admin')
+    @click.option('--email', prompt=True, help='Email for the initial administrator.')
+    def create_admin_command(email):
+        """Provision the first administrator using a terminal password prompt."""
+        from getpass import getpass
+        from werkzeug.security import generate_password_hash
+
+        email = email.strip().lower()
+        if not email or '@' not in email:
+            raise click.ClickException('A valid administrator email is required.')
+        password = getpass('Administrator password: ')
+        confirmation = getpass('Confirm administrator password: ')
+        if len(password) < 12 or password != confirmation:
+            raise click.ClickException('Passwords must match and be at least 12 characters long.')
+        existing = User.query.filter(db.func.lower(User.email) == email).first()
+        if existing:
+            if existing.has_role('admin'):
+                click.echo('Administrator account already exists; no changes made.')
+                return
+            raise click.ClickException('That account already exists without administrator rights; no changes made.')
+        role = Role.query.filter_by(name='admin').first()
+        if role is None:
+            role = Role(name='admin', description='Administrator')
+            db.session.add(role)
+            db.session.flush()
+        user = User(
+            email=email,
+            password=generate_password_hash(password),
+            first_name='Administrator',
+            last_name='',
+            fs_uniquifier=secrets.token_urlsafe(32),
+            active=True,
+            role='admin',
+            roles=[role],
+        )
+        db.session.add(user)
+        db.session.commit()
+        click.echo('Administrator account created.')
+
+    @app.get('/internal/cron/rent-notifications')
+    def run_rent_notification_jobs():
+        cron_secret = app.config.get('CRON_SECRET')
+        supplied_secret = request.headers.get('Authorization', '')
+        if not cron_secret:
+            current_app.logger.error('CRON_SECRET is not configured; cron request rejected.')
+            return jsonify(error='Cron endpoint is not configured.'), 503
+        if not hmac.compare_digest(supplied_secret, f'Bearer {cron_secret}'):
+            return jsonify(error='Unauthorized.'), 401
+        from app.job import rent_due_reminders, overdue_notifications
+        return jsonify(results={
+            'rent_due_reminders': rent_due_reminders(),
+            'overdue_notifications': overdue_notifications(),
+        })
+
     # --- Global template variables
     @app.context_processor
     def inject_globals():
@@ -159,37 +210,7 @@ def create_app():
     with app.app_context():
         app.mpesa_api = MpesaAPI()
 
-        db.create_all()
-        
         # Initialize database manager for read/write separation
         init_db_manager(app)
-
-        # Ensure both self-registration roles exist.
-        existing_roles = {role.name: role for role in Role.query.filter(
-            Role.name.in_(['landlord', 'tenant'])
-        ).all()}
-        for role_name in ('landlord', 'tenant'):
-            if role_name not in existing_roles:
-                role = Role(name=role_name)
-                db.session.add(role)
-                existing_roles[role_name] = role
-        db.session.commit()
-        landlord_role = existing_roles['landlord']
-
-        # Create landlord user if missing
-        landlord_user = User.query.filter_by(email='shannel@gmail.com').first()
-        if not landlord_user:
-            landlord_user = User(
-                email='shannel@gmail.com',
-                password=generate_password_hash('shannel254'),
-                first_name='shannel',
-                last_name='kirui',
-                fs_uniquifier=str(uuid.uuid4()),
-                active=True,
-                role='landlord',
-                roles=[landlord_role]
-            )
-            db.session.add(landlord_user)
-            db.session.commit()
 
     return app
