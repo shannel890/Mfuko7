@@ -84,6 +84,7 @@ placeholders only; never copy production values into Git.
 | `SECURITY_PASSWORD_SALT` | Optional token salt for security integrations | Authentication integrations |
 | `DATABASE_URL` | PostgreSQL connection; SSL is required by default | Flask app, migrations |
 | `CRON_SECRET` | Authenticates scheduled notification requests | Vercel Cron endpoint |
+| `PUBLIC_SITE_URL` | Optional canonical site origin, such as `https://www.example.com` | SEO metadata and sitemap |
 | `GEMINI_API_KEY` | Gemini API access; only needed for AI chat | AI service |
 | `GEMINI_MODEL` | Optional Gemini model selection | AI service |
 | `MAIL_SERVER`, `MAIL_PORT` | SMTP server connection | Email notifications |
@@ -145,6 +146,17 @@ the deployment dashboard for their respective channels to work.
 sync, and other reminders, but no scheduler registration for those functions
 exists in this repository. The configured Vercel job runs the two previously
 registered rent notification jobs only.
+
+### Search indexing
+
+The public sitemap includes only the home, features, testimonials, pricing, and
+contact pages. `robots.txt` points crawlers to that sitemap. Authenticated,
+administrative, account, and API responses receive `X-Robots-Tag: noindex,
+nofollow`; Vercel preview deployments are also marked `noindex`. Canonical URLs
+use `PUBLIC_SITE_URL` when set, otherwise Vercel's `VERCEL_PROJECT_PRODUCTION_URL`
+and then the existing `https://www.propertypaytrack.com` domain. Set
+`PUBLIC_SITE_URL` in Vercel if the production domain differs from that existing
+domain.
 
 ### Credential rotation
 

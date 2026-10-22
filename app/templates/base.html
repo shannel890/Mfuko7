@@ -5,17 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="PropertyPayTrack - Simplify Your Real Estate Finances with Smart Payment Tracking">
+    <meta name="description" content="{% block meta_description %}Manage rental properties, tenants and rent payments with PropertyPayTrack's secure property management tools.{% endblock %}">
     <meta name="author" content="PropertyPayTrack">
     <meta name="keywords" content="property management, rental payments, real estate, landlord, tenant, payment tracking, Kenya">
-    <meta name="robots" content="index, follow">
-    
+    <meta name="robots" content="{% block robots %}{{ 'index, follow' if public_page_indexable else 'noindex, nofollow' }}{% endblock %}">
+    {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="PropertyPayTrack - Smart Property Management">
-    <meta property="og:description" content="Streamline your real estate finances with intuitive tools for payment tracking and property management.">
+    <meta property="og:title" content="{{ self.title()|striptags|trim }}">
+    <meta property="og:description" content="{{ self.meta_description()|striptags|trim }}">
     <meta property="og:image" content="/static/img/og-image.jpg">
-    <meta property="og:url" content="https://www.propertypaytrack.com">
+    <meta property="og:url" content="{{ canonical_url or public_site_url }}">
     <meta property="og:type" content="website">
 
     <!-- Twitter Card Meta Tags -->
@@ -30,7 +30,7 @@
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "PropertyPayTrack",
-        "url": "https://www.propertypaytrack.com",
+        "url": {{ public_site_url|tojson }},
         "description": "Streamline your real estate finances with intuitive tools for payment tracking and property management.",
         "publisher": {
             "@type": "Organization",
@@ -40,26 +40,20 @@
     </script>
 
     <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
 
     <title>{% block title %}PropertyPayTrack - Smart Property Management{% endblock %}</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
-
-
-    <!-- External Stylesheets -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" onload="this.rel='stylesheet'">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" onload="this.rel='stylesheet'" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-
-    <script src="https://unpkg.com/lucide@latest/dist/lucide.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" media="print" onload="this.media='all'" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"></noscript>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"></noscript>
 
     <style>
         :root {
@@ -643,8 +637,8 @@
     {% endblock %}
 
     <!-- External Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous" defer></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
 
     <script>
         // Error boundary handling
@@ -662,11 +656,6 @@
                 once: true, 
                 offset: 100 
             });
-
-            // Initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
 
             // Theme handling
             const theme = localStorage.getItem('theme') || 'light';

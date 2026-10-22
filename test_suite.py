@@ -378,9 +378,10 @@ class TestMainRoutes:
     """Test main application routes."""
     
     def test_index_page(self, client):
-        """Test index page loads."""
+        """Test the legacy index URL redirects to the canonical home page."""
         response = client.get('/index')
-        assert response.status_code in [200, 302]  # 302 if redirects
+        assert response.status_code == 301
+        assert response.headers['Location'].endswith('/')
     
     def test_features_page(self, client):
         """Test features page loads."""

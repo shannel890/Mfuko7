@@ -13,7 +13,7 @@ load_dotenv(BASE_DIR / ".env")
 
 from app.extensions import db, babel, mail, csrf, oauth, login_manager, migrate, init_db_manager
 from app.models import User, Role
-from app.routes import main
+from app.routes import main, PUBLIC_SEO_PATHS
 from app.auth.routes import auth
 from app.mpesa.mpesa_api import MpesaAPI
 from app.ai.routes import ai
@@ -26,6 +26,15 @@ logging.basicConfig(
 
 def create_app():
     app = Flask(__name__)
+    public_site_url = (
+        os.getenv('PUBLIC_SITE_URL')
+        or os.getenv('VERCEL_PROJECT_PRODUCTION_URL')
+        or 'https://www.propertypaytrack.com'
+    )
+    if not public_site_url.startswith(('https://', 'http://')):
+        public_site_url = f'https://{public_site_url}'
+    app.config['PUBLIC_SITE_URL'] = public_site_url.rstrip('/')
+    app.config['VERCEL_ENVIRONMENT'] = os.getenv('VERCEL_ENV')
     # --- Basic config
     app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '0') == '1'
     app.config['HOST'] = os.getenv('HOST', '127.0.0.1')
@@ -146,6 +155,25 @@ def create_app():
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(ai)
+
+    @app.after_request
+    def set_robots_response_header(response):
+        endpoint = request.endpoint
+        if endpoint in {'static', 'main.robots_txt', 'main.sitemap_xml'}:
+            return response
+
+        indexable = (
+            endpoint in PUBLIC_SEO_PATHS
+            and 200 <= response.status_code < 300
+            and app.config['VERCEL_ENVIRONMENT'] in (None, 'production')
+        )
+        canonical_redirect = (
+            endpoint == 'main.legacy_landing_page'
+            and response.status_code in (301, 308)
+        )
+        if not indexable and not canonical_redirect:
+            response.headers['X-Robots-Tag'] = 'noindex, nofollow'
+        return response
 
     @app.cli.command('create-admin')
     @click.option('--email', prompt=True, help='Email for the initial administrator.')

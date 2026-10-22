@@ -15,9 +15,35 @@ import csv
 import uuid
 from sqlalchemy import extract
 from io import StringIO
+from xml.sax.saxutils import escape
 from app.mpesa.mpesa_api import MpesaAPI 
 from app.notification import handle_payment_confirmation
 main = Blueprint('main', __name__)
+
+PUBLIC_SEO_PATHS = {
+    'main.landing_page': '/',
+    'main.features': '/features',
+    'main.testimonials': '/testimonials',
+    'main.pricing': '/pricing',
+    'main.contact': '/contact',
+}
+
+
+@main.app_context_processor
+def inject_public_seo_context():
+    endpoint = request.endpoint
+    vercel_environment = current_app.config.get('VERCEL_ENVIRONMENT')
+    public_endpoint = endpoint in PUBLIC_SEO_PATHS
+    return {
+        'public_site_url': current_app.config['PUBLIC_SITE_URL'],
+        'canonical_url': (
+            current_app.config['PUBLIC_SITE_URL'] + PUBLIC_SEO_PATHS[endpoint]
+            if public_endpoint else None
+        ),
+        'public_page_indexable': (
+            public_endpoint and vercel_environment in (None, 'production')
+        ),
+    }
 
 
 def send_email(subject, sender, recipients, text_body, html_body=None):
@@ -45,7 +71,6 @@ def roles_required(*required_roles):
     return decorator
 
 @main.route('/')
-@main.route('/index')
 def landing_page():
     try:
         if current_user.is_authenticated:
@@ -58,6 +83,16 @@ def landing_page():
         current_app.logger.error(f"Landing page error: {e}")
         flash(_l('An error occurred.'), 'danger')
         return redirect(url_for('main.landing_page'))
+
+
+@main.route('/index')
+def legacy_landing_page():
+    return redirect(url_for('main.landing_page'), code=301)
+
+
+@main.route('/favicon.ico')
+def legacy_favicon():
+    return redirect(url_for('static', filename='favicon.svg'), code=301)
 
 @main.route('/features')
 def features():
@@ -76,6 +111,30 @@ def testimonials():
         current_app.logger.error(f"Error loading testimonials: {e}")
         flash(_l('An error occurred loading the page.'), 'danger')
         return redirect(url_for('main.landing_page'))
+
+
+@main.route('/robots.txt')
+def robots_txt():
+    sitemap_url = current_app.config['PUBLIC_SITE_URL'] + url_for('main.sitemap_xml')
+    return Response(
+        f'User-agent: *\nAllow: /\n\nSitemap: {sitemap_url}\n',
+        mimetype='text/plain',
+    )
+
+
+@main.route('/sitemap.xml')
+def sitemap_xml():
+    origin = current_app.config['PUBLIC_SITE_URL']
+    urls = ''.join(
+        f'<url><loc>{escape(origin + path)}</loc></url>'
+        for path in PUBLIC_SEO_PATHS.values()
+    )
+    return Response(
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        f'{urls}</urlset>',
+        mimetype='application/xml',
+    )
 
 @main.route('/pricing')
 def pricing():

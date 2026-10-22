@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Read testimonials from PropertyPayTrack users who have transformed their property management experience.">
+    <meta name="robots" content="{{ 'index, follow' if public_page_indexable else 'noindex, nofollow' }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
     <meta name="keywords" content="property management, testimonials, real estate, PropertyPayTrack">
     <meta name="author" content="PropertyPayTrack">
     <title>PropertyPayTrack - Testimonials</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"></noscript>
     <link href="https://unpkg.com/swiper@8.4.7/swiper-bundle.min.css" rel="stylesheet">
     <style>
         :root {
@@ -480,41 +489,6 @@
             scroll-behavior: smooth;
         }
 
-        /* Loading animation */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--background-color);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 1;
-            transition: opacity 0.5s ease;
-        }
-
-        .loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid var(--accent-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         /* Accessibility */
         .sr-only {
             position: absolute;
@@ -550,11 +524,6 @@
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-    </div>
-
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
@@ -662,45 +631,40 @@
         </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="https://unpkg.com/swiper@8.4.7/swiper-bundle.min.js"></script>
-    <script src="https://unpkg.com/jarallax@2.0.2/dist/jarallax.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" defer></script>
+    <script src="https://unpkg.com/swiper@8.4.7/swiper-bundle.min.js" defer></script>
     <script>
-        // Initialize AOS
-        AOS.init({
-            once: true,
-            offset: 100,
-            duration: 800
-        });
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.AOS) {
+                AOS.init({
+                    once: true,
+                    offset: 100,
+                    duration: 800
+                });
+            }
 
-        // Initialize Swiper
-        new Swiper('#testimonials-slider', {
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-            keyboard: {
-                enabled: true,
-            },
-            slidesPerView: 1,
-            spaceBetween: 20,
-            loop: true,
-            autoplay: {
-                delay: 5000,
-                disableOnInteraction: false,
-            },
-            breakpoints: {
-                768: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 },
-            },
-        });
-
-        // Loading overlay
-        window.addEventListener('load', () => {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            setTimeout(() => {
-                loadingOverlay.classList.add('hidden');
-            }, 500);
+            if (window.Swiper) {
+                new Swiper('#testimonials-slider', {
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                    keyboard: {
+                        enabled: true,
+                    },
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                    loop: true,
+                    autoplay: {
+                        delay: 5000,
+                        disableOnInteraction: false,
+                    },
+                    breakpoints: {
+                        768: { slidesPerView: 2 },
+                        1024: { slidesPerView: 3 },
+                    },
+                });
+            }
         });
 
         // Navbar scroll effect
