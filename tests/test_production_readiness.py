@@ -126,32 +126,62 @@ def test_cron_endpoint_requires_bearer_secret(app, monkeypatch):
 
 def test_rent_reminder_delivery_is_deduplicated_and_failed_channels_retry(app, monkeypatch):
     today = date(2026, 10, 22)
+
     with app.app_context():
         db.create_all()
+
         tenant = Tenant(
-            first_name='Test', last_name='Tenant', email='tenant@example.test',
-            phone_number='+254700000000', status='active', due_day_of_month=25,
+            first_name='Test',
+            last_name='Tenant',
+            email='tenant@example.test',
+            phone_number='+254700000000',
+            status='active',
+            due_day_of_month=25,
             grace_period_days=5,
         )
+
         db.session.add(tenant)
         db.session.commit()
 
-    email_send = Mock(side_effect=[RuntimeError('temporary failure'), None])
-    sms_send = Mock()
-    monkeypatch.setattr('app.job.send_email', email_send)
-    monkeypatch.setattr('app.job.send_sms', sms_send)
+        email_send = Mock(
+            side_effect=[RuntimeError('temporary failure'), None]
+        )
+        sms_send = Mock()
 
-    first_result = rent_due_reminders(today=today)
-    second_result = rent_due_reminders(today=today + timedelta(days=1))
-    assert first_result['failed'] == 1
-    assert second_result['sent'] == 1
-    email_send.assert_has_calls([
-        call('Rent Due Reminder', ['tenant@example.test'], 'Hello Test Tenant, your rent is due on 25 October 2026.'),
-        call('Rent Due Reminder', ['tenant@example.test'], 'Hello Test Tenant, your rent is due on 25 October 2026.'),
-    ])
-    sms_send.assert_called_once()
-    with app.app_context():
-        rows = NotificationDelivery.query.order_by(NotificationDelivery.channel).all()
-        assert [(row.channel, row.status, row.attempts) for row in rows] == [
-            ('email', 'sent', 2), ('sms', 'sent', 1),
+        monkeypatch.setattr('app.job.send_email', email_send)
+        monkeypatch.setattr('app.job.send_sms', sms_send)
+
+        first_result = rent_due_reminders(today=today)
+        second_result = rent_due_reminders(
+            today=today + timedelta(days=1)
+        )
+
+        assert first_result['failed'] == 1
+        assert second_result['sent'] == 1
+
+        email_send.assert_has_calls([
+            call(
+                'Rent Due Reminder',
+                ['tenant@example.test'],
+                'Hello Test Tenant, your rent is due on 25 October 2026.'
+            ),
+            call(
+                'Rent Due Reminder',
+                ['tenant@example.test'],
+                'Hello Test Tenant, your rent is due on 25 October 2026.'
+            ),
+        ])
+
+        sms_send.assert_called_once()
+
+        rows = NotificationDelivery.query.order_by(
+            NotificationDelivery.channel
+        ).all()
+
+        assert [
+            (row.channel, row.status, row.attempts)
+            for row in rows
+        ] == [
+            ('email', 'sent', 2),
+            ('sms', 'sent', 1),
         ]
