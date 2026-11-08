@@ -10,7 +10,7 @@ Key Principles:
 - Thin routes, fat services = clean code
 """
 
-from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for
+from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for,Response
 from flask_login import login_required, current_user
 from flask_babel import lazy_gettext as _l
 
