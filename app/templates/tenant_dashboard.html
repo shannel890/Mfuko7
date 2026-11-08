@@ -18,6 +18,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/onboarding.css') }}"
+    >
     <style>
         :root {
             --primary-color: #10b981;
@@ -625,13 +629,25 @@
         {% endif %}
 
         <div class="action-buttons animate-fade-in">
-            <a href="{{ url_for('main.tenant_make_payment') }}" class="btn-enhanced btn-primary-enhanced">
+            <a
+                href="{{ url_for('main.tenant_make_payment') }}"
+                class="btn-enhanced btn-primary-enhanced"
+                data-onboarding="make-payment"
+            >
                 <i class="fas fa-credit-card"></i> {{ _('Make Payment') }}
             </a>
-            <a href="{{ url_for('main.tenant_make_payment') }}#recent-payments" class="btn-enhanced btn-secondary-enhanced">
+            <a
+                href="{{ url_for('main.tenant_make_payment') }}#recent-payments"
+                class="btn-enhanced btn-secondary-enhanced"
+                data-onboarding="payment-history"
+            >
                 <i class="fas fa-history"></i> {{ _('Payment History') }}
             </a>
-            <a href="{{ url_for('auth.profile') }}" class="btn-enhanced btn-secondary-enhanced">
+            <a
+                href="{{ url_for('auth.profile') }}"
+                class="btn-enhanced btn-secondary-enhanced"
+                data-onboarding="my-profile"
+            >
                 <i class="fas fa-user"></i> {{ _('My Profile') }}
             </a>
         </div>
@@ -952,6 +968,17 @@
                 Send
             </button>
         </div>
+        <!-- MFUKO onboarding configuration -->
+        <div
+            id="mfuko-onboarding-config"
+            data-role="tenant"
+            hidden
+        ></div>
+
+        <script
+            src="{{ url_for('static', filename='js/onboarding.js') }}"
+            defer
+        ></script>
     </section>
 
     <script>

@@ -33,6 +33,10 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
     rel="stylesheet"
   >
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/onboarding.css') }}"
+  >
 
 
   <!-- ================================
@@ -1035,18 +1039,21 @@
 
         <a
           href="{{ url_for('main.properties_list') }}"
+          data-onboarding="properties"
         >
           Properties
         </a>
 
         <a
           href="{{ url_for('main.tenants_list') }}"
+          data-onboarding="tenants"
         >
           Tenants
         </a>
 
         <a
           href="{{ url_for('main.payments_history') }}"
+          data-onboarding="payments"
         >
           Payments
         </a>
@@ -1098,18 +1105,21 @@
 
       <a
         href="{{ url_for('main.properties_list') }}"
+        data-onboarding="properties"
       >
         Properties
       </a>
 
       <a
         href="{{ url_for('main.tenants_list') }}"
+        data-onboarding="tenants"
       >
         Tenants
       </a>
 
       <a
         href="{{ url_for('main.payments_history') }}"
+        data-onboarding="payments"
       >
         Payments
       </a>
@@ -1156,8 +1166,8 @@
 
 
       <a
-        class="primary-link"
         href="{{ url_for('main.properties_list') }}"
+        data-onboarding="properties"
       >
         Manage properties
         <span aria-hidden="true">
@@ -1271,6 +1281,7 @@
 
           <a
             href="{{ url_for('main.payments_history') }}"
+            data-onboarding="payments"
           >
             View history&nbsp; →
           </a>
@@ -1408,8 +1419,8 @@
 
 
           <a
-            class="action"
             href="{{ url_for('main.properties_list') }}"
+            data-onboarding="properties"
           >
 
             <span>
@@ -1429,6 +1440,7 @@
           <a
             class="action"
             href="{{ url_for('main.tenants_list') }}"
+            data-onboarding="tenants"
           >
 
             <span>
@@ -1448,6 +1460,7 @@
           <a
             class="action"
             href="{{ url_for('main.payments_history') }}"
+            data-onboarding="payments"
           >
 
             <span>
@@ -1473,7 +1486,17 @@
 
 
   </main>
+  <!-- MFUKO onboarding configuration -->
+  <div
+      id="mfuko-onboarding-config"
+      data-role="landlord"
+      hidden
+  ></div>
 
+  <script
+      src="{{ url_for('static', filename='js/onboarding.js') }}"
+      defer
+  ></script>
 
   <!-- ================================
        JAVASCRIPT
